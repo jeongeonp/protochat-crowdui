@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Input, Label, Image, Modal, Header, Icon, } from 'semantic-ui-react'
+import { Button, Input, Label, Image, } from 'semantic-ui-react'
 import './ChatRoom.css';
 
 import user from './../MessageList/Message/images/avatar.png';
@@ -42,12 +42,6 @@ export class ChatRoom extends Component {
             requirementList: [],
             otherResponseList: [],
 
-            // Status for annotation Session
-            beforeAnnotation: false,
-            num_annotation: 0,
-            annotation: false,
-            modalOpen: true,
-
             // Status for controlling chatflow
             inputButtonState: false,
             startSession: true,
@@ -61,7 +55,6 @@ export class ChatRoom extends Component {
 	    this._getRequirements = this._getRequirements.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
         this.changeTurnNotice = this.changeTurnNotice.bind(this);
-        this.changeAnnotationState = this.changeAnnotationState.bind(this);
         this.resetMessageList = this.resetMessageList.bind(this);
         this.startConversation = this.startConversation.bind(this);
         this.changeRequirment = this.changeRequirment.bind(this);
@@ -82,31 +75,17 @@ export class ChatRoom extends Component {
     }
     
     componentDidUpdate(prevProps, prevState) {
-        const { end, start, controlEndStatus, controlStartStatus, controlAnnotation, controlNextButtonStatus } = this.props;
+        const { end, start, controlEndStatus, controlStartStatus } = this.props;
         if ( end === true ) {
+            this.resetMessageList();
             this.setState({
                 similarUserStatus: true,
                 selectBotStatus: true,
                 turnNotice: false,
-                beforeAnnotation: true,
             })
             controlEndStatus();
-            if (this.state.num_annotation === 0) {
-                controlNextButtonStatus();
-            }
-        }
-
-        // The crowd have to go next conversation after annotating whole utterances which that crowd added
-        if (prevState.num_annotation !== this.state.num_annotation){
-            if (this.state.num_annotation === 0) {
-                controlNextButtonStatus();
-            }
         }
         if( start === true ) {
-            this.setState({
-                modalOpen: true,
-            })
-            controlAnnotation(false);
             this.startConversation();
             controlStartStatus();
         }
@@ -162,36 +141,6 @@ export class ChatRoom extends Component {
                 unblockEndButtonStatus();
             }
         }, 900);
-    }
-
-    // Control the annotation session state
-    changeAnnotationState = () => {
-        const { controlAnnotation } = this.props;
-
-        this.setState({
-            beforeAnnotation: false,
-            // annotation: true,
-            modalOpen: false,
-        })
-        controlAnnotation(true);
-    }
-
-    // Add the num_annotation account
-    addNumAnnotation = () => {
-        const { num_annotation } = this.state;
-        this.setState({
-            num_annotation: num_annotation + 1
-        })
-        console.log(num_annotation)
-    }
-
-    // Reduce the num_annotation account
-    reduceNumAnnotation = () => {
-        const { num_annotation } = this.state;
-        this.setState({
-            num_annotation: num_annotation - 1
-        })
-        console.log(num_annotation)
     }
 
     // Reset the messageList when the conversation is ended
@@ -424,7 +373,7 @@ export class ChatRoom extends Component {
         const { input, time, originResponse, 
             topics, messageList, AnswerList, requirementList,
             otherResponseList, inputButtonState, 
-            turnNotice, startSession, selectBotStatus, beforeAnnotation, modalOpen,
+            turnNotice, startSession, selectBotStatus, num_requirement,
             similarUserStatus } = this.state;
         const {
             handleChangeText,
@@ -434,11 +383,7 @@ export class ChatRoom extends Component {
             selectAnswer,
             similarResponse,
             changeRequirment,
-            changeAnnotationState,
-            addNumAnnotation,
-            reduceNumAnnotation
         } = this;
-        const { annotation } = this.props; 
 
         const sysNotice = [
             { id: 0, type: 'system', time: null, text: "Now, it's User turn!\n\nPlease enter your response as a user in the input field at the bottom of the page."},
@@ -454,48 +399,26 @@ export class ChatRoom extends Component {
                             <div class="dateSection">
                                 <span>{time.toLocaleTimeString()}</span>
                             </div>
-                            { beforeAnnotation
-                                ?   <Modal
-                                        open={modalOpen}
-                                        basic
-                                        size='small'
-                                    >
-                                        <Header icon='browser' content={sessionNotice} />
-                                        <Modal.Content>
-                                        <h3>  Click the [Start Annotation] Button in below</h3>
-                                        </Modal.Content>
-                                        <Modal.Actions>
-                                        <Button color='green' onClick={changeAnnotationState} inverted>
-                                            <Icon name='checkmark' /> Start Annotation
-                                        </Button>
-                                        </Modal.Actions>
-                                    </Modal>
-                                :   null
-                            }
-                            { annotation
-                                ?   <MessageList messageList={messageList} annotation={annotation} reduceNumAnnotation={reduceNumAnnotation}/>
-                                :   <div>
-                                        <MessageList messageList={messageList}/>
-                                        {startSession ? <SystemTopicButton topics={topics} selectTopic={selectTopic}/> : null}
-                                        {similarUserStatus ? null : <SystemUserButton 
-                                                                        similarResponse={similarResponse}
-                                                                        originResponse={originResponse}
-                                                                        otherResponseList={otherResponseList}
-                                                                        addNumAnnotation={addNumAnnotation}
-                                                                        curPath={this.curPath}
-                                                                    />}
-                                        {selectBotStatus ? null : <SystemBotButton 
-                                                                    selectAnswer={selectAnswer}
-                                                                    AnswerList={AnswerList}
-                                                                    curPath={this.curPath}
-                                                                    requirementList={requirementList}
-                                                                    changeRequirment={changeRequirment}
-                                                                    addNumAnnotation={addNumAnnotation}
-                                                                    />}
-                                        {turnNotice ? <MessageList messageList={sysNotice}/> : null}
-                                    </div>
-                            }
-                            <div style={{float:'left', clear:'both', height:'150px'}} ref={(el) => { this.messagesEnd = el; }}></div>
+                            <div>
+                                <MessageList messageList={messageList}/>
+                                {startSession ? <SystemTopicButton topics={topics} selectTopic={selectTopic}/> : null}
+                                {similarUserStatus ? null : <SystemUserButton 
+                                                                similarResponse={similarResponse}
+                                                                originResponse={originResponse}
+                                                                otherResponseList={otherResponseList}
+                                                                curPath={this.curPath}
+                                                            />}
+                                {selectBotStatus ? null : <SystemBotButton 
+                                                            selectAnswer={selectAnswer}
+                                                            AnswerList={AnswerList}
+                                                            curPath={this.curPath}
+                                                            requirementList={requirementList}
+                                                            changeRequirment={changeRequirment}
+                                                            num_requirement={num_requirement}
+                                                            />}
+                                {turnNotice ? <MessageList messageList={sysNotice}/> : null}
+                            </div>
+                            <div style={{float:'left', clear:'both', height:'80px'}} ref={(el) => { this.messagesEnd = el; }}></div>
                         </main>
                         <div class="textInputBox">
                             <div class="textInputBoxInput">
@@ -510,7 +433,7 @@ export class ChatRoom extends Component {
                                         </Input>
                                     :   <Input fluid disabled type='text' placeholder='Type...' action>
                                             <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
-                                            <Button type='submit' onClick={handleCreate}>Send</Button>
+                                            <Button disabled type='submit' onClick={handleCreate}>Send</Button>
                                         </Input>
                                 }
                             </div>

@@ -44,9 +44,6 @@ export class SystemUserButton extends Component {
         const { originResponse } = this.props;
         const newResponse = {value: originResponse, type: 'user', tag: null, children: {}}
         
-        // Add a number of annotation which have to add by crowd
-        this.props.addNumAnnotation();
-        
         this._post(newResponse);
     }
 

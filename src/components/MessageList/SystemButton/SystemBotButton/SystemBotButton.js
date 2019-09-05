@@ -78,9 +78,6 @@ export class SystemBotButton extends Component {
             input: '',
         })
 
-        // Add a number of annotation which have to add by crowd
-        this.props.addNumAnnotation();
-
         // Adding new answer(Bot)
         this._post(newAnswer);
     }
@@ -118,7 +115,7 @@ export class SystemBotButton extends Component {
 
     render() {
         const { inputState, input } = this.state;
-        const { AnswerList, requirementList } = this.props;
+        const { AnswerList, requirementList, num_requirement } = this.props;
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement } = this;
         if (Object.keys(AnswerList).length > 4){
             this.overflowCondition = 'scroll'
@@ -129,14 +126,34 @@ export class SystemBotButton extends Component {
                 <span class="systemBotText">
                     {(AnswerList === 0)
                         ?   'Add new answer!'
-                        :   'Select the appropriate answer or add new answer of the bot!'
+                        :   'Skip to next topic'
                     }
                 </span>
-                <div style={{width: '100%', marginTop:"10px" ,maxHeight: '250px', overflowY:  this.overflowCondition}}>
+                <div style={{width: '100%', marginTop:"10px", overflowY:  this.overflowCondition}}>
+                    { requirementList.length === 0
+                        ? null
+                        : <Segment.Group>
+                            <Segment textAlign='center'>
+                                {requirementList.map((requirement, id) => {
+                                    return id === Object.keys(requirementList).length - num_requirement ?
+                                        <div key={id}>
+                                            <div style={{height: '10px'}}></div>
+                                            <Button fluid color='teal' onClick={handleRequirement.bind(this, requirement, id)}>{requirement.text}</Button>
+                                        </div>
+                                        : null
+                                    })
+                                }
+                            </Segment>
+                        </Segment.Group>
+                    }
                     <Segment.Group>
-                        <Segment textAlign='center'>
+                        <Segment textAlign='center' color='teal'>
+                            <div class="systemBotText">Continue this conversation on the current topic</div>
+                            <div style={{height: '10px'}}></div>
+                            <div class="systemBotText" style={{color: 'red'}}>You can add new response or select another response</div>
+                            <div style={{height: '15px'}}></div>
                             { inputState
-                                ? <Button fluid positive onClick={changeInputState}>Add new answer</Button>
+                                ? <Button fluid positive onClick={changeInputState}>Add new response</Button>
                                 : <Input fluid type='text' placeholder='Type your answer...' action>
                                     <Label color={'green'}>
                                         <Image avatar spaced='right' src={bot} />
@@ -157,23 +174,7 @@ export class SystemBotButton extends Component {
                             })}
                         </Segment>
                     </Segment.Group>
-                    { requirementList.length === 0
-                        ? null
-                        : <Segment.Group>
-                            <Segment textAlign='center' color='teal'>
-                                <div class="systemBotText">Requirement List</div>
-                                {requirementList.map((requirement, id) => {
-                                    return(
-                                        <div key={id}>
-                                            <div style={{height: '10px'}}></div>
-                                            <Button fluid color='teal' onClick={handleRequirement.bind(this, requirement, id)}>{requirement.text}</Button>
-                                        </div>
-                                        )
-                                    })
-                                }
-                            </Segment>
-                        </Segment.Group>
-                    }
+                    
                 </div>
             </div>
         );
