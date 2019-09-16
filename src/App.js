@@ -6,18 +6,32 @@ import { ChatRoom } from "./components/ChatRoom/ChatRoom.js";
 import { LeftSideBar } from "./components/LeftSideBar/LeftSideBar.js";
 import { RightSideBar } from "./components/RightSideBar/RightSideBar.js";
 
+const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+
+const GENDER = {
+  M: 'MALE',
+  F: 'FEMALE',
+  NB: 'NON_BINARY',
+  null: 'NULL'
+}
+
 class App extends Component{
+  extension = '.json';
 
   constructor(props) {
     super(props);
     fire();
     this.state = {
+      // User State
+      userId: '',
+
       // Check the conversation status
       end: false,
       start: false,
       topicPath: '',
       
       // Control the requirementList
+      requirementList: [],
       requirement: [],
 
       // Control each button's disabled status
@@ -25,11 +39,33 @@ class App extends Component{
       nextButtonStatus: false,
     };
     this.setStateRequirment = this.setStateRequirment.bind(this);
-    this.topicConvey = this.topicConvey.bind(this);
+    this.requirementListConvey = this.requirementListConvey.bind(this);
+    this.initializeRequirementList = this.initializeRequirementList.bind(this);
     this.controlEndButtonStatus = this.controlEndButtonStatus.bind(this);
     this.controlNextButtonStatus = this.controlNextButtonStatus.bind(this);
     this.controlEndStatus = this.controlEndStatus.bind(this);
     this.controlStartStatus = this.controlStartStatus.bind(this);
+  }
+
+  componentDidMount() {
+    const newUser = {timestamp: new Date(), name: 'Nyoungwoo',gender: GENDER.M, age: '25'}
+    this._userPost(newUser);
+  }
+
+  _userPost(user) {
+    return fetch(`${databaseURL}`+'/users/data.json', {
+        method: 'POST',
+        body: JSON.stringify(user)
+    }).then(res => {
+        if(res.status !== 200) {
+            throw new Error(res.statusText);
+        }
+        return res.json();
+    }).then(data => {
+      this.setState({
+        userId: data.name
+      })
+    });
   }
 
   setStateRequirment = (requirement) => {
@@ -38,15 +74,15 @@ class App extends Component{
     })
   }
 
-  topicConvey = (path) => {
+  requirementListConvey = (requirementList) => {
     this.setState({
-      topicPath: path
+      requirementList: requirementList
     })
   }
 
-  initializeTopicPath = () => {
+  initializeRequirementList = () => {
     this.setState({
-      topicPath: '',
+      requirementList: [],
     })
   }
 
@@ -93,26 +129,26 @@ class App extends Component{
   }
 
   render(){
-    const { end, start, endButtonStatus, nextButtonStatus, requirement, topicPath } = this.state;
-    const { controlEndButtonStatus, initializeTopicPath, blockEndButtonStatus, unblockEndButtonStatus,
-      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, topicConvey } = this;
+    const { end, start, endButtonStatus, nextButtonStatus, requirement, requirementList } = this.state;
+    const { controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
+      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey } = this;
     
     return (
       <div class="backGround">
         <div class="leftSideBar">
           <LeftSideBar 
             requirement={requirement}
-            initializeTopicPath={initializeTopicPath}
+            initializeRequirementList={initializeRequirementList}
             end={end}
             start={start}
-            topicPath={topicPath}
+            requirementList={requirementList}
           />
         </div>
         <main class="chatGrid chatStyle">
           <ChatRoom 
             end={end}
             start={start}
-            topicConvey={topicConvey}
+            requirementListConvey={requirementListConvey}
             blockEndButtonStatus={blockEndButtonStatus}
             unblockEndButtonStatus={unblockEndButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}

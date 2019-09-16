@@ -21,7 +21,7 @@ export class ChatRoom extends Component {
         super(props);
         this.state = {
             // Tree Data
-            topics: {},
+            domains: {},
             topicList: [],
             
             // Save the current statue of the tree
@@ -51,7 +51,7 @@ export class ChatRoom extends Component {
             depth: 0,
         };
         
-	    this._getTopics = this._getTopics.bind(this);
+	    this._getDomains = this._getDomains.bind(this);
 	    this._getRequirements = this._getRequirements.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
         this.changeTurnNotice = this.changeTurnNotice.bind(this);
@@ -60,7 +60,7 @@ export class ChatRoom extends Component {
         this.changeRequirment = this.changeRequirment.bind(this);
         this.updateRenderUntilSysBot = this.updateRenderUntilSysBot.bind(this);
         this.updateRenderUntilUserBot = this.updateRenderUntilUserBot.bind(this);
-        this.selectTopic = this.selectTopic.bind(this);
+        this.selectDomain = this.selectDomain.bind(this);
         this.selectAnswer = this.selectAnswer.bind(this);
         this.similarResponse = this.similarResponse.bind(this);
         this.handleChangeText = this.handleChangeText.bind(this);
@@ -71,7 +71,7 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        this._getTopics();
+        this._getDomains();
     }
     
     componentDidUpdate(prevProps, prevState) {
@@ -96,27 +96,51 @@ export class ChatRoom extends Component {
     //-----------------------
     // function for tree data import
     // ----------------------
-    _getTopics() {
-        fetch(`${databaseURL}/topics.json`).then(res => {
+    _getDomains() {
+        fetch(`${databaseURL}/domains/data/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
-        }).then(topics => this.setState({topics: topics}));
+        }).then(domains => this.setState({domains: domains}));
     }
 
     _getRequirements(path) {
-        fetch(`${databaseURL+path}`).then(res => {
+        fetch(`${databaseURL+'/labels/data/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
-        }).then(requirementList => {
-            this.setState({
-                requirementList: requirementList,
-                num_requirement: Object.keys(requirementList).length,
-            })
+        }).then(topic => {
+            const u_list = Object.keys(topic.utterances)
+            this._getRequirementsText(u_list[0], topic.name)
         });
+    }
+
+    _getRequirementsText(path, name){
+        fetch(`${databaseURL+'/utterances/data/'+path}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(utterance => {
+            this.setState({
+                requirementList: this.state.requirementList.concat({
+                    checked: false,
+                    requirement: name,
+                    text: utterance.text,
+                }),
+                num_requirement: Object.keys(this.state.requirementList).length + 1
+            })
+            this.props.requirementListConvey(this.state.requirementList);
+        });
+    }
+
+    setRequirements(domain) {
+        const requiredTopics = Object.keys(domain.topics);
+        requiredTopics.map((key) => {
+            this._getRequirements(key)
+        })
     }
 
     /* C. Controlling Functions */
@@ -158,7 +182,7 @@ export class ChatRoom extends Component {
     startConversation = () => {
         this.num_experiment ++;
         this.after_require = false;
-        this._getTopics();
+        this._getDomains();
         this.curPath = '/topics/';
         this.id = 0
         this.setState({
@@ -222,20 +246,21 @@ export class ChatRoom extends Component {
     // Putting topic from the SystemTopicButton
     // And start the conversation with user's utterance (selected Topic)
     // Also unblock the endbutton through 'controlEndButtonStatus' function
-    selectTopic = (dataFromChild, id) => {
+    selectDomain = (dataFromChild, id) => {
         const { messageList, time } = this.state;
-        const { topicConvey } = this.props;
+        // const { topicConvey } = this.props;
         // controlEndButtonStatus();
-        topicConvey(this.curPath + id + '/requirementList.json')
-        this._getRequirements(this.curPath + id + '/requirementList.json');
+        // topicConvey(requirementList)
+        this.setRequirements(dataFromChild)
+        // this._getRequirements(this.curPath + id + '/requirementList.json');
         this.setState({
             startSession: false,
             messageList: messageList.concat({
                 id: this.id++,
                 type: 'user',
                 time: time.toLocaleTimeString(),
-                text: dataFromChild.value,
-                tag: dataFromChild.tag,
+                text: dataFromChild.name,
+                // tag: dataFromChild.tag,
             }),
         })
         this.curPath = this.curPath + id + '/children';
@@ -371,7 +396,7 @@ export class ChatRoom extends Component {
 
     render() {
         const { input, time, originResponse, 
-            topics, messageList, AnswerList, requirementList,
+            domains, messageList, AnswerList, requirementList,
             otherResponseList, inputButtonState, 
             turnNotice, startSession, selectBotStatus, num_requirement,
             similarUserStatus } = this.state;
@@ -379,7 +404,7 @@ export class ChatRoom extends Component {
             handleChangeText,
             handleCreate,
             handleKeyPress,
-            selectTopic,
+            selectDomain,
             selectAnswer,
             similarResponse,
             changeRequirment,
@@ -390,8 +415,6 @@ export class ChatRoom extends Component {
             { id: 2, type: 'loading', time: null, text: "  "},
         ];
 
-        const sessionNotice = 'End the '+ 'conversation ' + this.num_experiment
-
         return (
                 <div class="chatOuterBox">
                     <div class="chatInnerBox">
@@ -401,7 +424,7 @@ export class ChatRoom extends Component {
                             </div>
                             <div>
                                 <MessageList messageList={messageList}/>
-                                {startSession ? <SystemTopicButton topics={topics} selectTopic={selectTopic}/> : null}
+                                {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
                                 {similarUserStatus ? null : <SystemUserButton 
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}

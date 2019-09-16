@@ -12,14 +12,14 @@ export class SystemTopicButton extends Component {
         this.handleCreate = this.handleCreate.bind(this);
     }
 
-    handleCreate = (topic, id) => {
-        const { selectTopic } = this.props;
-        selectTopic(topic, id);
+    handleCreate = (domain, id) => {
+        const { selectDomain } = this.props;
+        selectDomain(domain, id);
     }
 
     render() {
         const { handleCreate } = this;
-        if (this.props.topics.length > 5){
+        if (this.props.domains.length > 5){
             this.overflowCondition = 'scroll'
         }
 
@@ -30,15 +30,15 @@ export class SystemTopicButton extends Component {
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
-                            {Object.keys(this.props.topics).map(id => {
-                                const topic = this.props.topics[id];
+                            {Object.keys(this.props.domains).map(id => {
+                                const domain = this.props.domains[id];
                                 return (
                                     <div key={id}>
                                     { id === '0'
                                         ?   null
                                         :   <div style={{height: '10px'}}></div>
                                     } 
-                                    <Button fluid onClick={handleCreate.bind(this, topic, id)}>{topic.value}</Button>
+                                    <Button fluid onClick={handleCreate.bind(this, domain, id)}>{domain.name}</Button>
                                     </div>
                                 );
                             })}

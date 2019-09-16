@@ -121,12 +121,14 @@ export class SystemBotButton extends Component {
             this.overflowCondition = 'scroll'
         }
 
+        console.log(requirementList, num_requirement);
+
         return (
             <div class="systemBotButtonBox">
                 <span class="systemBotText">
                     {(AnswerList === 0)
                         ?   'Add new answer!'
-                        :   'Skip to next topic'
+                        :   'A. Skip to next topic'
                     }
                 </span>
                 <div style={{width: '100%', marginTop:"10px", overflowY:  this.overflowCondition}}>
@@ -148,7 +150,7 @@ export class SystemBotButton extends Component {
                     }
                     <Segment.Group>
                         <Segment textAlign='center' color='teal'>
-                            <div class="systemBotText">Continue this conversation on the current topic</div>
+                            <div class="systemBotText">B. Continue this conversation on the current topic</div>
                             <div style={{height: '10px'}}></div>
                             <div class="systemBotText" style={{color: 'red'}}>You can add new response or select another response</div>
                             <div style={{height: '15px'}}></div>

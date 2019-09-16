@@ -11,7 +11,6 @@ export class LeftSideBar extends Component {
             input: '',
             r_List: [],
         }
-	    this._getRequirements = this._getRequirements.bind(this);
 	    this.changeCheckedRequirement = this.changeCheckedRequirement.bind(this);
     }
 
@@ -21,29 +20,31 @@ export class LeftSideBar extends Component {
                 this.setState({
                     r_List: []
                 });
-                this.props.initializeTopicPath()
+                this.props.initializeRequirementList()
             }
         }
-        if (prevProps.topicPath !== this.props.topicPath){
-            this._getRequirements();
+        if (prevProps.requirementList !== this.props.requirementList){
+            this.setState({
+                r_List: this.props.requirementList
+            })
         }
         if (prevProps.requirement !== this.props.requirement){
             this.changeCheckedRequirement()
         }
     }
 
-    _getRequirements() {
-        fetch(`${databaseURL+this.props.topicPath}`).then(res => {
-            if(res.status !== 200) {
-                throw new Error(res.statusText);
-            }
-            return res.json();
-        }).then(requirementList => {
-            this.setState({
-                r_List: requirementList
-            })
-        });
-    }
+    // _getRequirements() {
+    //     fetch(`${databaseURL+this.props.topicPath}`).then(res => {
+    //         if(res.status !== 200) {
+    //             throw new Error(res.statusText);
+    //         }
+    //         return res.json();
+    //     }).then(requirementList => {
+    //         this.setState({
+    //             r_List: requirementList
+    //         })
+    //     });
+    // }
 
     changeCheckedRequirement = () => {
         const {r_List} = this.state
