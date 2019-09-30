@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import './LeftSideBar.css';
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
-
 export class LeftSideBar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            open: false,
             input: '',
             r_List: [],
         }
@@ -33,19 +30,6 @@ export class LeftSideBar extends Component {
         }
     }
 
-    // _getRequirements() {
-    //     fetch(`${databaseURL+this.props.topicPath}`).then(res => {
-    //         if(res.status !== 200) {
-    //             throw new Error(res.statusText);
-    //         }
-    //         return res.json();
-    //     }).then(requirementList => {
-    //         this.setState({
-    //             r_List: requirementList
-    //         })
-    //     });
-    // }
-
     changeCheckedRequirement = () => {
         const {r_List} = this.state
         const {requirement} = this.props
@@ -66,11 +50,11 @@ export class LeftSideBar extends Component {
     render() {
         const {r_List} = this.state
         return (
-            <div class="leftGrid">
-                <div class="protobotLogo">Protobot</div>
-                <div class="sessionBox">Conversation Session</div>
-                <div class="leftInsBox">
-                <div class="leftInsBoxText">
+            <div className="leftGrid">
+                <div className="protobotLogo">Protobot</div>
+                <div className="sessionBox">Conversation Session</div>
+                <div className="leftInsBox">
+                <div className="leftInsBoxText">
                     { r_List.length === 0
                         ?   null
                         :   <span style={{fontSize: '20px', color: '#E8EAF6', fontWeight: 'bold'}}>Requirement List</span>
@@ -78,17 +62,17 @@ export class LeftSideBar extends Component {
                     <div style={{height:'25px'}}></div>
                     {r_List.map((requirement, i) => {
                         return requirement.checked
-                            ?   <div>
+                            ?   <div key={i}>
                                     <div style={{height:'10px'}}></div>
-                                    <div class="ui checked checkbox">
-                                        <input type="checkbox" checked="true" class="hidden" readonly="" tabindex={i}/>
+                                    <div className="ui checkbox">
+                                        <input type="checkbox" checked={true} className="hidden" readOnly="" tabIndex={i}/>
                                         <label style={{color:'white'}}>{requirement.requirement}</label>
                                     </div>
                                 </div>
-                            :   <div>
+                            :   <div key={i}>
                                     <div style={{height:'10px'}}></div>
-                                    <div class="ui checked checkbox">
-                                        <input type="checkbox" class="hidden" readonly="" tabindex={i}/>
+                                    <div className="ui checkbox">
+                                        <input type="checkbox" className="hidden" readOnly="" tabIndex={i}/>
                                         <label style={{color:'white'}}>{requirement.requirement}</label>
                                     </div>
                                 </div>

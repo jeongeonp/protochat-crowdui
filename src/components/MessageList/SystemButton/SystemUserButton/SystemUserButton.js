@@ -6,45 +6,111 @@ const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
 export class SystemUserButton extends Component {
     extension = '.json';
-    addedpath = '';
     overflowCondition: '';
 
     constructor(props) {
         super(props);
-        this.state = { 
-            otherResponseList: [],
+        this.state = {
+            inputButtonState: false,
         };
-        this._post = this._post.bind(this);
+        this.postUtterance = this.postUtterance.bind(this);
+        this.postBranch = this.postBranch.bind(this);
+        this.patchUserUtterance = this.patchUserUtterance.bind(this);
+        this.patchUserBranch = this.patchUserBranch.bind(this);
+        this.patchChildren = this.patchChildren.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
         this.handleNotapplicable = this.handleNotapplicable.bind(this);
     }
 
-
-    _post(response) {
-        return fetch(`${databaseURL+this.props.curPath+this.extension}`, {
+    postUtterance(utterance) {
+        return fetch(`${databaseURL+'/utterances/data'+this.extension}`, {
             method: 'POST',
-            body: JSON.stringify(response)
+            body: JSON.stringify(utterance)
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
         }).then(data => {
-            // Convey to Chatroom the path and response
-            this.handleCreate(response, data.name);
+            const { domainId, prevBranch, userId } = this.props;
+            const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
+            this.patchUserUtterance(data.name, userId, domainId)
+            this.postBranch(newBranch, utterance);
         });
     }
 
-    handleCreate = (response, i) => {
-        const { similarResponse } = this.props;
-        similarResponse(response, i);
+    postBranch(branch, utterance) {
+        return fetch(`${databaseURL+'/tree-structure/data'+this.extension}`, {
+            method: 'POST',
+            body: JSON.stringify(branch)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(data => {
+            const { prevBranch, userId, domainId } = this.props;
+            const children = {[data.name]: true}
+            this.patchChildren(prevBranch, children)
+            this.patchUserBranch(data.name, userId, domainId)
+            this.handleCreate(utterance, data.name, false);
+        });
+    }
+
+    patchUserUtterance(id, userId, domainId) {
+        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[id]: true})
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        });
+    }
+
+    patchUserBranch(id, userId, domainId) {
+        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[id]: true})
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        });
+    }
+
+    patchChildren(prevBranch, children) {
+        return fetch(`${databaseURL+'/tree-structure/data/'+prevBranch+'/children/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify(children)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        });
+    }
+
+    handleCreate = (response, id, selected) => {
+        const { similarResponse, userId, domainId } = this.props
+        if (selected){
+            this.patchUserUtterance(response.uId, userId, domainId)
+            this.patchUserBranch(response.branchId, userId, domainId)
+        }
+        similarResponse(response, id);
     }
 
     handleNotapplicable = () => {
-        const { originResponse } = this.props;
-        const newResponse = {value: originResponse, type: 'user', tag: null, children: {}}
+        const { originResponse, domainId } = this.props;
+        const newUtterance = {bot: false, text: originResponse, domain: domainId}
         
-        this._post(newResponse);
+        this.setState({
+            inputButtonState: true,
+        })
+        
+        this.postUtterance(newUtterance);
     }
 
     render() {
@@ -55,20 +121,26 @@ export class SystemUserButton extends Component {
         }
 
         return (
-            <div class="systemUserButtonBox">
-                <span class="systemUserText">
+            <div className="systemUserButtonBox">
+                <span className="systemUserText">
                     Select the similar response with your response!
                 </span>
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
-                            <Button fluid negative onClick={handleNotapplicable}>Nothing to select</Button>
+                            { this.state.inputButtonState
+                                ?   <Button fluid disabled>Nothing to select</Button>
+                                :   <Button fluid negative onClick={handleNotapplicable}>Nothing to select</Button>
+                            }
                             {Object.keys(otherResponseList).map(id => {
                                 const response = otherResponseList[id];
                                 return (
                                     <div key={id}>
-                                    <div style={{height: '10px'}}></div> 
-                                    <Button fluid onClick={handleCreate.bind(this, response, id)}>{response.value}</Button>
+                                    <div style={{height: '10px'}}></div>
+                                    { this.state.inputButtonState
+                                        ?   <Button fluid disabled>{response.text}</Button>
+                                        :   <Button fluid onClick={handleCreate.bind(this, response, response.branchId, true)}>{response.text}</Button>
+                                    }
                                     </div>
                                 );
                             })}

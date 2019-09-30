@@ -14,5 +14,4 @@ export const fire = () => {
     if (!firebase.apps.length) {
         firebase.initializeApp(config);
     }
-  // database = firebase.database()
 }

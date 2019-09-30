@@ -24,8 +24,8 @@ export class SystemTopicButton extends Component {
         }
 
         return (
-            <div class="systemTopicButtonBox">
-                <span class="systemTopicText">Select the topic!</span>
+            <div className="systemTopicButtonBox">
+                <span className="systemTopicText">Select the topic!</span>
                 <div style={{height:'15px'}}></div>
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>

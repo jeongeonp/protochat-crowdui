@@ -8,33 +8,33 @@ import loading from './images/loading.gif';
 export class Message extends Component {
 
     render() {
-        const { type, time, text } = this.props;
+        const { id, type, time, text } = this.props;
         return (
             <div>
                 {
                     (() => {
                         if (type === 'system') 
-                            return (<div class="messageSectionSystem">
+                            return (<div className="messageSectionSystem">
                                         <span style={{fontWeight: "bold", whiteSpace: 'pre-wrap'}}>{text}</span>
                                     </div>);
                         if (type === 'bot')
-                            return  (<div class="messageSection messageSectionBot">
+                            return  (<div className="messageSection messageSectionBot">
                                         <img src={bot} alt="Bot"/>
-                                        <span class="messageSectionBody">{text}</span>
-                                        <span class="messageSectionTime">{time}</span>
+                                        <span className="messageSectionBody">{text}</span>
+                                        <span className="messageSectionTime">{time}</span>
                                     </div>);
                         if (type === 'user')
-                            return (<div class="messageSection messageSectionUser">
-                                        <span class="messageSectionTime">{time}</span>
-                                        <div class="messageSectionCenter">
-                                            <span class="messageSectionBody">{text}</span>
+                            return (<div className="messageSection messageSectionUser">
+                                        <span className="messageSectionTime">{time}</span>
+                                        <div className="messageSectionCenter">
+                                            <span className="messageSectionBody">{text}</span>
                                         </div>
                                         <img src={user} alt="User"/>
                                     </div>);
                         if (type === 'loading')
-                            return (<div class="messageSection messageSectionUser">
-                                        <div class="messageSectionCenter">
-                                            <span class="messageSectionBody"><img src={loading} alt="Bot"/></span>
+                            return (<div className="messageSection messageSectionUser">
+                                        <div className="messageSectionCenter">
+                                            <span className="messageSectionBody"><img src={loading} alt="Bot"/></span>
                                         </div>
                                         <img src={user} alt="User"/>
                                     </div>);

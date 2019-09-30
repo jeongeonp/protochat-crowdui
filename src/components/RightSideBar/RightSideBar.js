@@ -69,20 +69,20 @@ export class RightSideBar extends Component {
         const { endButtonStatus, nextButtonStatus } = this.props;
 
         return (
-            <div class="rightGrid">
-                <div class="rightInsBox">
-                    <div class="textCenter">
+            <div className="rightGrid">
+                <div className="rightInsBox">
+                    <div className="textCenter">
                         <div style={{ marginBottom: '20px' }}> {num_experiment} / 5 </div>
                         <div>
-                            {colors.map(color => (
-                            <Label circular color={color}>
+                            {colors.map((color, i) => (
+                            <Label key={i} circular color={color}>
                             </Label>
                             ))}
                         </div>
                     </div>
                 </div>
-                <div class="rightinfoBox">
-                    <div class="textCenter">
+                <div className="rightinfoBox">
+                    <div className="textCenter">
                         { endButtonStatus
                             ?   <Button fluid icon labelPosition='left' onClick={() => this.sendEndStatus()}>
                                     <Icon name='pause' />

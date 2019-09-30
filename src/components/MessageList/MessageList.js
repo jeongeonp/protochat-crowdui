@@ -14,13 +14,15 @@ export class MessageList extends Component {
         
         // render whole messages during conversation
         const messages = messageList.map(
-            ({id, type, time, text}) => (
-                <Message
-                    id={id}
-                    type={type}
-                    time={time}
-                    text={text}
-                />
+            ({id, type, time, text}, i) => (
+                <div key={i}>
+                    <Message
+                        id={id}
+                        type={type}
+                        time={time}
+                        text={text}
+                    />
+                </div>
             )
         );
 

@@ -14,7 +14,6 @@ const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 export class ChatRoom extends Component {
     id = 0;
     num_experiment = 1;
-    curPath = '/topics/';
     after_require = false;
 
     constructor(props) {
@@ -22,10 +21,12 @@ export class ChatRoom extends Component {
         this.state = {
             // Tree Data
             domains: {},
-            topicList: [],
-            
-            // Save the current statue of the tree
-            curState: {},
+
+            // Putting Database
+            domainId: '', 
+            prevBranch: null,
+            startBranch: null,
+            hasRequiredBranch: null,
 
             // Save the attributes for messageList
             time: new Date(),
@@ -37,7 +38,7 @@ export class ChatRoom extends Component {
             ],
 
             // Data lists for conversation flow
-            AnswerList: [],
+            answerList: [],
             num_requirement: -1,
             requirementList: [],
             otherResponseList: [],
@@ -48,11 +49,12 @@ export class ChatRoom extends Component {
             turnNotice: false,
             selectBotStatus: true,
             similarUserStatus: true,
-            depth: 0,
         };
         
-	    this._getDomains = this._getDomains.bind(this);
-	    this._getRequirements = this._getRequirements.bind(this);
+	    this.getDomains = this.getDomains.bind(this);
+        this.getRequirements = this.getRequirements.bind(this);
+        this.getRequirementsText = this.getRequirementsText.bind(this);
+        this.setRequirements = this.setRequirements.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
         this.changeTurnNotice = this.changeTurnNotice.bind(this);
         this.resetMessageList = this.resetMessageList.bind(this);
@@ -71,7 +73,7 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        this._getDomains();
+        this.getDomains();
     }
     
     componentDidUpdate(prevProps, prevState) {
@@ -96,7 +98,7 @@ export class ChatRoom extends Component {
     //-----------------------
     // function for tree data import
     // ----------------------
-    _getDomains() {
+    getDomains() {
         fetch(`${databaseURL}/domains/data/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -105,7 +107,73 @@ export class ChatRoom extends Component {
         }).then(domains => this.setState({domains: domains}));
     }
 
-    _getRequirements(path) {
+    // utterance list에 branch까지 같이 저장해서, 다음 branch 바로 넘겨줄 수 있도록
+    getChildBranches(branch, type) {
+        fetch(`${databaseURL+'/tree-structure/data/'+branch+'/children'}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(children => {
+            this.setState({
+                otherResponseList: [],
+                answerList: []
+            })
+            if(children !== null){
+                const childBranches = Object.keys(children)
+                childBranches.map((branch) => {
+                    this.getChildUtterance(branch, type)
+                })
+            }
+        });
+    }
+
+    getChildUtterance(branch, type) {
+        fetch(`${databaseURL+'/tree-structure/data/'+branch+'/utterances'}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(utterance => {
+            const utteranceId = Object.keys(utterance)
+            this.getUtteranceText(branch, utteranceId, type)
+        });
+    }
+
+    getUtteranceText(branch, utteranceId, type){
+        fetch(`${databaseURL+'/utterances/data/'+utteranceId}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(utterance => {
+            if (type){
+                if (utterance.required){
+                    this.setState({
+                        hasRequiredBranch: branch
+                    })
+                } else {
+                    this.setState({
+                        answerList: this.state.answerList.concat({
+                            branchId: branch,
+                            text: utterance.text,
+                            uId: utteranceId
+                        })
+                    })
+                }
+            } else{
+                this.setState({
+                    otherResponseList: this.state.otherResponseList.concat({
+                        branchId: branch,
+                        text: utterance.text,
+                        uId: utteranceId
+                    })
+                })
+            }
+        });
+    }
+
+    getRequirements(path, order) {
         fetch(`${databaseURL+'/labels/data/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -113,11 +181,11 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(topic => {
             const u_list = Object.keys(topic.utterances)
-            this._getRequirementsText(u_list[0], topic.name)
+            this.getRequirementsText(u_list[0], topic.name, path, order)
         });
     }
 
-    _getRequirementsText(path, name){
+    getRequirementsText(path, name, topicEmbedded, order){
         fetch(`${databaseURL+'/utterances/data/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -129,17 +197,27 @@ export class ChatRoom extends Component {
                     checked: false,
                     requirement: name,
                     text: utterance.text,
+                    topic: topicEmbedded,
+                    uId: path,
+                    order: parseInt(order, 10),
                 }),
                 num_requirement: Object.keys(this.state.requirementList).length + 1
             })
+
+            // For sorting of requirmentList by given ordering
+            // Because setState is proceeded asynchronously
+            this.state.requirementList.sort(function(a, b){
+                return a.order < b.order ? -1: a.order > b.order ? 1: 0;
+            })
+
             this.props.requirementListConvey(this.state.requirementList);
         });
     }
 
     setRequirements(domain) {
         const requiredTopics = Object.keys(domain.topics);
-        requiredTopics.map((key) => {
-            this._getRequirements(key)
+        requiredTopics.map((key, order) => {
+            this.getRequirements(key, order)
         })
     }
 
@@ -182,16 +260,24 @@ export class ChatRoom extends Component {
     startConversation = () => {
         this.num_experiment ++;
         this.after_require = false;
-        this._getDomains();
-        this.curPath = '/topics/';
+        this.getDomains();
         this.id = 0
         this.setState({
             messageList: [
                 { id: 0, type: 'system', time: null, text: 'Lets start ' + 'conversation ' + + this.num_experiment}
             ],
             startSession: true,
-            curState: {},
             num_requirement: -1,
+            answerList: [],
+            otherResponseList: [],
+            requirementList: [],
+            
+            // Initialize Database Variables
+            domainId: '', 
+            prevBranch: null,
+            startBranch: null,
+            hasRequiredBranch: null,
+
         })
     }
 
@@ -233,7 +319,7 @@ export class ChatRoom extends Component {
             blockEndButtonStatus();
         }
         setTimeout(() => {
-            this.setOtherResponseList();
+            // this.setOtherResponseList();
             this.setState(prevState => ({
                 similarUserStatus: !prevState.similarUserStatus,
             }));
@@ -248,11 +334,14 @@ export class ChatRoom extends Component {
     // Also unblock the endbutton through 'controlEndButtonStatus' function
     selectDomain = (dataFromChild, id) => {
         const { messageList, time } = this.state;
-        // const { topicConvey } = this.props;
-        // controlEndButtonStatus();
-        // topicConvey(requirementList)
         this.setRequirements(dataFromChild)
-        // this._getRequirements(this.curPath + id + '/requirementList.json');
+        if (dataFromChild.branches) {
+            const branches = Object.keys(dataFromChild.branches)
+            this.setState({
+                startBranch: branches[0],
+                hasRequiredBranch: branches[0],
+            })
+        }
         this.setState({
             startSession: false,
             messageList: messageList.concat({
@@ -260,42 +349,37 @@ export class ChatRoom extends Component {
                 type: 'user',
                 time: time.toLocaleTimeString(),
                 text: dataFromChild.name,
-                // tag: dataFromChild.tag,
             }),
+            domainId: id,
         })
-        this.curPath = this.curPath + id + '/children';
-	    this.setAnswerList(dataFromChild.children);
+	    // this.setAnswerList(dataFromChild.children);
         this.updateRenderUntilSysBot();
     }
 
     setOtherResponseList = () => {
-        const { curState } = this.state;
-        if(curState !== null && curState !== undefined){
-            this.setState({
-                otherResponseList: curState,
-            });
-        } else {
-            this.setState({
-                otherResponseList: [],
-            })
-        }
+        const { prevBranch } = this.state;
+        // prevBranch에서 children 찾아서, 각각의 branch id, utterance id 담은 responseList만듦
+        this.getChildBranches(prevBranch, false)
     }
 
-    setAnswerList = (children) => {
-        if(children !== null && children !== undefined) {
-            this.setState({
-                AnswerList: children,
-            });
-        } else {
-            this.setState({
-                AnswerList: [],
-            })
-        }
+    setAnswerList = (branch) => {
+        this.getChildBranches(branch, true)
     }
 
     // Putting selected answer from the SystemBotButton
-    selectAnswer = (dataFromChild, addedPath, newAnswerState) => {
-        const { messageList, time, num_requirement } = this.state;
+    selectAnswer = (dataFromChild, branch, newAnswerState) => {
+        const { messageList, time, num_requirement, startBranch } = this.state;
+        console.log(branch);
+
+        if(startBranch === null){
+            this.setState({
+                startBranch: branch
+            })
+        }
+
+        this.setState({
+            hasRequiredBranch: null
+        })
 
         if(newAnswerState === true) {
             this.setState({
@@ -303,12 +387,10 @@ export class ChatRoom extends Component {
                     id: this.id++,
                     type: 'bot',
                     time: time.toLocaleDateString(),
-                    text: dataFromChild.value,
-                    tag: dataFromChild.tag,
-                    path: this.curPath + '/' + addedPath
+                    text: dataFromChild.text,
                 }),
                 selectBotStatus: true,
-                curState: null,
+                prevBranch: branch,
             })
         } else{
             this.setState({
@@ -316,12 +398,10 @@ export class ChatRoom extends Component {
                     id: this.id++,
                     type: 'bot',
                     time: time.toLocaleDateString(),
-                    text: dataFromChild.value,
-                    tag: dataFromChild.tag,
-                    path: this.curPath + '/' + addedPath
+                    text: dataFromChild.text,
                 }),
                 selectBotStatus: true,
-                curState: dataFromChild.children,
+                prevBranch: branch,
             })
         }
 
@@ -330,13 +410,13 @@ export class ChatRoom extends Component {
             this.after_requirement = true;
         }
 
-        this.curPath = this.curPath + '/' + addedPath + '/children';
         this.changeTurnNotice();
     }
 
     // Putting similar response which user is selected from the SystemUserButton
-    similarResponse = (dataFromChild, addedPath) => {
-        const { messageList, time, } = this.state;
+    similarResponse = (dataFromChild, branch) => {
+        const { messageList, time } = this.state;
+        console.log(branch);
         
         // 나중에 수정으로 대체
         this.setState({
@@ -348,15 +428,13 @@ export class ChatRoom extends Component {
                 id: this.id++,
                 type: 'user',
                 time: time.toLocaleDateString(),
-                text: dataFromChild.value,
-                tag: dataFromChild.tag,
-                path: this.curPath + '/' + addedPath,
+                text: dataFromChild.text,
             }),
             similarUserStatus: true,
+            prevBranch: branch,
         })
 
-        this.curPath = this.curPath + '/' + addedPath + '/children';
-        this.setAnswerList(dataFromChild.children);
+        this.setAnswerList(branch);
         this.updateRenderUntilSysBot();
     }
 
@@ -384,6 +462,7 @@ export class ChatRoom extends Component {
                 text: input,
             }),
         })
+        this.setOtherResponseList();
         this.updateRenderUntilUserBot();
         this.scrollToBottom();
     }
@@ -396,8 +475,8 @@ export class ChatRoom extends Component {
 
     render() {
         const { input, time, originResponse, 
-            domains, messageList, AnswerList, requirementList,
-            otherResponseList, inputButtonState, 
+            domains, messageList, answerList, requirementList,
+            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, hasRequiredBranch, 
             turnNotice, startSession, selectBotStatus, num_requirement,
             similarUserStatus } = this.state;
         const {
@@ -416,35 +495,41 @@ export class ChatRoom extends Component {
         ];
 
         return (
-                <div class="chatOuterBox">
-                    <div class="chatInnerBox">
-                        <main class="chatRoom">
-                            <div class="dateSection">
+                <div className="chatOuterBox">
+                    <div className="chatInnerBox">
+                        <main className="chatRoom">
+                            <div className="dateSection">
                                 <span>{time.toLocaleTimeString()}</span>
                             </div>
                             <div>
                                 <MessageList messageList={messageList}/>
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
-                                {similarUserStatus ? null : <SystemUserButton 
+                                {similarUserStatus ? null : <SystemUserButton
+                                                                userId={this.props.userId}
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
-                                                                curPath={this.curPath}
+                                                                domainId={domainId}
+                                                                prevBranch={prevBranch}
                                                             />}
-                                {selectBotStatus ? null : <SystemBotButton 
+                                {selectBotStatus ? null : <SystemBotButton
+                                                            userId={this.props.userId}
                                                             selectAnswer={selectAnswer}
-                                                            AnswerList={AnswerList}
-                                                            curPath={this.curPath}
+                                                            answerList={answerList}
                                                             requirementList={requirementList}
                                                             changeRequirment={changeRequirment}
                                                             num_requirement={num_requirement}
+                                                            domainId={domainId}
+                                                            prevBranch={prevBranch}
+                                                            startBranch={startBranch}
+                                                            hasRequiredBranch={hasRequiredBranch}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
                             </div>
                             <div style={{float:'left', clear:'both', height:'80px'}} ref={(el) => { this.messagesEnd = el; }}></div>
                         </main>
-                        <div class="textInputBox">
-                            <div class="textInputBoxInput">
+                        <div className="textInputBox">
+                            <div className="textInputBoxInput">
                                 {inputButtonState
                                     ?   <Input fluid type='text' placeholder='Type...' action>
                                             <Label color={'violet'}>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { fire } from './shared/Firebase';
 
+import { Login } from "./components/Login/Login.js";
 import { ChatRoom } from "./components/ChatRoom/ChatRoom.js";
 import { LeftSideBar } from "./components/LeftSideBar/LeftSideBar.js";
 import { RightSideBar } from "./components/RightSideBar/RightSideBar.js";
@@ -22,8 +23,9 @@ class App extends Component{
     super(props);
     fire();
     this.state = {
-      // User State
-      userId: '',
+      // Login State
+      login: false,
+      userId: null,
 
       // Check the conversation status
       end: false,
@@ -38,6 +40,7 @@ class App extends Component{
       endButtonStatus: false,
       nextButtonStatus: false,
     };
+    this.changeLoginState = this.changeLoginState.bind(this);
     this.setStateRequirment = this.setStateRequirment.bind(this);
     this.requirementListConvey = this.requirementListConvey.bind(this);
     this.initializeRequirementList = this.initializeRequirementList.bind(this);
@@ -47,25 +50,12 @@ class App extends Component{
     this.controlStartStatus = this.controlStartStatus.bind(this);
   }
 
-  componentDidMount() {
-    const newUser = {timestamp: new Date(), name: 'Nyoungwoo',gender: GENDER.M, age: '25'}
-    this._userPost(newUser);
-  }
-
-  _userPost(user) {
-    return fetch(`${databaseURL}`+'/users/data.json', {
-        method: 'POST',
-        body: JSON.stringify(user)
-    }).then(res => {
-        if(res.status !== 200) {
-            throw new Error(res.statusText);
-        }
-        return res.json();
-    }).then(data => {
-      this.setState({
-        userId: data.name
-      })
-    });
+  // Control the login state
+  changeLoginState = (userId) => {
+    this.setState({
+      login: true,
+      userId: userId,
+    })
   }
 
   setStateRequirment = (requirement) => {
@@ -129,13 +119,14 @@ class App extends Component{
   }
 
   render(){
-    const { end, start, endButtonStatus, nextButtonStatus, requirement, requirementList } = this.state;
-    const { controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
+    const { login, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId } = this.state;
+    const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey } = this;
     
     return (
-      <div class="backGround">
-        <div class="leftSideBar">
+      <div className="backGround">
+        { login ? null : <Login changeLoginState={changeLoginState}/>}
+        <div className="leftSideBar">
           <LeftSideBar 
             requirement={requirement}
             initializeRequirementList={initializeRequirementList}
@@ -144,8 +135,9 @@ class App extends Component{
             requirementList={requirementList}
           />
         </div>
-        <main class="chatGrid chatStyle">
-          <ChatRoom 
+        <main className="chatGrid chatStyle">
+          <ChatRoom
+            userId={userId}
             end={end}
             start={start}
             requirementListConvey={requirementListConvey}
@@ -158,7 +150,7 @@ class App extends Component{
             controlNextButtonStatus={controlNextButtonStatus}
           />
         </main>
-        <div class="rightSideBar">
+        <div className="rightSideBar">
           <RightSideBar 
             endButtonStatus={endButtonStatus}
             nextButtonStatus={nextButtonStatus}
