@@ -15,6 +15,7 @@ export class ChatRoom extends Component {
     id = 0;
     num_experiment = 1;
     after_require = false;
+    turn = 0;
 
     constructor(props) {
         super(props);
@@ -258,10 +259,11 @@ export class ChatRoom extends Component {
 
     // Initialize the messageList when a new conversation starts
     startConversation = () => {
-        this.num_experiment ++;
-        this.after_require = false;
-        this.getDomains();
+        this.num_experiment ++
+        this.after_require = false
+        this.getDomains()
         this.id = 0
+        this.turn = 0
         this.setState({
             messageList: [
                 { id: 0, type: 'system', time: null, text: 'Lets start ' + 'conversation ' + + this.num_experiment}
@@ -277,7 +279,6 @@ export class ChatRoom extends Component {
             prevBranch: null,
             startBranch: null,
             hasRequiredBranch: null,
-
         })
     }
 
@@ -369,13 +370,13 @@ export class ChatRoom extends Component {
     // Putting selected answer from the SystemBotButton
     selectAnswer = (dataFromChild, branch, newAnswerState) => {
         const { messageList, time, num_requirement, startBranch } = this.state;
-        console.log(branch);
-
         if(startBranch === null){
             this.setState({
                 startBranch: branch
             })
         }
+
+        this.turn += 1
 
         this.setState({
             hasRequiredBranch: null
@@ -416,8 +417,9 @@ export class ChatRoom extends Component {
     // Putting similar response which user is selected from the SystemUserButton
     similarResponse = (dataFromChild, branch) => {
         const { messageList, time } = this.state;
-        console.log(branch);
         
+        this.turn += 1
+
         // 나중에 수정으로 대체
         this.setState({
             messageList: this.state.messageList.splice(-1, 1)
@@ -511,6 +513,8 @@ export class ChatRoom extends Component {
                                                                 otherResponseList={otherResponseList}
                                                                 domainId={domainId}
                                                                 prevBranch={prevBranch}
+                                                                num_experiment={this.num_experiment}
+                                                                turn={this.turn}
                                                             />}
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
@@ -523,6 +527,8 @@ export class ChatRoom extends Component {
                                                             prevBranch={prevBranch}
                                                             startBranch={startBranch}
                                                             hasRequiredBranch={hasRequiredBranch}
+                                                            num_experiment={this.num_experiment}
+                                                            turn={this.turn}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
                             </div>

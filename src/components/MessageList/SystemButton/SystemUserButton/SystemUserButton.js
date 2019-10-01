@@ -32,9 +32,9 @@ export class SystemUserButton extends Component {
             }
             return res.json();
         }).then(data => {
-            const { domainId, prevBranch, userId } = this.props;
+            const { domainId, prevBranch, userId, num_experiment, turn } = this.props;
             const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
-            this.patchUserUtterance(data.name, userId, domainId)
+            this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance);
         });
     }
@@ -49,18 +49,18 @@ export class SystemUserButton extends Component {
             }
             return res.json();
         }).then(data => {
-            const { prevBranch, userId, domainId } = this.props;
+            const { prevBranch, userId, domainId, num_experiment, turn } = this.props;
             const children = {[data.name]: true}
             this.patchChildren(prevBranch, children)
-            this.patchUserBranch(data.name, userId, domainId)
+            this.patchUserBranch(data.name, userId, domainId, num_experiment, turn)
             this.handleCreate(utterance, data.name, false);
         });
     }
 
-    patchUserUtterance(id, userId, domainId) {
-        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+this.extension}`, {
+    patchUserUtterance(id, userId, domainId, num_experiment, turn) {
+        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
-            body: JSON.stringify({[id]: true})
+            body: JSON.stringify({[id]: turn})
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -69,10 +69,10 @@ export class SystemUserButton extends Component {
         });
     }
 
-    patchUserBranch(id, userId, domainId) {
-        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+this.extension}`, {
+    patchUserBranch(id, userId, domainId, num_experiment, turn) {
+        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
-            body: JSON.stringify({[id]: true})
+            body: JSON.stringify({[id]: turn})
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -94,10 +94,10 @@ export class SystemUserButton extends Component {
     }
 
     handleCreate = (response, id, selected) => {
-        const { similarResponse, userId, domainId } = this.props
+        const { similarResponse, userId, domainId, num_experiment, turn } = this.props
         if (selected){
-            this.patchUserUtterance(response.uId, userId, domainId)
-            this.patchUserBranch(response.branchId, userId, domainId)
+            this.patchUserUtterance(response.uId, userId, domainId, num_experiment, turn)
+            this.patchUserBranch(response.branchId, userId, domainId, num_experiment, turn)
         }
         similarResponse(response, id);
     }

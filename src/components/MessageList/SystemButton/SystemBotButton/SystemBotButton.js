@@ -42,9 +42,9 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
-            const { domainId, prevBranch, userId } = this.props
+            const { domainId, prevBranch, userId, num_experiment, turn } = this.props
             const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
-            this.patchUserUtterance(data.name, userId, domainId)
+            this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance, start)
         });
     }
@@ -59,7 +59,7 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
-            const { prevBranch, domainId, userId } = this.props
+            const { prevBranch, domainId, userId, num_experiment, turn } = this.props
             const branch = {[data.name]: true}
             if (prevBranch){
                 this.patchChildren(prevBranch, branch)
@@ -67,15 +67,15 @@ export class SystemBotButton extends Component {
             if (start) {
                 this.patchFirstBranch(domainId, branch)
             }
-            this.patchUserBranch(data.name, userId, domainId)
+            this.patchUserBranch(data.name, userId, domainId, num_experiment, turn)
             this.sendAnswer(utterance, data.name, true)
         });
     }
 
-    patchUserUtterance(id, userId, domainId) {
-        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+this.extension}`, {
+    patchUserUtterance(id, userId, domainId, num_experiment, turn) {
+        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
-            body: JSON.stringify({[id]: true})
+            body: JSON.stringify({[id]: turn})
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -84,10 +84,10 @@ export class SystemBotButton extends Component {
         });
     }
 
-    patchUserBranch(id, userId, domainId) {
-        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+this.extension}`, {
+    patchUserBranch(id, userId, domainId, num_experiment, turn) {
+        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
-            body: JSON.stringify({[id]: true})
+            body: JSON.stringify({[id]: turn})
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -140,9 +140,9 @@ export class SystemBotButton extends Component {
 
     // Select origin answer of Bot, state: false
     handleSelect = (answer, branch) => {
-        const { userId, domainId } = this.props
-        this.patchUserUtterance(answer.uId, userId, domainId)
-        this.patchUserBranch(answer.branchId, userId, domainId)
+        const { userId, domainId, num_experiment, turn } = this.props
+        this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
+        this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
         this.sendAnswer(answer, branch, false)
     }
 
@@ -161,11 +161,11 @@ export class SystemBotButton extends Component {
     }
 
     handleRequirement = (requirement) => {
-        const { changeRequirment, domainId, startBranch, prevBranch, hasRequiredBranch, userId } = this.props
-        this.patchUserUtterance(requirement.uId, userId, domainId)
+        const { changeRequirment, domainId, startBranch, prevBranch, hasRequiredBranch, userId, num_experiment, turn } = this.props
+        this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
         if(startBranch){
             if (hasRequiredBranch){
-                this.patchUserBranch(hasRequiredBranch, userId, domainId)
+                this.patchUserBranch(hasRequiredBranch, userId, domainId, num_experiment, turn)
                 this.sendAnswer(requirement, hasRequiredBranch, false)
             } else{
                 const newBranch = {domain: domainId, parent: prevBranch, utterances: {[requirement.uId]: true}}
