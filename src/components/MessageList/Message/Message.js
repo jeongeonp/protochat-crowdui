@@ -8,7 +8,7 @@ import loading from './images/loading.gif';
 export class Message extends Component {
 
     render() {
-        const { id, type, time, text } = this.props;
+        const { type, time, text } = this.props;
         return (
             <div>
                 {

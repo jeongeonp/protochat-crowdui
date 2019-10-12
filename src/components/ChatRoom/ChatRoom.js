@@ -27,7 +27,6 @@ export class ChatRoom extends Component {
             domainId: '', 
             prevBranch: null,
             startBranch: null,
-            hasRequiredBranch: null,
 
             // Save the attributes for messageList
             time: new Date(),
@@ -77,7 +76,7 @@ export class ChatRoom extends Component {
         this.getDomains();
     }
     
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate() {
         const { end, start, controlEndStatus, controlStartStatus } = this.props;
         if ( end === true ) {
             this.resetMessageList();
@@ -100,12 +99,14 @@ export class ChatRoom extends Component {
     // function for tree data import
     // ----------------------
     getDomains() {
-        fetch(`${databaseURL}/domains/data/.json`).then(res => {
+        fetch(`${databaseURL}/last-deployed/data/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
-        }).then(domains => this.setState({domains: domains}));
+        }).then(domains => {
+            this.setState({domains: domains})
+        });
     }
 
     // utterance list에 branch까지 같이 저장해서, 다음 branch 바로 넘겨줄 수 있도록
@@ -150,9 +151,6 @@ export class ChatRoom extends Component {
         }).then(utterance => {
             if (type){
                 if (utterance.required){
-                    this.setState({
-                        hasRequiredBranch: branch
-                    })
                 } else {
                     this.setState({
                         answerList: this.state.answerList.concat({
@@ -182,11 +180,11 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(topic => {
             const u_list = Object.keys(topic.utterances)
-            this.getRequirementsText(u_list[0], topic.name, path, order)
+            this.getRequirementsText(u_list[0], topic.name, topic.branch, path, order)
         });
     }
 
-    getRequirementsText(path, name, topicEmbedded, order){
+    getRequirementsText(path, name, branch, topicEmbedded, order){
         fetch(`${databaseURL+'/utterances/data/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -200,6 +198,7 @@ export class ChatRoom extends Component {
                     text: utterance.text,
                     topic: topicEmbedded,
                     uId: path,
+                    bId: branch,
                     order: parseInt(order, 10),
                 }),
                 num_requirement: Object.keys(this.state.requirementList).length + 1
@@ -278,7 +277,6 @@ export class ChatRoom extends Component {
             domainId: '', 
             prevBranch: null,
             startBranch: null,
-            hasRequiredBranch: null,
         })
     }
 
@@ -340,7 +338,6 @@ export class ChatRoom extends Component {
             const branches = Object.keys(dataFromChild.branches)
             this.setState({
                 startBranch: branches[0],
-                hasRequiredBranch: branches[0],
             })
         }
         this.setState({
@@ -377,10 +374,6 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
-
-        this.setState({
-            hasRequiredBranch: null
-        })
 
         if(newAnswerState === true) {
             this.setState({
@@ -478,7 +471,7 @@ export class ChatRoom extends Component {
     render() {
         const { input, time, originResponse, 
             domains, messageList, answerList, requirementList,
-            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, hasRequiredBranch, 
+            otherResponseList, inputButtonState, domainId, prevBranch, startBranch,
             turnNotice, startSession, selectBotStatus, num_requirement,
             similarUserStatus } = this.state;
         const {
@@ -526,7 +519,6 @@ export class ChatRoom extends Component {
                                                             domainId={domainId}
                                                             prevBranch={prevBranch}
                                                             startBranch={startBranch}
-                                                            hasRequiredBranch={hasRequiredBranch}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
                                                             />}

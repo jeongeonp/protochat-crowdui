@@ -7,15 +7,6 @@ import { ChatRoom } from "./components/ChatRoom/ChatRoom.js";
 import { LeftSideBar } from "./components/LeftSideBar/LeftSideBar.js";
 import { RightSideBar } from "./components/RightSideBar/RightSideBar.js";
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
-
-const GENDER = {
-  M: 'MALE',
-  F: 'FEMALE',
-  NB: 'NON_BINARY',
-  null: 'NULL'
-}
-
 class App extends Component{
   extension = '.json';
 

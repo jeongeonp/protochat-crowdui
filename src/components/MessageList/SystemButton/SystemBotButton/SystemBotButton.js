@@ -22,6 +22,7 @@ export class SystemBotButton extends Component {
         this.patchUserUtterance = this.patchUserUtterance.bind(this)
         this.patchUserBranch = this.patchUserBranch.bind(this)
         this.patchFirstBranch = this.patchFirstBranch.bind(this)
+        this.patchBranchRequired = this.patchBranchRequired.bind(this)
         this.patchChildren = this.patchChildren.bind(this)
         this.sendAnswer = this.sendAnswer.bind(this)
         this.changeInputState = this.changeInputState.bind(this)
@@ -45,11 +46,11 @@ export class SystemBotButton extends Component {
             const { domainId, prevBranch, userId, num_experiment, turn } = this.props
             const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
-            this.postBranch(newBranch, utterance, start)
+            this.postBranch(newBranch, utterance, start, false)
         });
     }
 
-    postBranch(branch, utterance, start) {
+    postBranch(branch, utterance, start, addRequired) {
         return fetch(`${databaseURL+'/tree-structure/data'+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(branch)
@@ -63,9 +64,12 @@ export class SystemBotButton extends Component {
             const branch = {[data.name]: true}
             if (prevBranch){
                 this.patchChildren(prevBranch, branch)
-            } 
+            }
             if (start) {
                 this.patchFirstBranch(domainId, branch)
+            }
+            if (addRequired) {
+                this.patchBranchRequired(utterance, data.name)
             }
             this.patchUserBranch(data.name, userId, domainId, num_experiment, turn)
             this.sendAnswer(utterance, data.name, true)
@@ -97,9 +101,21 @@ export class SystemBotButton extends Component {
     }
 
     patchFirstBranch(domainId, f_branch) {
-        return fetch(`${databaseURL+'/domains/data/'+domainId+'/branches'+this.extension}`, {
+        return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(f_branch)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText)
+            }
+            return res.json()
+        });
+    }
+
+    patchBranchRequired(requirement, bId) {
+        return fetch(`${databaseURL+'/labels/data/'+requirement.topic+'/branch'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[bId]: true})
         }).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText)
@@ -161,19 +177,20 @@ export class SystemBotButton extends Component {
     }
 
     handleRequirement = (requirement) => {
-        const { changeRequirment, domainId, startBranch, prevBranch, hasRequiredBranch, userId, num_experiment, turn } = this.props
+        const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn } = this.props
         this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
         if(startBranch){
-            if (hasRequiredBranch){
-                this.patchUserBranch(hasRequiredBranch, userId, domainId, num_experiment, turn)
-                this.sendAnswer(requirement, hasRequiredBranch, false)
+            if (requirement.bId){
+                const branch = Object.keys(requirement.bId)            
+                this.patchUserBranch(branch[0], userId, domainId, num_experiment, turn)
+                this.sendAnswer(requirement, branch[0], false)
             } else{
                 const newBranch = {domain: domainId, parent: prevBranch, utterances: {[requirement.uId]: true}}
-                this.postBranch(newBranch, requirement, false)
+                this.postBranch(newBranch, requirement, false, true)
             }
         } else {
             const newBranch = {domain: domainId, parent: prevBranch, utterances: {[requirement.uId]: true}}
-            this.postBranch(newBranch, requirement, true)
+            this.postBranch(newBranch, requirement, true, true)
         }
         changeRequirment(requirement)
     }
@@ -224,15 +241,8 @@ export class SystemBotButton extends Component {
                     { prevBranch === null
                         ?   null
                         :   <div>
-                                {/* <span className="systemBotText">
-                                    { requirementList.length === 0
-                                        ?   'Continue this conversation on the current topic'
-                                        :   'B. Continue this conversation on the current topic'
-                                    }
-                                </span> */}
                                 <Segment.Group>
                                     <Segment textAlign='center' color='teal'>
-                                        {/* <div className="systemBotText">B. Continue this conversation on the current topic</div> */}
                                         <span className="systemBotText">
                                             { requirementList.length === 0
                                                 ?   'Continue this conversation on the current topic'
