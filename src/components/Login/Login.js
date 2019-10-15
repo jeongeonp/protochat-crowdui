@@ -7,7 +7,8 @@ const databaseURL = "https://protobot-rawdata.firebaseio.com/"
 const GENDER = {
     M: 'MALE',
     F: 'FEMALE',
-    O: 'OTHER',
+    NB: 'Non-binary or third gender',
+    P: 'Prefer not to answer'
   }
 
 export class Login extends Component {
@@ -52,7 +53,8 @@ export class Login extends Component {
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
             { key: 'f', text: 'Female', value: GENDER.F },
-            { key: 'o', text: 'Other', value: GENDER.O },
+            { key: 'nb', text: 'Non-binary or third gender', value: GENDER.NB },
+            { key: 'p', text: 'Prefer not to answer', value: GENDER.P },
         ]
         return (
             <Modal open={true}>
