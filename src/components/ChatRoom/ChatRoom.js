@@ -215,8 +215,7 @@ export class ChatRoom extends Component {
     }
 
     setRequirements(domain) {
-        const requiredTopics = Object.keys(domain.topics);
-        requiredTopics.map((key, order) => {
+        Object.entries(domain.topics).map(([key, order]) => {
             this.getRequirements(key, order)
         })
     }
