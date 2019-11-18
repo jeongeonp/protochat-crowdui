@@ -42,7 +42,10 @@ export class Login extends Component {
     sendAndPost = () => {
         const { name, gender, age } = this.state
         const newUser = {timestamp: new Date(), name: name,gender: gender, age: age}
-        this.userPost(newUser)
+        if (name && gender && age){
+            this.userPost(newUser)
+        }
+        // this.userPost(newUser)
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
