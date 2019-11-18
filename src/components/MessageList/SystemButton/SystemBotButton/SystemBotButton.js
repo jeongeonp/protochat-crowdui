@@ -165,8 +165,8 @@ export class SystemBotButton extends Component {
     // Add New answer of Bot, state: true
     handleCreate = () => {
         const { input } = this.state
-        const { domainId } = this.props
-        const newUtterance = {bot: true, text: input, domain: domainId}
+        const { domainId, userId, deployedVersion } = this.props
+        const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion}
         
         this.setState({
             input: '',

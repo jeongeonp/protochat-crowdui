@@ -23,6 +23,9 @@ export class ChatRoom extends Component {
             // Tree Data
             domains: {},
 
+            // Version Check
+            deployedVersion: '',
+
             // Putting Database
             domainId: '', 
             prevBranch: null,
@@ -341,6 +344,7 @@ export class ChatRoom extends Component {
         }
         this.setState({
             startSession: false,
+            deployedVersion: dataFromChild.deployedVersion,
             messageList: messageList.concat({
                 id: this.id++,
                 type: 'user',
@@ -471,7 +475,7 @@ export class ChatRoom extends Component {
         const { input, time, originResponse, 
             domains, messageList, answerList, requirementList,
             otherResponseList, inputButtonState, domainId, prevBranch, startBranch,
-            turnNotice, startSession, selectBotStatus, num_requirement,
+            turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus } = this.state;
         const {
             handleChangeText,
@@ -504,6 +508,7 @@ export class ChatRoom extends Component {
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
                                                                 domainId={domainId}
+                                                                deployedVersion={deployedVersion}
                                                                 prevBranch={prevBranch}
                                                                 num_experiment={this.num_experiment}
                                                                 turn={this.turn}
@@ -515,6 +520,7 @@ export class ChatRoom extends Component {
                                                             requirementList={requirementList}
                                                             changeRequirment={changeRequirment}
                                                             num_requirement={num_requirement}
+                                                            deployedVersion={deployedVersion}
                                                             domainId={domainId}
                                                             prevBranch={prevBranch}
                                                             startBranch={startBranch}

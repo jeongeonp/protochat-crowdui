@@ -103,8 +103,8 @@ export class SystemUserButton extends Component {
     }
 
     handleNotapplicable = () => {
-        const { originResponse, domainId } = this.props;
-        const newUtterance = {bot: false, text: originResponse, domain: domainId}
+        const { originResponse, domainId, userId, deployedVersion } = this.props;
+        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion}
         
         this.setState({
             inputButtonState: true,
