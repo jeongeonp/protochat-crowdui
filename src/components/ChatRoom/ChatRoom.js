@@ -26,6 +26,9 @@ export class ChatRoom extends Component {
             // Version Check
             deployedVersion: '',
 
+            // Keeping pre-defined topic
+            preTopic: null,
+
             // Putting Database
             domainId: '', 
             prevBranch: null,
@@ -67,6 +70,7 @@ export class ChatRoom extends Component {
         this.updateRenderUntilUserBot = this.updateRenderUntilUserBot.bind(this);
         this.selectDomain = this.selectDomain.bind(this);
         this.selectAnswer = this.selectAnswer.bind(this);
+        this.initializeTopic = this.initializeTopic.bind(this);
         this.similarResponse = this.similarResponse.bind(this);
         this.handleChangeText = this.handleChangeText.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
@@ -200,6 +204,7 @@ export class ChatRoom extends Component {
                     requirement: name,
                     text: utterance.text,
                     topic: topicEmbedded,
+                    topics: utterance.topics,
                     uId: path,
                     bId: branch,
                     order: parseInt(order, 10),
@@ -377,7 +382,7 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
-
+        
         if(newAnswerState === true) {
             this.setState({
                 messageList: messageList.concat({
@@ -388,6 +393,7 @@ export class ChatRoom extends Component {
                 }),
                 selectBotStatus: true,
                 prevBranch: branch,
+                preTopic: dataFromChild.topics
             })
         } else{
             this.setState({
@@ -399,6 +405,7 @@ export class ChatRoom extends Component {
                 }),
                 selectBotStatus: true,
                 prevBranch: branch,
+                preTopic: dataFromChild.topics
             })
         }
 
@@ -408,6 +415,12 @@ export class ChatRoom extends Component {
         }
 
         this.changeTurnNotice();
+    }
+
+    initializeTopic = () => {
+        this.setState({
+            preTopic: null,
+        })
     }
 
     // Putting similar response which user is selected from the SystemUserButton
@@ -474,7 +487,7 @@ export class ChatRoom extends Component {
     render() {
         const { input, time, originResponse, 
             domains, messageList, answerList, requirementList,
-            otherResponseList, inputButtonState, domainId, prevBranch, startBranch,
+            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, preTopic, 
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus } = this.state;
         const {
@@ -485,6 +498,7 @@ export class ChatRoom extends Component {
             selectAnswer,
             similarResponse,
             changeRequirment,
+            initializeTopic
         } = this;
 
         const sysNotice = [
@@ -510,6 +524,8 @@ export class ChatRoom extends Component {
                                                                 domainId={domainId}
                                                                 deployedVersion={deployedVersion}
                                                                 prevBranch={prevBranch}
+                                                                preTopic={preTopic}
+                                                                initializeTopic={initializeTopic}
                                                                 num_experiment={this.num_experiment}
                                                                 turn={this.turn}
                                                             />}

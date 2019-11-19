@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { Button, Icon, Label } from 'semantic-ui-react';
 import './RightSideBar.css';
 
+const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+
 export class RightSideBar extends Component {
+    extension = '.json'
     constructor(props) {
         super(props);
         this.state = {
@@ -15,14 +18,33 @@ export class RightSideBar extends Component {
                 'grey',
             ]
         };
+        this.patchUserEndTime = this.patchUserEndTime.bind(this);
         this.sendEndStatus = this.sendEndStatus.bind(this);
         this.sendStartStatus = this.sendStartStatus.bind(this);
         this.endExperiment = this.endExperiment.bind(this);
     }
 
+    patchUserEndTime(sessionNum, userId, date) {
+        return fetch(`${databaseURL+'/users/data/'+userId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[sessionNum]: date})
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        });
+    }
+
     // Convey the endstatus to parent component when each conversation is ended
     sendEndStatus = () => {
-        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus } = this.props;
+        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId } = this.props;
+        const { num_experiment } = this.state;
+        const sessionNum = num_experiment + 'thEndTime'
+
+        console.log(sessionNum, userId, new Date());
+        this.patchUserEndTime(sessionNum, userId, new Date())
+
         // block the 'endbutton'
         controlEndButtonStatus();
 
@@ -37,6 +59,7 @@ export class RightSideBar extends Component {
     sendStartStatus = () => {
         const { controlStartStatus, controlNextButtonStatus } = this.props;
         const { num_experiment, colors } = this.state;
+
         this.setState({
             num_experiment: num_experiment + 1,
             colors: [
@@ -55,11 +78,7 @@ export class RightSideBar extends Component {
 
     // End the whole experiment
     endExperiment = () => {
-        /// End the experiment
-        // ---------------------------------------
-        //  ??
-        // ---------------------------------------
-        console.log('End!!!');
+        
     }
 
     render() {

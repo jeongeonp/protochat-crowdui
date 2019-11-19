@@ -142,7 +142,8 @@ class App extends Component{
           />
         </main>
         <div className="rightSideBar">
-          <RightSideBar 
+          <RightSideBar
+            userId={userId}
             endButtonStatus={endButtonStatus}
             nextButtonStatus={nextButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}
