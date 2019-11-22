@@ -33,7 +33,7 @@ export class SystemBotButton extends Component {
         this.handleKeyPress = this.handleKeyPress.bind(this)
     }
 
-    postUtterance(utterance, start) {
+    postUtterance(utterance, start, require) {
         return fetch(`${databaseURL+'/utterances/data'+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
@@ -46,7 +46,7 @@ export class SystemBotButton extends Component {
             const { domainId, prevBranch, userId, num_experiment, turn } = this.props
             const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
-            this.postBranch(newBranch, utterance, start, false)
+            this.postBranch(newBranch, utterance, start, require)
         });
     }
 
@@ -60,7 +60,7 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
-            const { prevBranch, domainId, userId, num_experiment, turn } = this.props
+            const { prevBranch, domainId, userId, num_experiment, turn, save_requirement } = this.props
             const branch = {[data.name]: true}
             if (prevBranch){
                 this.patchChildren(prevBranch, branch)
@@ -69,7 +69,7 @@ export class SystemBotButton extends Component {
                 this.patchFirstBranch(domainId, branch)
             }
             if (addRequired) {
-                this.patchBranchRequired(utterance, data.name)
+                this.patchBranchRequired(save_requirement, data.name)
             }
             this.patchUserBranch(data.name, userId, domainId, num_experiment, turn)
             this.sendAnswer(utterance, data.name, true)
@@ -173,7 +173,7 @@ export class SystemBotButton extends Component {
         })
 
         // Adding new answer(Bot)
-        this.postUtterance(newUtterance, false)
+        this.postUtterance(newUtterance, false, true)
     }
 
     handleRequirement = (requirement) => {
@@ -203,8 +203,9 @@ export class SystemBotButton extends Component {
 
     render() {
         const { inputState, input } = this.state
-        const { answerList, requirementList, num_requirement, prevBranch } = this.props
+        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement } = this
+        
         if (Object.keys(answerList).length > 4){
             this.overflowCondition = 'scroll'
         }
@@ -262,6 +263,18 @@ export class SystemBotButton extends Component {
                                                 <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
                                                 <Button positive type='submit' onClick={handleCreate}>Add</Button>
                                             </Input>
+                                        }
+                                        { start_requirement === true
+                                            ?   Object.keys(r_answerList).map(id => {
+                                                    const r_answer = r_answerList[id]
+                                                    return (
+                                                        <div key={id}>
+                                                            <div style={{height: '10px'}}></div>
+                                                            <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                        </div>
+                                                    )
+                                                })
+                                            :   null
                                         }
                                         {Object.keys(answerList).map(id => {
                                             const answer = answerList[id]

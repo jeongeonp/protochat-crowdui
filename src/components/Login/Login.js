@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Modal, Form } from 'semantic-ui-react'
+import { Button, Modal, Form, } from 'semantic-ui-react'
 import './Login.css'
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/"
@@ -19,6 +19,7 @@ export class Login extends Component {
             name: null,
             gender: null,
             age: null,
+            condition: null,
         }
         this.userPost = this.userPost.bind(this)
         this.sendAndPost = this.sendAndPost.bind(this)
@@ -40,18 +41,17 @@ export class Login extends Component {
     }
 
     sendAndPost = () => {
-        const { name, gender, age } = this.state
+        const { name, gender, age, } = this.state
         const newUser = {timestamp: new Date(), name: name,gender: gender, age: age}
         if (name && gender && age){
             this.userPost(newUser)
         }
-        // this.userPost(newUser)
     }
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
     render() {
-        const { name, gender, age } = this.state
+        const { name, gender, age, condition } = this.state
         const { sendAndPost } = this
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
@@ -67,20 +67,20 @@ export class Login extends Component {
                         <div style={{height: '10px'}}></div>
                         <Form>
                             <Form.Group widths='equal'>
-                            <Form.Input 
-                                fluid label='Name' 
-                                placeholder='Type your name'
-                                name='name'
-                                value={name}
-                                onChange={this.handleChange}
-                            />
-                            <Form.Input 
-                                fluid label='Age'
-                                placeholder='Type your age'
-                                name='age'
-                                value={age}
-                                onChange={this.handleChange}    
-                            />
+                                <Form.Input 
+                                    fluid label='Name' 
+                                    placeholder='Type your name'
+                                    name='name'
+                                    value={name}
+                                    onChange={this.handleChange}
+                                />
+                                <Form.Input 
+                                    fluid label='Age'
+                                    placeholder='Type your age'
+                                    name='age'
+                                    value={age}
+                                    onChange={this.handleChange}    
+                                />
                             </Form.Group>
                             <Form.Select
                                 options={options}
@@ -89,6 +89,23 @@ export class Login extends Component {
                                 value={gender}
                                 onChange={this.handleChange}    
                             />
+                            {/* <Form.Group inline>
+                                <label>Condition</label>
+                                <Form.Radio
+                                    label='Condition A'
+                                    name='condition'
+                                    value='A'
+                                    checked={condition === 'A'}
+                                    onChange={this.handleChange}
+                                />
+                                <Form.Radio
+                                    label='Condition B'
+                                    name='condition'
+                                    value='B'
+                                    checked={condition === 'B'}
+                                    onChange={this.handleChange}
+                                />
+                            </Form.Group> */}
                         </Form>
                         <div style={{height: '10px'}}></div>
                     </Modal.Content>

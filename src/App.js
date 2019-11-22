@@ -17,6 +17,7 @@ class App extends Component{
       // Login State
       login: false,
       userId: null,
+      condition: null,
 
       // Check the conversation status
       end: false,
@@ -42,13 +43,15 @@ class App extends Component{
   }
 
   // Control the login state
-  changeLoginState = (userId) => {
+  changeLoginState = (userId, condition) => {
     this.setState({
       login: true,
       userId: userId,
+      condition: condition,
     })
   }
 
+  // Contorl the requirement
   setStateRequirment = (requirement) => {
     this.setState({
         requirement: requirement

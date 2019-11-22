@@ -30,7 +30,7 @@ export class ChatRoom extends Component {
             preTopic: null,
 
             // Putting Database
-            domainId: '', 
+            domainId: '',
             prevBranch: null,
             startBranch: null,
 
@@ -45,6 +45,9 @@ export class ChatRoom extends Component {
 
             // Data lists for conversation flow
             answerList: [],
+            save_requirement: null,
+            start_requirement: false,
+            r_answerList: [],
             num_requirement: -1,
             requirementList: [],
             otherResponseList: [],
@@ -58,6 +61,11 @@ export class ChatRoom extends Component {
         };
         
 	    this.getDomains = this.getDomains.bind(this);
+	    this.getChildBranches = this.getChildBranches.bind(this);
+	    this.getChildUtterance = this.getChildUtterance.bind(this);
+	    this.getUtteranceText = this.getUtteranceText.bind(this);
+	    this.getR_ChildBranch = this.getR_ChildBranch.bind(this);
+	    this.getR_UtteranceText = this.getR_UtteranceText.bind(this);
         this.getRequirements = this.getRequirements.bind(this);
         this.getRequirementsText = this.getRequirementsText.bind(this);
         this.setRequirements = this.setRequirements.bind(this);
@@ -131,13 +139,13 @@ export class ChatRoom extends Component {
             if(children !== null){
                 const childBranches = Object.keys(children)
                 childBranches.map((branch) => {
-                    this.getChildUtterance(branch, type)
+                    this.getChildUtterance(branch, type, false)
                 })
             }
         });
     }
 
-    getChildUtterance(branch, type) {
+    getChildUtterance(branch, type, required) {
         fetch(`${databaseURL+'/tree-structure/data/'+branch+'/utterances'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -145,7 +153,11 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(utterance => {
             const utteranceId = Object.keys(utterance)
-            this.getUtteranceText(branch, utteranceId, type)
+            if(required){
+                this.getR_UtteranceText(branch, utteranceId)
+            } else{
+                this.getUtteranceText(branch, utteranceId, type)
+            }
         });
     }
 
@@ -158,6 +170,8 @@ export class ChatRoom extends Component {
         }).then(utterance => {
             if (type){
                 if (utterance.required){
+                    // const topic_name = Object.keys(utterance.topics)
+                    // this.getR_ChildBranch(topic_name)
                 } else {
                     this.setState({
                         answerList: this.state.answerList.concat({
@@ -170,6 +184,42 @@ export class ChatRoom extends Component {
             } else{
                 this.setState({
                     otherResponseList: this.state.otherResponseList.concat({
+                        branchId: branch,
+                        text: utterance.text,
+                        uId: utteranceId
+                    })
+                })
+            }
+        });
+    }
+
+    getR_ChildBranch(topic_name){
+        fetch(`${databaseURL+'/labels/data/'+topic_name+'/branch/'}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(branch => {
+            if(branch !== null){
+                const c_branches = Object.keys(branch)
+                c_branches.map((c_branch) => {
+                    this.getChildUtterance(c_branch, true, true)
+                })
+            }
+        });
+    }
+
+    getR_UtteranceText(branch, utteranceId){
+        fetch(`${databaseURL+'/utterances/data/'+utteranceId}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(utterance => {
+            if (utterance.required){
+            } else {
+                this.setState({
+                    r_answerList: this.state.r_answerList.concat({
                         branchId: branch,
                         text: utterance.text,
                         uId: utteranceId
@@ -281,6 +331,7 @@ export class ChatRoom extends Component {
             requirementList: [],
             
             // Initialize Database Variables
+            save_requirement: null,
             domainId: '', 
             prevBranch: null,
             startBranch: null,
@@ -293,10 +344,15 @@ export class ChatRoom extends Component {
         const {setStateRequirment} = this.props;
 
         this.setState({
+            save_requirement: requirement,
             selectBotStatus: true,
+            start_requirement: true,
+            r_answerList: [],
             num_requirement: num_requirement - 1,
             requirementList: requirementList.filter(r => r.requirement !== requirement.requirement)
         })
+        const topic_name = Object.keys(requirement.topics)
+        this.getR_ChildBranch(topic_name)
         setStateRequirment(requirement)
     }
 
@@ -392,6 +448,7 @@ export class ChatRoom extends Component {
                     text: dataFromChild.text,
                 }),
                 selectBotStatus: true,
+                start_requirement: false,
                 prevBranch: branch,
                 preTopic: dataFromChild.topics
             })
@@ -404,6 +461,7 @@ export class ChatRoom extends Component {
                     text: dataFromChild.text,
                 }),
                 selectBotStatus: true,
+                start_requirement: false,
                 prevBranch: branch,
                 preTopic: dataFromChild.topics
             })
@@ -486,8 +544,8 @@ export class ChatRoom extends Component {
 
     render() {
         const { input, time, originResponse, 
-            domains, messageList, answerList, requirementList,
-            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, preTopic, 
+            domains, messageList, answerList, r_answerList, requirementList,
+            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus } = this.state;
         const {
@@ -532,7 +590,10 @@ export class ChatRoom extends Component {
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
                                                             selectAnswer={selectAnswer}
+                                                            save_requirement={save_requirement}
                                                             answerList={answerList}
+                                                            r_answerList={r_answerList}
+                                                            start_requirement={start_requirement}
                                                             requirementList={requirementList}
                                                             changeRequirment={changeRequirment}
                                                             num_requirement={num_requirement}
