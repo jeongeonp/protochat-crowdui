@@ -3,6 +3,7 @@ import './App.css';
 import { fire } from './shared/Firebase';
 
 import { Login } from "./components/Login/Login.js";
+import { Quit } from "./components/Quit/Quit.js";
 import { ChatRoom } from "./components/ChatRoom/ChatRoom.js";
 import { LeftSideBar } from "./components/LeftSideBar/LeftSideBar.js";
 import { RightSideBar } from "./components/RightSideBar/RightSideBar.js";
@@ -17,11 +18,12 @@ class App extends Component{
       // Login State
       login: false,
       userId: null,
-      condition: null,
+      repeat: null,
 
       // Check the conversation status
       end: false,
       start: false,
+      quit: false,
       topicPath: '',
       
       // Control the requirementList
@@ -40,14 +42,15 @@ class App extends Component{
     this.controlNextButtonStatus = this.controlNextButtonStatus.bind(this);
     this.controlEndStatus = this.controlEndStatus.bind(this);
     this.controlStartStatus = this.controlStartStatus.bind(this);
+    this.controlQuitStatus = this.controlQuitStatus.bind(this);
   }
 
   // Control the login state
-  changeLoginState = (userId, condition) => {
+  changeLoginState = (userId, repeat) => {
     this.setState({
       login: true,
       userId: userId,
-      condition: condition,
+      repeat: repeat,
     })
   }
 
@@ -112,14 +115,22 @@ class App extends Component{
     }));
   }
 
+  // When each conversation is started, this function can check the status
+  controlQuitStatus = () => {
+    this.setState({
+      quit: true,
+    })
+  }
+
   render(){
-    const { login, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId } = this.state;
+    const { login, quit, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId, repeat } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
-      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey } = this;
+      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
     
     return (
       <div className="backGround">
         { login ? null : <Login changeLoginState={changeLoginState}/>}
+        { quit ? <Quit/> : null }
         <div className="leftSideBar">
           <LeftSideBar 
             requirement={requirement}
@@ -132,6 +143,7 @@ class App extends Component{
         <main className="chatGrid chatStyle">
           <ChatRoom
             userId={userId}
+            repeat={repeat}
             end={end}
             start={start}
             requirementListConvey={requirementListConvey}
@@ -147,12 +159,14 @@ class App extends Component{
         <div className="rightSideBar">
           <RightSideBar
             userId={userId}
+            repeat={repeat}
             endButtonStatus={endButtonStatus}
             nextButtonStatus={nextButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}
             controlNextButtonStatus={controlNextButtonStatus}
             controlEndStatus={controlEndStatus} 
             controlStartStatus={controlStartStatus}
+            controlQuitStatus={controlQuitStatus}
           />
         </div>
       </div>

@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
-import { Button, Icon, Label } from 'semantic-ui-react';
-import './RightSideBar.css';
+import React, { Component } from 'react'
+import { Button, Icon, Label } from 'semantic-ui-react'
+import './RightSideBar.css'
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://protobot-rawdata.firebaseio.com/"
 
 export class RightSideBar extends Component {
     extension = '.json'
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             num_experiment: 1,
             colors: [
@@ -15,13 +15,12 @@ export class RightSideBar extends Component {
                 'grey',
                 'grey',
                 'grey',
-                'grey',
             ]
-        };
-        this.patchUserEndTime = this.patchUserEndTime.bind(this);
-        this.sendEndStatus = this.sendEndStatus.bind(this);
-        this.sendStartStatus = this.sendStartStatus.bind(this);
-        this.endExperiment = this.endExperiment.bind(this);
+        }
+        this.patchUserEndTime = this.patchUserEndTime.bind(this)
+        this.sendEndStatus = this.sendEndStatus.bind(this)
+        this.sendStartStatus = this.sendStartStatus.bind(this)
+        this.endExperiment = this.endExperiment.bind(this)
     }
 
     patchUserEndTime(sessionNum, userId, date) {
@@ -30,35 +29,34 @@ export class RightSideBar extends Component {
             body: JSON.stringify({[sessionNum]: date})
         }).then(res => {
             if(res.status !== 200) {
-                throw new Error(res.statusText);
+                throw new Error(res.statusText)
             }
-            return res.json();
-        });
+            return res.json()
+        })
     }
 
     // Convey the endstatus to parent component when each conversation is ended
     sendEndStatus = () => {
-        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId } = this.props;
-        const { num_experiment } = this.state;
+        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId } = this.props
+        const { num_experiment } = this.state
         const sessionNum = num_experiment + 'thEndTime'
 
-        console.log(sessionNum, userId, new Date());
         this.patchUserEndTime(sessionNum, userId, new Date())
 
         // block the 'endbutton'
-        controlEndButtonStatus();
+        controlEndButtonStatus()
 
         // unblock the 'nextbutton'
-        controlNextButtonStatus();
+        controlNextButtonStatus()
 
         //change the status
-        controlEndStatus();
+        controlEndStatus()
     }
 
     // Convey the startstatus to parent component when each conversation starts
     sendStartStatus = () => {
-        const { controlStartStatus, controlNextButtonStatus } = this.props;
-        const { num_experiment, colors } = this.state;
+        const { controlStartStatus, controlNextButtonStatus } = this.props
+        const { num_experiment, colors } = this.state
 
         this.setState({
             num_experiment: num_experiment + 1,
@@ -70,39 +68,50 @@ export class RightSideBar extends Component {
         })
 
         //change the status
-        controlStartStatus();
+        controlStartStatus()
 
         // block the 'nextbutton'
-        controlNextButtonStatus();
+        controlNextButtonStatus()
     }
 
     // End the whole experiment
     endExperiment = () => {
-        
+        this.patchUserEndTime('LastEndTime', this.props.userId, new Date())
+        this.props.controlQuitStatus()
     }
 
     render() {
-        const { num_experiment, colors } = this.state;
+        const { num_experiment, colors } = this.state
 
         // Control each button's disabled status
-        const { endButtonStatus, nextButtonStatus } = this.props;
+        const { endButtonStatus, nextButtonStatus, repeat } = this.props
+
+        let num_condition = 4
+        if (repeat === false){
+            num_condition = 1
+        }
 
         return (
             <div className="rightGrid">
                 <div className="rightInsBox">
                     <div className="textCenter">
-                        <div style={{ marginBottom: '20px' }}> {num_experiment} / 5 </div>
-                        <div>
-                            {colors.map((color, i) => (
-                            <Label key={i} circular color={color}>
-                            </Label>
-                            ))}
-                        </div>
+                        { repeat
+                            ?   <div>
+                                    <div style={{ marginBottom: '20px' }}> {num_experiment} / 4 </div>
+                                    <div>
+                                        {colors.map((color, i) => (
+                                        <Label key={i} circular color={color}>
+                                        </Label>
+                                        ))}
+                                    </div>
+                                </div>
+                            :   null
+                        }
                     </div>
                 </div>
                 <div className="rightinfoBox">
                     <div className="textCenter">
-                        { endButtonStatus
+                        {  endButtonStatus
                             ?   <Button fluid icon labelPosition='left' onClick={() => this.sendEndStatus()}>
                                     <Icon name='pause' />
                                     End Conversation
@@ -114,15 +123,18 @@ export class RightSideBar extends Component {
                         }
                         <div style={{height: '20px'}}></div>
                         { nextButtonStatus
-                            ?   <Button fluid icon labelPosition='right' onClick={() => { (num_experiment === 5) ? this.endExperiment() : this.sendStartStatus()}}>
-                                    { (num_experiment === 5) 
+                            ?   <Button fluid icon labelPosition='right' onClick={() => { (num_experiment === num_condition) ? this.endExperiment() : this.sendStartStatus()}}>
+                                    { (num_experiment === num_condition) 
                                         ? 'End'
                                         : 'Next Conversation'
                                     }
                                     <Icon name='right arrow' />
                                 </Button>
                             :   <Button disabled fluid icon labelPosition='right' onClick={() => this.sendStartStatus()}>
-                                    Next Conversation
+                                    { repeat
+                                        ? 'Next Conversation'
+                                        : 'End'
+                                    }
                                     <Icon name='right arrow' />
                                 </Button>
                         }
