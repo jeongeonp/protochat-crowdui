@@ -52,8 +52,6 @@ export class Login extends Component {
     render() {
         const { name, gender, age } = this.state
         const { sendAndPost } = this
-        const T = true
-        const F = false
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
             { key: 'f', text: 'Female', value: GENDER.F },

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Icon, Label } from 'semantic-ui-react'
+import { Button, Icon, } from 'semantic-ui-react'
 import './RightSideBar.css'
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/"

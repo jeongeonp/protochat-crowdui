@@ -52,25 +52,29 @@ class App extends Component{
   componentDidMount() {
     const otherResponse = (this.getURLParams('otherResponse') === 'true');
     const numSession = parseInt(this.getURLParams('numSession'));
-    console.log(otherResponse, numSession)
-    this.setState({
-      otherResponse: otherResponse,
-      numSession: numSession,
-    })
+    if(otherResponse && numSession){
+      this.setState({
+        otherResponse: otherResponse,
+        numSession: numSession,
+      })
+    }
   }
 
   // Get parameters from URL
   getURLParams = (param) => {
     const PageURL = window.location.href;
-    const f_PageURL = PageURL.split('?');
-    const s_PageURL = f_PageURL[1]
-    var sURLVariables = s_PageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++) 
-    {
-      var sParameterName = sURLVariables[i].split('=');
-      if (sParameterName[0] == param) 
+    const s = '?'
+    if (PageURL.indexOf(s) !== -1){
+      const f_PageURL = PageURL.split('?');
+      const s_PageURL = f_PageURL[1]
+      var sURLVariables = s_PageURL.split('&');
+      for (var i = 0; i < sURLVariables.length; i++) 
       {
-        return sParameterName[1]
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] === param) 
+        {
+          return sParameterName[1]
+        }
       }
     }
   }

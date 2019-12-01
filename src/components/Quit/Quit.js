@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Modal, Form, } from 'semantic-ui-react'
+import { Modal } from 'semantic-ui-react'
 import './Quit.css'
 
 // const databaseURL = "https://protobot-rawdata.firebaseio.com/"
