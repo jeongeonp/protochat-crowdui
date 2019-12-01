@@ -14,6 +14,10 @@ class App extends Component{
     super(props);
     fire();
     this.state = {
+      // Experiment Condition
+      otherResponse: true,
+      numSession: 1,
+
       // Login State
       login: false,
       userId: null,
@@ -32,6 +36,7 @@ class App extends Component{
       endButtonStatus: false,
       nextButtonStatus: false,
     };
+    this.getURLParams = this.getURLParams.bind(this);
     this.changeLoginState = this.changeLoginState.bind(this);
     this.setStateRequirment = this.setStateRequirment.bind(this);
     this.requirementListConvey = this.requirementListConvey.bind(this);
@@ -40,6 +45,32 @@ class App extends Component{
     this.controlNextButtonStatus = this.controlNextButtonStatus.bind(this);
     this.controlEndStatus = this.controlEndStatus.bind(this);
     this.controlStartStatus = this.controlStartStatus.bind(this);
+  }
+
+  componentDidMount() {
+    const otherResponse = Boolean(this.getURLParams('otherResponse'));
+    const numSession = parseInt(this.getURLParams('numSession'));
+    console.log(otherResponse, numSession)
+    this.setState({
+      otherResponse: otherResponse,
+      numSession: numSession,
+    })
+  }
+
+  // Get parameters from URL
+  getURLParams = (param) => {
+    const PageURL = window.location.href;
+    const f_PageURL = PageURL.split('?');
+    const s_PageURL = f_PageURL[1]
+    var sURLVariables = s_PageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+      var sParameterName = sURLVariables[i].split('=');
+      if (sParameterName[0] == param) 
+      {
+        return sParameterName[1]
+      }
+    }
   }
 
   // Control the login state

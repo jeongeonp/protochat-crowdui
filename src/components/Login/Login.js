@@ -19,7 +19,6 @@ export class Login extends Component {
             name: null,
             gender: null,
             age: null,
-            condition: null,
         }
         this.userPost = this.userPost.bind(this)
         this.sendAndPost = this.sendAndPost.bind(this)
@@ -51,7 +50,7 @@ export class Login extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
     render() {
-        const { name, gender, age, condition } = this.state
+        const { name, gender, age } = this.state
         const { sendAndPost } = this
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
