@@ -103,8 +103,8 @@ export class SystemUserButton extends Component {
     }
 
     handleNotapplicable = () => {
-        const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic } = this.props;
-        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topics: preTopic}
+        const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, numSession } = this.props;
+        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topics: preTopic, numSession: numSession}
         
         this.setState({
             inputButtonState: true,
@@ -115,36 +115,52 @@ export class SystemUserButton extends Component {
     }
 
     render() {
-        const { otherResponseList } = this.props;
+        const { otherResponseList, otherResponse } = this.props;
         const { handleCreate, handleNotapplicable } = this;
-        if (Object.keys(otherResponseList).length > 5){
+        if ((Object.keys(otherResponseList).length > 5)){
             this.overflowCondition = 'scroll'
         }
 
         return (
             <div className="systemUserButtonBox">
                 <span className="systemUserText">
-                    Select the similar response with your response!
+                    { otherResponse
+                        ?   'Select the similar response with your response!'
+                        :   'click the [Next Bot Utterance] Button'
+                    }
                 </span>
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
                             { this.state.inputButtonState
-                                ?   <Button fluid disabled>Nothing to select</Button>
-                                :   <Button fluid negative onClick={handleNotapplicable}>Nothing to select</Button>
+                                ?   <Button fluid disabled>
+                                        { otherResponse
+                                            ?   'Nothing to select'
+                                            :   'Next Bot Utterance'
+                                        }
+                                    </Button>
+                                :   <Button fluid negative onClick={handleNotapplicable}>
+                                        { otherResponse
+                                            ?   'Nothing to select'
+                                            :   'Next Bot Utterance'
+                                        }
+                                    </Button>
                             }
-                            {Object.keys(otherResponseList).map(id => {
-                                const response = otherResponseList[id];
-                                return (
-                                    <div key={id}>
-                                    <div style={{height: '10px'}}></div>
-                                    { this.state.inputButtonState
-                                        ?   <Button fluid disabled>{response.text}</Button>
-                                        :   <Button fluid onClick={handleCreate.bind(this, response, response.branchId, true)}>{response.text}</Button>
-                                    }
-                                    </div>
-                                );
-                            })}
+                            { otherResponse
+                                ?   Object.keys(otherResponseList).map(id => {
+                                        const response = otherResponseList[id];
+                                        return (
+                                            <div key={id}>
+                                            <div style={{height: '10px'}}></div>
+                                            { this.state.inputButtonState
+                                                ?   <Button fluid disabled>{response.text}</Button>
+                                                :   <Button fluid onClick={handleCreate.bind(this, response, response.branchId, true)}>{response.text}</Button>
+                                            }
+                                            </div>
+                                        );
+                                    })
+                                :   null
+                            }
                         </Segment>
                     </Segment.Group>
                 </div>

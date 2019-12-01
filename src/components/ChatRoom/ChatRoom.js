@@ -168,11 +168,10 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            if (type){
-                if (utterance.required){
-                    // const topic_name = Object.keys(utterance.topics)
-                    // this.getR_ChildBranch(topic_name)
-                } else {
+            // if (utterance.required || (utterance.repeat !== this.props.repeat)){
+            if (utterance.required){
+            } else {
+                if (type){
                     this.setState({
                         answerList: this.state.answerList.concat({
                             branchId: branch,
@@ -180,15 +179,15 @@ export class ChatRoom extends Component {
                             uId: utteranceId
                         })
                     })
-                }
-            } else{
-                this.setState({
-                    otherResponseList: this.state.otherResponseList.concat({
-                        branchId: branch,
-                        text: utterance.text,
-                        uId: utteranceId
+                } else{
+                    this.setState({
+                        otherResponseList: this.state.otherResponseList.concat({
+                            branchId: branch,
+                            text: utterance.text,
+                            uId: utteranceId
+                        })
                     })
-                })
+                }
             }
         });
     }
@@ -216,6 +215,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
+            // if (utterance.required || (utterance.repeat !== this.props.repeat)){
             if (utterance.required){
             } else {
                 this.setState({
@@ -576,6 +576,8 @@ export class ChatRoom extends Component {
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
                                 {similarUserStatus ? null : <SystemUserButton
                                                                 userId={this.props.userId}
+                                                                otherResponse={this.props.otherResponse}
+                                                                // repeat={this.props.repeat}
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
@@ -589,6 +591,8 @@ export class ChatRoom extends Component {
                                                             />}
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
+                                                            otherResponse={this.props.otherResponse}
+                                                            // repeat={this.props.repeat}
                                                             selectAnswer={selectAnswer}
                                                             save_requirement={save_requirement}
                                                             answerList={answerList}

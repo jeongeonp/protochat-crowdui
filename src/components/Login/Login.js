@@ -40,9 +40,9 @@ export class Login extends Component {
     }
 
     sendAndPost = () => {
-        const { name, gender, age, } = this.state
-        const newUser = {timestamp: new Date(), name: name,gender: gender, age: age}
+        const { name, gender, age} = this.state
         if (name && gender && age){
+            const newUser = {timestamp: new Date(), name: name,gender: gender, age: age}
             this.userPost(newUser)
         }
     }
@@ -52,6 +52,8 @@ export class Login extends Component {
     render() {
         const { name, gender, age } = this.state
         const { sendAndPost } = this
+        const T = true
+        const F = false
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
             { key: 'f', text: 'Female', value: GENDER.F },
@@ -92,16 +94,16 @@ export class Login extends Component {
                                 <label>Condition</label>
                                 <Form.Radio
                                     label='Condition A'
-                                    name='condition'
-                                    value='A'
-                                    checked={condition === 'A'}
+                                    name='repeat'
+                                    value={T}
+                                    checked={repeat === true}
                                     onChange={this.handleChange}
                                 />
                                 <Form.Radio
                                     label='Condition B'
-                                    name='condition'
-                                    value='B'
-                                    checked={condition === 'B'}
+                                    name='repeat'
+                                    value={F}
+                                    checked={repeat === false}
                                     onChange={this.handleChange}
                                 />
                             </Form.Group> */}

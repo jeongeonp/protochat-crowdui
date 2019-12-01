@@ -165,8 +165,8 @@ export class SystemBotButton extends Component {
     // Add New answer of Bot, state: true
     handleCreate = () => {
         const { input } = this.state
-        const { domainId, userId, deployedVersion } = this.props
-        const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion}
+        const { domainId, userId, deployedVersion, numSession } = this.props
+        const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
         
         this.setState({
             input: '',
@@ -203,7 +203,7 @@ export class SystemBotButton extends Component {
 
     render() {
         const { inputState, input } = this.state
-        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList } = this.props
+        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement } = this
         
         if (Object.keys(answerList).length > 4){
@@ -251,7 +251,12 @@ export class SystemBotButton extends Component {
                                             }
                                         </span>
                                         <div style={{height: '10px'}}></div>
-                                        <div className="systemBotText" style={{color: 'red'}}>You can add new response or select another response</div>
+                                        <div className="systemBotText" style={{color: 'red'}}>
+                                            { otherResponse
+                                                ?   'You can add new response or select another response'
+                                                :   'You can add new response'
+                                            }
+                                        </div>
                                         <div style={{height: '15px'}}></div>
                                         { inputState
                                             ? <Button fluid positive onClick={changeInputState}>Add new response</Button>
@@ -264,27 +269,32 @@ export class SystemBotButton extends Component {
                                                 <Button positive type='submit' onClick={handleCreate}>Add</Button>
                                             </Input>
                                         }
-                                        { start_requirement === true
-                                            ?   Object.keys(r_answerList).map(id => {
-                                                    const r_answer = r_answerList[id]
+                                        { otherResponse
+                                            ?   start_requirement === true
+                                                    ?   Object.keys(r_answerList).map(id => {
+                                                            const r_answer = r_answerList[id]
+                                                            return (
+                                                                <div key={id}>
+                                                                    <div style={{height: '10px'}}></div>
+                                                                    <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    :   null
+                                            : null
+                                        }
+                                        { otherResponse
+                                            ?   Object.keys(answerList).map(id => {
+                                                    const answer = answerList[id]
                                                     return (
                                                         <div key={id}>
                                                             <div style={{height: '10px'}}></div>
-                                                            <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                            <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
                                                         </div>
                                                     )
                                                 })
                                             :   null
                                         }
-                                        {Object.keys(answerList).map(id => {
-                                            const answer = answerList[id]
-                                            return (
-                                                <div key={id}>
-                                                    <div style={{height: '10px'}}></div>
-                                                    <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
-                                                </div>
-                                            )
-                                        })}
                                     </Segment>
                                 </Segment.Group>
                             </div>
