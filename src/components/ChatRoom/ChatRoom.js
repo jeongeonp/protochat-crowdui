@@ -88,7 +88,12 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        this.getDomains();
+        const { deployedVersion, domainId } = this.props;
+        if (deployedVersion && domainId){
+            this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
+        } else {
+            this.getDomains('/last-deployed/data/');
+        }
     }
     
     componentDidUpdate() {
@@ -113,8 +118,8 @@ export class ChatRoom extends Component {
     //-----------------------
     // function for tree data import
     // ----------------------
-    getDomains() {
-        fetch(`${databaseURL}/last-deployed/data/.json`).then(res => {
+    getDomains(address) {
+        fetch(`${databaseURL+address}.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }

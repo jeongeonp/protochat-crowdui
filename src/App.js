@@ -18,6 +18,8 @@ class App extends Component{
       // Experiment Condition
       otherResponse: true,
       numSession: 1,
+      deployedVersion: null,
+      domainId: null,
 
       // Login State
       login: false,
@@ -50,12 +52,19 @@ class App extends Component{
   }
 
   componentDidMount() {
-    const otherResponse = (this.getURLParams('otherResponse') === 'true');
-    const numSession = parseInt(this.getURLParams('numSession'));
-    if(otherResponse && numSession){
+    const otherResponse = (this.getURLParams('otherResponse') === 'true')
+    const numSession = parseInt(this.getURLParams('numSession'))
+    const deployedVersion = this.getURLParams('deployedVersion')
+    const domainId = this.getURLParams('domain')
+
+    console.log(numSession, otherResponse, domainId, deployedVersion)
+
+    if(otherResponse && numSession && deployedVersion && domainId){
       this.setState({
         otherResponse: otherResponse,
         numSession: numSession,
+        deployedVersion: deployedVersion,
+        domainId: domainId,
       })
     }
   }
@@ -80,7 +89,7 @@ class App extends Component{
   }
 
   // Control the login state
-  changeLoginState = (userId, repeat) => {
+  changeLoginState = ( userId ) => {
     this.setState({
       login: true,
       userId: userId,
@@ -156,7 +165,7 @@ class App extends Component{
   }
 
   render(){
-    const { login, quit, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId, numSession, otherResponse } = this.state;
+    const { login, quit, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId, numSession, otherResponse, deployedVersion, domainId } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
     
@@ -178,6 +187,8 @@ class App extends Component{
             userId={userId}
             numSession={numSession}
             otherResponse={otherResponse}
+            deployedVersion={deployedVersion}
+            domainId={domainId}
             end={end}
             start={start}
             requirementListConvey={requirementListConvey}

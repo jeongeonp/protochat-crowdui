@@ -90,6 +90,8 @@ export class RightSideBar extends Component {
         // Control each button's disabled status
         const { endButtonStatus, nextButtonStatus, numSession } = this.props
 
+        console.log(numSession)
+
         return (
             <div className="rightGrid">
                 <div className="rightInsBox">
