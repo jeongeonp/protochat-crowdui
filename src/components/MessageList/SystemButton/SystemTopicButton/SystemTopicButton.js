@@ -25,12 +25,15 @@ export class SystemTopicButton extends Component {
 
         return (
             <div className="systemTopicButtonBox">
-                <span className="systemTopicText">Select the domain!</span>
+                <span className="systemTopicText">Start conversation with the domain below</span>
                 <div style={{height:'15px'}}></div>
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
-                            {Object.keys(this.props.domains).map(id => {
+                            <div >
+                                <Button fluid onClick={handleCreate.bind(this, this.props.domains, 0)}>{this.props.domains.name}</Button>
+                            </div>
+                            {/* {Object.keys(this.props.domains).map(id => {
                                 const domain = this.props.domains[id];
                                 return (
                                     <div key={id}>
@@ -41,7 +44,7 @@ export class SystemTopicButton extends Component {
                                     <Button fluid onClick={handleCreate.bind(this, domain, id)}>{domain.name}</Button>
                                     </div>
                                 );
-                            })}
+                            })} */}
                         </Segment>
                     </Segment.Group>
                 </div>

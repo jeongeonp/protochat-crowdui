@@ -59,8 +59,8 @@ export class ChatRoom extends Component {
             selectBotStatus: true,
             similarUserStatus: true,
         };
-        
 	    this.getDomains = this.getDomains.bind(this);
+	    this.getURLParams = this.getURLParams.bind(this);
 	    this.getChildBranches = this.getChildBranches.bind(this);
 	    this.getChildUtterance = this.getChildUtterance.bind(this);
 	    this.getUtteranceText = this.getUtteranceText.bind(this);
@@ -88,12 +88,11 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        const { deployedVersion, domainId } = this.props;
-        if (deployedVersion && domainId){
-            this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
-        } else {
-            this.getDomains('/last-deployed/data/');
-        }
+        const deployedVersion = this.getURLParams('deployedVersion')
+        const domainId = this.getURLParams('domain')
+
+        console.log(deployedVersion, domainId)
+        this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
     }
     
     componentDidUpdate() {
@@ -127,6 +126,24 @@ export class ChatRoom extends Component {
         }).then(domains => {
             this.setState({domains: domains})
         });
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
     }
 
     // utterance list에 branch까지 같이 저장해서, 다음 branch 바로 넘겨줄 수 있도록
@@ -173,8 +190,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            // if (utterance.required || (utterance.repeat !== this.props.repeat)){
-            if (utterance.required){
+            if (utterance.required || (utterance.version !== this.props.deployedVersion)){
             } else {
                 if (type){
                     this.setState({
@@ -220,8 +236,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            // if (utterance.required || (utterance.repeat !== this.props.repeat)){
-            if (utterance.required){
+            if (utterance.required || (utterance.version !== this.props.deployedVersion)){
             } else {
                 this.setState({
                     r_answerList: this.state.r_answerList.concat({
@@ -241,8 +256,8 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(topic => {
-            const u_list = Object.keys(topic.utterances)
-            this.getRequirementsText(u_list[0], topic.name, topic.branch, path, order)
+            // const u_list = Object.keys(topic.utterances)
+            this.getRequirementsText(topic.mainUtterance, topic.name, topic.branch, path, order)
         });
     }
 
@@ -253,6 +268,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
+            console.log(topicEmbedded)
             this.setState({
                 requirementList: this.state.requirementList.concat({
                     checked: false,
@@ -279,6 +295,7 @@ export class ChatRoom extends Component {
 
     setRequirements(domain) {
         Object.entries(domain.topics).map(([key, order]) => {
+            console.log(key, order)
             this.getRequirements(key, order)
         })
     }
@@ -309,12 +326,21 @@ export class ChatRoom extends Component {
 
     // Reset the messageList when the conversation is ended
     resetMessageList = () => {
-        this.setState({
-            messageList: [
-                { id: 0, type: 'system', time: null, text: 'End the '+ 'conversation ' + this.num_experiment},
-                { id: 1, type: 'system', time: null, text: 'Click the [Next Conversation] Button in below'}
-            ],
-        })
+        if (this.props.numSession === 1){
+            this.setState({
+                messageList: [
+                    { id: 0, type: 'system', time: null, text: 'End the experiment '},
+                    { id: 1, type: 'system', time: null, text: 'Click the [End experiment] Button in below'}
+                ],
+            }) 
+        } else {
+            this.setState({
+                messageList: [
+                    { id: 0, type: 'system', time: null, text: 'End the '+ 'conversation ' + this.num_experiment},
+                    { id: 1, type: 'system', time: null, text: 'Click the [Next Conversation] Button in below'}
+                ],
+            })
+        }
         this.id = 0
     }
 
@@ -492,7 +518,6 @@ export class ChatRoom extends Component {
         
         this.turn += 1
 
-        // 나중에 수정으로 대체
         this.setState({
             messageList: this.state.messageList.splice(-1, 1)
         })
@@ -565,7 +590,7 @@ export class ChatRoom extends Component {
         } = this;
 
         const sysNotice = [
-            { id: 0, type: 'system', time: null, text: "Now, it's User turn!\n\nPlease enter your response as a user in the input field at the bottom of the page."},
+            { id: 0, type: 'system', time: null, text: "Now it's your turn!\n\nPlease enter your response as a user in the input field at the bottom of the page."},
             { id: 2, type: 'loading', time: null, text: "  "},
         ];
 
@@ -582,7 +607,6 @@ export class ChatRoom extends Component {
                                 {similarUserStatus ? null : <SystemUserButton
                                                                 userId={this.props.userId}
                                                                 otherResponse={this.props.otherResponse}
-                                                                // repeat={this.props.repeat}
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
@@ -597,7 +621,6 @@ export class ChatRoom extends Component {
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
                                                             otherResponse={this.props.otherResponse}
-                                                            // repeat={this.props.repeat}
                                                             selectAnswer={selectAnswer}
                                                             save_requirement={save_requirement}
                                                             answerList={answerList}

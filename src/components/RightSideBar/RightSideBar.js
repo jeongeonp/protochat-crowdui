@@ -90,8 +90,6 @@ export class RightSideBar extends Component {
         // Control each button's disabled status
         const { endButtonStatus, nextButtonStatus, numSession } = this.props
 
-        console.log(numSession)
-
         return (
             <div className="rightGrid">
                 <div className="rightInsBox">
@@ -116,26 +114,26 @@ export class RightSideBar extends Component {
                         {  endButtonStatus
                             ?   <Button fluid icon labelPosition='left' onClick={() => this.sendEndStatus()}>
                                     <Icon name='pause' />
-                                    End Conversation
+                                    End current session
                                 </Button>
                             :   <Button disabled fluid icon labelPosition='left' onClick={() => this.sendEndStatus()}>
                                     <Icon name='pause' />
-                                    End Conversation
+                                    End current session
                                 </Button>
                         }
                         <div style={{height: '20px'}}></div>
                         { nextButtonStatus
                             ?   <Button fluid icon labelPosition='right' onClick={() => { (num_experiment === numSession) ? this.endExperiment() : this.sendStartStatus()}}>
                                     { (num_experiment === numSession) 
-                                        ? 'End'
-                                        : 'Next Conversation'
+                                        ? 'End experiment'
+                                        : 'Move on to next session'
                                     }
                                     <Icon name='right arrow' />
                                 </Button>
                             :   <Button disabled fluid icon labelPosition='right' onClick={() => this.sendStartStatus()}>
                                     { numSession === 1
-                                        ? 'Next Conversation'
-                                        : 'End'
+                                        ? 'Move on to next session'
+                                        : 'End experiment'
                                     }
                                     <Icon name='right arrow' />
                                 </Button>

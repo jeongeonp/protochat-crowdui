@@ -66,7 +66,7 @@ export class SystemBotButton extends Component {
                 this.patchChildren(prevBranch, branch)
             }
             if (start) {
-                this.patchFirstBranch(domainId, branch)
+                this.patchFirstBranch(this.props.domainId, this.props.deployedVersion, branch)
             }
             if (addRequired) {
                 this.patchBranchRequired(save_requirement, data.name)
@@ -100,8 +100,9 @@ export class SystemBotButton extends Component {
         });
     }
 
-    patchFirstBranch(domainId, f_branch) {
-        return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
+    patchFirstBranch(domainId, deployedVersion, f_branch) {
+        // return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
+        return fetch(`${databaseURL+'/deployed-history/data/'+domainId+'/'+deployedVersion+'/branches'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(f_branch)
         }).then(res => {
@@ -220,8 +221,8 @@ export class SystemBotButton extends Component {
                                     <Segment textAlign='center'>
                                         <div className="systemBotText">
                                             { prevBranch === null
-                                                ?   'Click the first topic'
-                                                :   'A. Skip to next topic'
+                                                ?   'Proceed to the first topic'
+                                                :   'A: Proceed to the next topic'
                                             }
                                         </div>
                                         <div style={{height: '15px'}}></div>
@@ -246,8 +247,8 @@ export class SystemBotButton extends Component {
                                     <Segment textAlign='center' color='teal'>
                                         <span className="systemBotText">
                                             { requirementList.length === 0
-                                                ?   'Continue this conversation on the current topic'
-                                                :   'B. Continue this conversation on the current topic'
+                                                ?   'Continue this conversation with the current topic'
+                                                :   'B: Continue this conversation with the current topic'
                                             }
                                         </span>
                                         <div style={{height: '10px'}}></div>

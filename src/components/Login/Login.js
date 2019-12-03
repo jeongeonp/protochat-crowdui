@@ -67,8 +67,8 @@ export class Login extends Component {
                         <Form>
                             <Form.Group widths='equal'>
                                 <Form.Input 
-                                    fluid label='Name' 
-                                    placeholder='Type your name'
+                                    fluid label='Crowd ID' 
+                                    placeholder='Type your Crowd ID'
                                     name='name'
                                     value={name}
                                     onChange={this.handleChange}

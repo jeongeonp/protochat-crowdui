@@ -125,7 +125,7 @@ export class SystemUserButton extends Component {
             <div className="systemUserButtonBox">
                 <span className="systemUserText">
                     { otherResponse
-                        ?   'Select the similar response with your response!'
+                        ?   'Select the message which has same meaning with your message right above'
                         :   'click the [Next Bot Utterance] Button'
                     }
                 </span>
