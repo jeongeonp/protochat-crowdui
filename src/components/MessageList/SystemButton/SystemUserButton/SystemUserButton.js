@@ -32,8 +32,9 @@ export class SystemUserButton extends Component {
             }
             return res.json();
         }).then(data => {
-            const { domainId, prevBranch, userId, num_experiment, turn } = this.props;
-            const newBranch = {domain: domainId, parent: prevBranch, utterances: {[data.name]: true}}
+            const { domainId, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props;
+            console.log(deployedVersion)
+            const newBranch = {domain: domainId, parent: prevBranch, version: deployedVersion, utterances: {[data.name]: true}}
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance);
         });

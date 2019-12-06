@@ -205,6 +205,7 @@ class App extends Component{
           <RightSideBar
             userId={userId}
             numSession={numSession}
+            domainId={domainId}
             endButtonStatus={endButtonStatus}
             nextButtonStatus={nextButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}

@@ -88,11 +88,17 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        const deployedVersion = this.getURLParams('deployedVersion')
-        const domainId = this.getURLParams('domain')
+        // const deployedVersion = this.getURLParams('deployedVersion')
+        // const domainId = this.getURLParams('domain')
 
-        console.log(deployedVersion, domainId)
-        this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
+        // console.log(deployedVersion, domainId)
+        // this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
+        const { deployedVersion, domainId } = this.props;
+        if (deployedVersion && domainId){
+            this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
+        } else {
+            this.getDomains('/last-deployed/data/');
+        }
     }
     
     componentDidUpdate() {
@@ -257,6 +263,7 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(topic => {
             // const u_list = Object.keys(topic.utterances)
+            console.log(topic)
             this.getRequirementsText(topic.mainUtterance, topic.name, topic.branch, path, order)
         });
     }
@@ -428,6 +435,7 @@ export class ChatRoom extends Component {
     selectDomain = (dataFromChild, id) => {
         const { messageList, time } = this.state;
         this.setRequirements(dataFromChild)
+        console.log(dataFromChild)
         if (dataFromChild.branches) {
             const branches = Object.keys(dataFromChild.branches)
             this.setState({
@@ -611,7 +619,7 @@ export class ChatRoom extends Component {
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
                                                                 domainId={domainId}
-                                                                deployedVersion={deployedVersion}
+                                                                deployedVersion={this.props.deployedVersion}
                                                                 prevBranch={prevBranch}
                                                                 preTopic={preTopic}
                                                                 initializeTopic={initializeTopic}
@@ -629,7 +637,7 @@ export class ChatRoom extends Component {
                                                             requirementList={requirementList}
                                                             changeRequirment={changeRequirment}
                                                             num_requirement={num_requirement}
-                                                            deployedVersion={deployedVersion}
+                                                            deployedVersion={this.props.deployedVersion}
                                                             domainId={domainId}
                                                             prevBranch={prevBranch}
                                                             startBranch={startBranch}

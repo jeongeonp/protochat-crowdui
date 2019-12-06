@@ -39,13 +39,29 @@ export class RightSideBar extends Component {
         })
     }
 
+    patchUserSetId(domainId, userId, checkSessionObject) {
+        return fetch(`${databaseURL+'/users/lists/domains/'+domainId + '/' + userId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify(checkSessionObject)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText)
+            }
+            return res.json()
+        })
+    }
+
     // Convey the endstatus to parent component when each conversation is ended
     sendEndStatus = () => {
-        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId } = this.props
+        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId, domainId, numSession } = this.props
         const { num_experiment } = this.state
         const sessionNum = num_experiment + 'thEndTime'
+        const checkSession = numSession + '/' + num_experiment
+        const checkSessionObject = {[checkSession]: true}
 
         this.patchUserEndTime(sessionNum, userId, new Date())
+        console.log(checkSessionObject)
+        this.patchUserSetId(domainId, userId, checkSessionObject)
 
         // block the 'endbutton'
         controlEndButtonStatus()
