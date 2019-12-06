@@ -25,6 +25,7 @@ export class ChatRoom extends Component {
 
             // Version Check
             deployedVersion: '',
+            domainID: '',
 
             // Keeping pre-defined topic
             preTopic: null,
@@ -88,14 +89,16 @@ export class ChatRoom extends Component {
     /* A. Lifecycle Function */
 
     componentDidMount() {
-        // const deployedVersion = this.getURLParams('deployedVersion')
-        // const domainId = this.getURLParams('domain')
+        const deployedVersion = this.getURLParams('deployedVersion')
+        const domainID = this.getURLParams('domain')
 
-        // console.log(deployedVersion, domainId)
-        // this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
-        const { deployedVersion, domainId } = this.props;
-        if (deployedVersion && domainId){
-            this.getDomains('/deployed-history/data/'+ domainId + '/' + deployedVersion);
+        this.setState({
+            deployedVersion: deployedVersion,
+            domainID: domainID
+        })
+
+        if (deployedVersion && domainID){
+            this.getDomains('/deployed-history/data/'+ domainID + '/' + deployedVersion);
         } else {
             this.getDomains('/last-deployed/data/');
         }
@@ -196,7 +199,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            if (utterance.required || (utterance.version !== this.props.deployedVersion)){
+            if (utterance.required || (utterance.version !== this.state.deployedVersion)){
             } else {
                 if (type){
                     this.setState({
@@ -242,7 +245,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            if (utterance.required || (utterance.version !== this.props.deployedVersion)){
+            if (utterance.required || (utterance.version !== this.state.deployedVersion)){
             } else {
                 this.setState({
                     r_answerList: this.state.r_answerList.concat({
@@ -263,7 +266,6 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(topic => {
             // const u_list = Object.keys(topic.utterances)
-            console.log(topic)
             this.getRequirementsText(topic.mainUtterance, topic.name, topic.branch, path, order)
         });
     }
@@ -275,7 +277,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            console.log(topicEmbedded)
             this.setState({
                 requirementList: this.state.requirementList.concat({
                     checked: false,
@@ -285,6 +286,7 @@ export class ChatRoom extends Component {
                     topics: utterance.topics,
                     uId: path,
                     bId: branch,
+                    required: true,
                     order: parseInt(order, 10),
                 }),
                 num_requirement: Object.keys(this.state.requirementList).length + 1
@@ -302,7 +304,6 @@ export class ChatRoom extends Component {
 
     setRequirements(domain) {
         Object.entries(domain.topics).map(([key, order]) => {
-            console.log(key, order)
             this.getRequirements(key, order)
         })
     }
@@ -355,7 +356,7 @@ export class ChatRoom extends Component {
     startConversation = () => {
         this.num_experiment ++
         this.after_require = false
-        this.getDomains()
+        this.getDomains('/deployed-history/data/'+ this.state.domainID + '/' + this.state.deployedVersion)
         this.id = 0
         this.turn = 0
         this.setState({
@@ -435,7 +436,6 @@ export class ChatRoom extends Component {
     selectDomain = (dataFromChild, id) => {
         const { messageList, time } = this.state;
         this.setRequirements(dataFromChild)
-        console.log(dataFromChild)
         if (dataFromChild.branches) {
             const branches = Object.keys(dataFromChild.branches)
             this.setState({
@@ -583,7 +583,7 @@ export class ChatRoom extends Component {
     render() {
         const { input, time, originResponse, 
             domains, messageList, answerList, r_answerList, requirementList,
-            otherResponseList, inputButtonState, domainId, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
+            otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus } = this.state;
         const {
@@ -618,8 +618,8 @@ export class ChatRoom extends Component {
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
-                                                                domainId={domainId}
-                                                                deployedVersion={this.props.deployedVersion}
+                                                                domainId={domainID}
+                                                                deployedVersion={deployedVersion}
                                                                 prevBranch={prevBranch}
                                                                 preTopic={preTopic}
                                                                 initializeTopic={initializeTopic}
@@ -637,8 +637,8 @@ export class ChatRoom extends Component {
                                                             requirementList={requirementList}
                                                             changeRequirment={changeRequirment}
                                                             num_requirement={num_requirement}
-                                                            deployedVersion={this.props.deployedVersion}
-                                                            domainId={domainId}
+                                                            deployedVersion={deployedVersion}
+                                                            domainId={domainID}
                                                             prevBranch={prevBranch}
                                                             startBranch={startBranch}
                                                             num_experiment={this.num_experiment}

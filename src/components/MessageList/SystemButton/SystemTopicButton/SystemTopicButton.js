@@ -14,16 +14,12 @@ export class SystemTopicButton extends Component {
 
     handleCreate = (domain, id) => {
         const { selectDomain } = this.props;
-        console.log('selectDomain')
         selectDomain(domain, id);
     }
 
     render() {
         const { handleCreate } = this;
-        if (this.props.domains.length > 5){
-            this.overflowCondition = 'scroll'
-        }
-        console.log(this.props.domains)
+        const { domains } = this.props
 
         return (
             <div className="systemTopicButtonBox">
@@ -32,10 +28,10 @@ export class SystemTopicButton extends Component {
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
-                            {/* <div >
-                                <Button fluid onClick={handleCreate.bind(this, this.props.domains, 0)}>{this.props.domains.name}</Button>
-                            </div> */}
-                            {Object.keys(this.props.domains).map(id => {
+                            <div >
+                                <Button fluid onClick={handleCreate.bind(this, domains, 0)}>{domains.name}</Button>
+                            </div>
+                            {/* {Object.keys(this.props.domains).map(id => {
                                 const domain = this.props.domains[id];
                                 return (
                                     <div key={id}>
@@ -46,7 +42,7 @@ export class SystemTopicButton extends Component {
                                     <Button fluid onClick={handleCreate.bind(this, domain, id)}>{domain.name}</Button>
                                     </div>
                                 );
-                            })}
+                            })} */}
                         </Segment>
                     </Segment.Group>
                 </div>

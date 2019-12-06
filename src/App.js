@@ -57,8 +57,6 @@ class App extends Component{
     const deployedVersion = this.getURLParams('deployedVersion')
     const domainId = this.getURLParams('domain')
 
-    console.log(numSession, otherResponse, domainId, deployedVersion)
-
     if(otherResponse && numSession && deployedVersion && domainId){
       this.setState({
         otherResponse: otherResponse,

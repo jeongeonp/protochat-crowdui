@@ -60,7 +60,6 @@ export class RightSideBar extends Component {
         const checkSessionObject = {[checkSession]: true}
 
         this.patchUserEndTime(sessionNum, userId, new Date())
-        console.log(checkSessionObject)
         this.patchUserSetId(domainId, userId, checkSessionObject)
 
         // block the 'endbutton'
