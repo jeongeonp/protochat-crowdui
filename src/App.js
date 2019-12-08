@@ -30,7 +30,7 @@ class App extends Component{
       start: false,
       quit: false,
       topicPath: '',
-      
+
       // Control the requirementList
       requirementList: [],
       requirement: [],
@@ -75,10 +75,10 @@ class App extends Component{
       const f_PageURL = PageURL.split('?');
       const s_PageURL = f_PageURL[1]
       var sURLVariables = s_PageURL.split('&');
-      for (var i = 0; i < sURLVariables.length; i++) 
+      for (var i = 0; i < sURLVariables.length; i++)
       {
         var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] === param) 
+        if (sParameterName[0] === param)
         {
           return sParameterName[1]
         }
@@ -166,13 +166,13 @@ class App extends Component{
     const { login, quit, end, start, endButtonStatus, nextButtonStatus, requirement, requirementList, userId, numSession, otherResponse, deployedVersion, domainId } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
-    
+
     return (
       <div className="backGround">
         { login ? null : <Login changeLoginState={changeLoginState}/>}
         { quit ? <Quit/> : null }
         <div className="leftSideBar">
-          <LeftSideBar 
+          <LeftSideBar
             requirement={requirement}
             initializeRequirementList={initializeRequirementList}
             end={end}
@@ -204,11 +204,12 @@ class App extends Component{
             userId={userId}
             numSession={numSession}
             domainId={domainId}
+            deployedVersion={deployedVersion}
             endButtonStatus={endButtonStatus}
             nextButtonStatus={nextButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}
             controlNextButtonStatus={controlNextButtonStatus}
-            controlEndStatus={controlEndStatus} 
+            controlEndStatus={controlEndStatus}
             controlStartStatus={controlStartStatus}
             controlQuitStatus={controlQuitStatus}
           />

@@ -24,7 +24,7 @@ export class RightSideBar extends Component {
     }
 
     componentDidMount() {
-        
+
     }
 
     patchUserEndTime(sessionNum, userId, date) {
@@ -53,10 +53,10 @@ export class RightSideBar extends Component {
 
     // Convey the endstatus to parent component when each conversation is ended
     sendEndStatus = () => {
-        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId, domainId, numSession } = this.props
+        const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId, domainId, deployedVersion } = this.props
         const { num_experiment } = this.state
         const sessionNum = num_experiment + 'thEndTime'
-        const checkSession = numSession + '/' + num_experiment
+        const checkSession = deployedVersion + '/' + num_experiment
         const checkSessionObject = {[checkSession]: true}
 
         this.patchUserEndTime(sessionNum, userId, new Date())
@@ -139,7 +139,7 @@ export class RightSideBar extends Component {
                         <div style={{height: '20px'}}></div>
                         { nextButtonStatus
                             ?   <Button fluid icon labelPosition='right' onClick={() => { (num_experiment === numSession) ? this.endExperiment() : this.sendStartStatus()}}>
-                                    { (num_experiment === numSession) 
+                                    { (num_experiment === numSession)
                                         ? 'End experiment'
                                         : 'Move on to next session'
                                     }
