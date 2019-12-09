@@ -39,8 +39,8 @@ export class RightSideBar extends Component {
         })
     }
 
-    patchUserSetId(domainId, userId, checkSessionObject) {
-        return fetch(`${databaseURL+'/users/lists/domains/'+domainId + '/' + userId+'/'+this.extension}`, {
+    patchUserSetId(domainId, userId, deployedVersion, checkSessionObject) {
+        return fetch(`${databaseURL+'/users/lists/domains/'+domainId + '/' + deployedVersion + '/' + userId + '/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(checkSessionObject)
         }).then(res => {
@@ -56,11 +56,11 @@ export class RightSideBar extends Component {
         const { controlEndStatus, controlEndButtonStatus, controlNextButtonStatus, userId, domainId, deployedVersion } = this.props
         const { num_experiment } = this.state
         const sessionNum = num_experiment + 'thEndTime'
-        const checkSession = deployedVersion + '/' + num_experiment
+        const checkSession = num_experiment
         const checkSessionObject = {[checkSession]: true}
 
         this.patchUserEndTime(sessionNum, userId, new Date())
-        this.patchUserSetId(domainId, userId, checkSessionObject)
+        this.patchUserSetId(domainId, userId, deployedVersion, checkSessionObject)
 
         // block the 'endbutton'
         controlEndButtonStatus()
