@@ -251,8 +251,8 @@ export class SystemBotButton extends Component {
                                     <Segment textAlign='center' color='teal'>
                                         <span className="systemBotText">
                                             { requirementList.length === 0
-                                                ?   'Continue this conversation with the current topic'
-                                                :   'B: Continue this conversation with the current topic'
+                                                ?   'Continue this conversation with your own topic'
+                                                :   'B: Continue this conversation with your own topic'
                                             }
                                         </span>
                                         <div style={{height: '10px'}}></div>
