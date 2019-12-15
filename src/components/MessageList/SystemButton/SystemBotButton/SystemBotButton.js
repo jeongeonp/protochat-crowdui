@@ -143,11 +143,20 @@ export class SystemBotButton extends Component {
 
     // Send the answer which the user is selected to parent component
     sendAnswer = (utterance, branch, state) => {
-        const { selectAnswer } = this.props
+        const { selectAnswer, setStateAddRequirment } = this.props
+
+        //Convey adding requirement state
+        setStateAddRequirment(false)
+
         selectAnswer(utterance, branch, state)
     }
 
     changeInputState = () => {
+        const { setStateAddRequirment } = this.props
+
+        //Convey adding requirement state
+        setStateAddRequirment(true)
+
         this.setState(prevState => ({
             inputState: !prevState.inputState
         }))
@@ -161,7 +170,11 @@ export class SystemBotButton extends Component {
 
     // Select origin answer of Bot, state: false
     handleSelect = (answer, branch) => {
-        const { userId, domainId, num_experiment, turn } = this.props
+        const { userId, domainId, num_experiment, turn, setStateAddRequirment } = this.props
+
+        //Convey adding requirement state
+        setStateAddRequirment(false)
+
         this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
         this.sendAnswer(answer, branch, false)
@@ -170,9 +183,12 @@ export class SystemBotButton extends Component {
     // Add New answer of Bot, state: true
     handleCreate = () => {
         const { input } = this.state
-        const { domainId, userId, deployedVersion, numSession } = this.props
+        const { domainId, userId, deployedVersion, numSession, setStateAddRequirment } = this.props
         const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
         
+        //Convey adding requirement state
+        setStateAddRequirment(false)
+
         this.setState({
             input: '',
         })
@@ -211,22 +227,24 @@ export class SystemBotButton extends Component {
         const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement } = this
         
-        if (Object.keys(answerList).length > 4){
+        console.log(answerList + r_answerList)
+
+        if (Object.keys(answerList + r_answerList).length > 3){
             this.overflowCondition = 'scroll'
         }
 
         return (
             <div className="systemBotButtonBox">
-                <div style={{width: '100%', marginTop:"10px", overflowY:  this.overflowCondition}}>
+                <div style={{width: '100%', marginTop:"10px",}}>
                     { requirementList.length === 0
                         ?   null
                         :   <div>
-                                <Segment.Group>
+                                <Segment.Group horizontal>
                                     <Segment textAlign='center'>
                                         <div className="systemBotText">
                                             { prevBranch === null
-                                                ?   'Proceed to the first topic'
-                                                :   'A: Proceed to the next topic'
+                                                ?   'Proceed with next requirement'
+                                                :   'A: Proceed with next requirement'
                                             }
                                         </div>
                                         <div style={{height: '15px'}}></div>
@@ -240,11 +258,69 @@ export class SystemBotButton extends Component {
                                             })
                                         }
                                     </Segment>
+                                    { prevBranch === null
+                                        ?   null
+                                        :   <div style={{width: '50%', height: '350px',overflowY:  this.overflowCondition}}>
+                                                <Segment textAlign='center'>
+                                                    <span className="systemBotText">
+                                                        { requirementList.length === 0
+                                                            ?   'If the requirement is not enough, insert new requirement'
+                                                            :   'B: If the requirement is not enough, insert new requirement'
+                                                        }
+                                                    </span>
+                                                    <div style={{height: '10px'}}></div>
+                                                    <div className="systemBotText" style={{color: 'red'}}>
+                                                        { otherResponse
+                                                            ?   "You can (1) add new response or (2) select other's response"
+                                                            :   'You can add new response'
+                                                        }
+                                                    </div>
+                                                    <div style={{height: '15px'}}></div>
+                                                    { inputState
+                                                        ? <Button fluid positive onClick={changeInputState}>Add new response</Button>
+                                                        : <Input fluid type='text' placeholder='Type your answer...' action>
+                                                            <Label color={'green'}>
+                                                                <Image avatar spaced='right' src={bot} />
+                                                                Bot
+                                                            </Label>    
+                                                            <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
+                                                            <Button positive type='submit' onClick={handleCreate}>Add</Button>
+                                                        </Input>
+                                                    }
+                                                    { otherResponse
+                                                        ?   start_requirement === true
+                                                                ?   Object.keys(r_answerList).map(id => {
+                                                                        const r_answer = r_answerList[id]
+                                                                        return (
+                                                                            <div key={id}>
+                                                                                <div style={{height: '10px'}}></div>
+                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                                            </div>
+                                                                        )
+                                                                    })
+                                                                :   null
+                                                        : null
+                                                    }
+                                                    { otherResponse
+                                                        ?   Object.keys(answerList).map(id => {
+                                                                const answer = answerList[id]
+                                                                return (
+                                                                    <div key={id}>
+                                                                        <div style={{height: '10px'}}></div>
+                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        :   null
+                                                    }
+                                                </Segment>
+                                            </div>
+                                    }
                                 </Segment.Group>
                             </div>
                     }
-                    <div style={{height:'10px'}}></div>
-                    { prevBranch === null
+                    {/* <div style={{height:'10px'}}></div> */}
+                    {/* { prevBranch === null
                         ?   null
                         :   <div>
                                 <Segment.Group>
@@ -303,7 +379,7 @@ export class SystemBotButton extends Component {
                                     </Segment>
                                 </Segment.Group>
                             </div>
-                    }
+                    } */}
                 </div>
             </div>
         );
