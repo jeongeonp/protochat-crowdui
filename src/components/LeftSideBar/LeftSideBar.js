@@ -55,7 +55,6 @@ export class LeftSideBar extends Component {
 
     render() {
         const {r_List} = this.state
-        const {addrequirement} = this.props
         return (
             <div className="leftGrid">
                 <div className="protobotLogo">Protobot</div>
@@ -75,21 +74,6 @@ export class LeftSideBar extends Component {
                                         <input type="checkbox" checked={true} className="hidden" readOnly="" tabIndex={i}/>
                                         <label style={{color:'white'}}>{requirement.requirement}</label>
                                     </div>
-                                    { (i === this.num_requirement || i === this.num_requirement + 1)
-                                        ? <div className="leftInsBoxMessageText">
-                                            <Message size='tiny'>{requirement.text}</Message>
-                                        </div>
-                                        : null
-                                    }
-                                    { addrequirement
-                                        ?   <div>
-                                                <div style={{height:'10px'}}></div>
-                                                <div className="ui checkbox">
-                                                    <label style={{color:'white'}}> (...) </label>
-                                                </div>
-                                            </div>
-                                        : null
-                                    }
                                 </div>
                             :   <div key={i}>
                                     <div style={{height:'10px'}}></div>
@@ -97,12 +81,6 @@ export class LeftSideBar extends Component {
                                         <input type="checkbox" className="hidden" readOnly="" tabIndex={i}/>
                                         <label style={{color:'white'}}>{requirement.requirement}</label>
                                     </div>
-                                    { (i === this.num_requirement || i === this.num_requirement + 1)
-                                        ? <div className="leftInsBoxMessageText">
-                                            <Message size='tiny'>{requirement.text}</Message>
-                                        </div>
-                                        : null
-                                    }
                                 </div>
                         })
                     }

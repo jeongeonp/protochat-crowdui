@@ -629,7 +629,6 @@ export class ChatRoom extends Component {
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
                                                             otherResponse={this.props.otherResponse}
-                                                            setStateAddRequirment={this.props.setStateAddRequirment}
                                                             selectAnswer={selectAnswer}
                                                             save_requirement={save_requirement}
                                                             answerList={answerList}

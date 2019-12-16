@@ -143,19 +143,12 @@ export class SystemBotButton extends Component {
 
     // Send the answer which the user is selected to parent component
     sendAnswer = (utterance, branch, state) => {
-        const { selectAnswer, setStateAddRequirment } = this.props
-
-        //Convey adding requirement state
-        setStateAddRequirment(false)
+        const { selectAnswer } = this.props
 
         selectAnswer(utterance, branch, state)
     }
 
     changeInputState = () => {
-        const { setStateAddRequirment } = this.props
-
-        //Convey adding requirement state
-        setStateAddRequirment(true)
 
         this.setState(prevState => ({
             inputState: !prevState.inputState
@@ -170,10 +163,8 @@ export class SystemBotButton extends Component {
 
     // Select origin answer of Bot, state: false
     handleSelect = (answer, branch) => {
-        const { userId, domainId, num_experiment, turn, setStateAddRequirment } = this.props
+        const { userId, domainId, num_experiment, turn } = this.props
 
-        //Convey adding requirement state
-        setStateAddRequirment(false)
 
         this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
@@ -183,11 +174,9 @@ export class SystemBotButton extends Component {
     // Add New answer of Bot, state: true
     handleCreate = () => {
         const { input } = this.state
-        const { domainId, userId, deployedVersion, numSession, setStateAddRequirment } = this.props
+        const { domainId, userId, deployedVersion, numSession } = this.props
         const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
         
-        //Convey adding requirement state
-        setStateAddRequirment(false)
 
         this.setState({
             input: '',
@@ -227,19 +216,22 @@ export class SystemBotButton extends Component {
         const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement } = this
         
-        console.log(answerList + r_answerList)
-
         if (Object.keys(answerList + r_answerList).length > 3){
             this.overflowCondition = 'scroll'
         }
 
         return (
             <div className="systemBotButtonBox">
+                { (prevBranch === null || requirementList.length === 0)
+                    ?   null
+                    :   <div className="systemBotText">It's Bot's turn! You can choose between option A and B</div>
+                }
+                
                 <div style={{width: '100%', marginTop:"10px",}}>
                     { requirementList.length === 0
                         ?   null
                         :   <div>
-                                <Segment.Group horizontal>
+                                <Segment.Group>
                                     <Segment textAlign='center'>
                                         <div className="systemBotText">
                                             { prevBranch === null
@@ -258,83 +250,25 @@ export class SystemBotButton extends Component {
                                             })
                                         }
                                     </Segment>
-                                    { prevBranch === null
-                                        ?   null
-                                        :   <div style={{width: '50%', height: '350px',overflowY:  this.overflowCondition}}>
-                                                <Segment textAlign='center'>
-                                                    <span className="systemBotText">
-                                                        { requirementList.length === 0
-                                                            ?   'If the requirement is not enough, insert new requirement'
-                                                            :   'B: If the requirement is not enough, insert new requirement'
-                                                        }
-                                                    </span>
-                                                    <div style={{height: '10px'}}></div>
-                                                    <div className="systemBotText" style={{color: 'red'}}>
-                                                        { otherResponse
-                                                            ?   "You can (1) add new response or (2) select other's response"
-                                                            :   'You can add new response'
-                                                        }
-                                                    </div>
-                                                    <div style={{height: '15px'}}></div>
-                                                    { inputState
-                                                        ? <Button fluid positive onClick={changeInputState}>Add new response</Button>
-                                                        : <Input fluid type='text' placeholder='Type your answer...' action>
-                                                            <Label color={'green'}>
-                                                                <Image avatar spaced='right' src={bot} />
-                                                                Bot
-                                                            </Label>    
-                                                            <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
-                                                            <Button positive type='submit' onClick={handleCreate}>Add</Button>
-                                                        </Input>
-                                                    }
-                                                    { otherResponse
-                                                        ?   start_requirement === true
-                                                                ?   Object.keys(r_answerList).map(id => {
-                                                                        const r_answer = r_answerList[id]
-                                                                        return (
-                                                                            <div key={id}>
-                                                                                <div style={{height: '10px'}}></div>
-                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                :   null
-                                                        : null
-                                                    }
-                                                    { otherResponse
-                                                        ?   Object.keys(answerList).map(id => {
-                                                                const answer = answerList[id]
-                                                                return (
-                                                                    <div key={id}>
-                                                                        <div style={{height: '10px'}}></div>
-                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                        :   null
-                                                    }
-                                                </Segment>
-                                            </div>
-                                    }
                                 </Segment.Group>
                             </div>
                     }
-                    {/* <div style={{height:'10px'}}></div> */}
-                    {/* { prevBranch === null
+                    <div style={{height:'10px'}}></div>
+                    { prevBranch === null
                         ?   null
                         :   <div>
                                 <Segment.Group>
                                     <Segment textAlign='center' color='teal'>
                                         <span className="systemBotText">
                                             { requirementList.length === 0
-                                                ?   'Continue this conversation with your own topic'
-                                                :   'B: Continue this conversation with your own topic'
+                                                ?   'If the requirement is not enough, insert new requirement'
+                                                :   'B: If the requirement is not enough, insert new requirement'
                                             }
                                         </span>
                                         <div style={{height: '10px'}}></div>
                                         <div className="systemBotText" style={{color: 'red'}}>
                                             { otherResponse
-                                                ?   'You can add new response or select another response'
+                                                ?   "You can (1) add new response or (2) select other's response"
                                                 :   'You can add new response'
                                             }
                                         </div>
@@ -379,7 +313,7 @@ export class SystemBotButton extends Component {
                                     </Segment>
                                 </Segment.Group>
                             </div>
-                    } */}
+                    }
                 </div>
             </div>
         );

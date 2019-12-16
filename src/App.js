@@ -34,7 +34,6 @@ class App extends Component{
       // Control the requirementList
       requirementList: [],
       requirement: [],
-      addrequirement: false,
 
       // Control each button's disabled status
       endButtonStatus: false,
@@ -44,7 +43,6 @@ class App extends Component{
     this.changeLoginState = this.changeLoginState.bind(this);
     this.setStateRequirment = this.setStateRequirment.bind(this);
     this.requirementListConvey = this.requirementListConvey.bind(this);
-    this.setStateAddRequirment = this.setStateAddRequirment.bind(this);
     this.initializeRequirementList = this.initializeRequirementList.bind(this);
     this.controlEndButtonStatus = this.controlEndButtonStatus.bind(this);
     this.controlNextButtonStatus = this.controlNextButtonStatus.bind(this);
@@ -115,12 +113,6 @@ class App extends Component{
     })
   }
 
-  setStateAddRequirment = (bool) => {
-    this.setState({
-      addrequirement: bool,
-    })
-  }
-
   // Control the 'endButtonStatus'
   controlEndButtonStatus = () => {
     this.setState(prevState => ({
@@ -171,10 +163,10 @@ class App extends Component{
   }
 
   render(){
-    const { login, quit, end, start, endButtonStatus, nextButtonStatus, addrequirement, 
+    const { login, quit, end, start, endButtonStatus, nextButtonStatus,
       requirement, requirementList, userId, numSession, otherResponse, deployedVersion, domainId} = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
-      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus, setStateAddRequirment } = this;
+      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
 
     return (
       <div className="backGround">
@@ -184,7 +176,6 @@ class App extends Component{
           <LeftSideBar
             requirement={requirement}
             initializeRequirementList={initializeRequirementList}
-            addrequirement={addrequirement}
             end={end}
             start={start}
             requirementList={requirementList}
@@ -207,7 +198,6 @@ class App extends Component{
             controlStartStatus={controlStartStatus}
             setStateRequirment={setStateRequirment}
             controlNextButtonStatus={controlNextButtonStatus}
-            setStateAddRequirment={setStateAddRequirment}
           />
         </main>
         <div className="rightSideBar">
