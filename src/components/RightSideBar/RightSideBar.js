@@ -10,21 +10,40 @@ export class RightSideBar extends Component {
         super(props)
         this.state = {
             num_experiment: 1,
-            colors: [
-                'violet',
-                'grey',
-                'grey',
-                'grey',
-            ]
+            numSession: null,
         }
+        this.getURLParams = this.getURLParams.bind(this)
         this.patchUserEndTime = this.patchUserEndTime.bind(this)
+        this.patchUserSetId = this.patchUserSetId.bind(this)
         this.sendEndStatus = this.sendEndStatus.bind(this)
         this.sendStartStatus = this.sendStartStatus.bind(this)
         this.endExperiment = this.endExperiment.bind(this)
     }
 
     componentDidMount() {
+        const numSession = parseInt(this.getURLParams('numSession'))
 
+        this.setState({
+            numSession: numSession,
+        })
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
     }
 
     patchUserEndTime(sessionNum, userId, date) {
@@ -100,10 +119,11 @@ export class RightSideBar extends Component {
     }
 
     render() {
-        const { num_experiment, colors } = this.state
+        const { num_experiment, numSession } = this.state
 
         // Control each button's disabled status
-        const { endButtonStatus, nextButtonStatus, numSession } = this.props
+        const { endButtonStatus, nextButtonStatus } = this.props
+
 
         return (
             <div className="rightGrid">
@@ -114,12 +134,6 @@ export class RightSideBar extends Component {
                             :   <div>
                                     <div style={{ marginBottom: '20px' }}> Progress </div>
                                     <div style={{ marginBottom: '20px' }}> {num_experiment} / {numSession} </div>
-                                    {/* <div>
-                                        {colors.map((color, i) => (
-                                        <Label key={i} circular color={color}>
-                                        </Label>
-                                        ))}
-                                    </div> */}
                                 </div>
                         }
                     </div>

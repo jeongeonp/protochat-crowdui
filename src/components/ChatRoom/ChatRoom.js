@@ -26,6 +26,7 @@ export class ChatRoom extends Component {
             // Version Check
             deployedVersion: '',
             domainID: '',
+            otherResponse: null,
 
             // Keeping pre-defined topic
             preTopic: null,
@@ -91,10 +92,12 @@ export class ChatRoom extends Component {
     componentDidMount() {
         const deployedVersion = this.getURLParams('deployedVersion')
         const domainID = this.getURLParams('domain')
+        const otherResponse = (this.getURLParams('otherResponse') === 'true')
 
         this.setState({
             deployedVersion: deployedVersion,
-            domainID: domainID
+            domainID: domainID,
+            otherResponse: otherResponse
         })
 
         if (deployedVersion && domainID){
@@ -582,7 +585,7 @@ export class ChatRoom extends Component {
 
     render() {
         const { input, time, originResponse, 
-            domains, messageList, answerList, r_answerList, requirementList,
+            domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus } = this.state;
@@ -614,7 +617,7 @@ export class ChatRoom extends Component {
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
                                 {similarUserStatus ? null : <SystemUserButton
                                                                 userId={this.props.userId}
-                                                                otherResponse={this.props.otherResponse}
+                                                                otherResponse={otherResponse}
                                                                 similarResponse={similarResponse}
                                                                 originResponse={originResponse}
                                                                 otherResponseList={otherResponseList}
@@ -628,7 +631,7 @@ export class ChatRoom extends Component {
                                                             />}
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
-                                                            otherResponse={this.props.otherResponse}
+                                                            otherResponse={otherResponse}
                                                             selectAnswer={selectAnswer}
                                                             save_requirement={save_requirement}
                                                             answerList={answerList}

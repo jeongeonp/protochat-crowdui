@@ -16,8 +16,7 @@ class App extends Component{
     fire();
     this.state = {
       // Experiment Condition
-      otherResponse: true,
-      numSession: 1,
+      otherResponse: null,
       deployedVersion: null,
       domainId: null,
 
@@ -53,14 +52,12 @@ class App extends Component{
 
   componentDidMount() {
     const otherResponse = (this.getURLParams('otherResponse') === 'true')
-    const numSession = parseInt(this.getURLParams('numSession'))
     const deployedVersion = this.getURLParams('deployedVersion')
     const domainId = this.getURLParams('domain')
 
-    if(otherResponse && numSession && deployedVersion && domainId){
+    if(otherResponse && deployedVersion && domainId){
       this.setState({
         otherResponse: otherResponse,
-        numSession: numSession,
         deployedVersion: deployedVersion,
         domainId: domainId,
       })
@@ -164,7 +161,7 @@ class App extends Component{
 
   render(){
     const { login, quit, end, start, endButtonStatus, nextButtonStatus,
-      requirement, requirementList, userId, numSession, otherResponse, deployedVersion, domainId} = this.state;
+      requirement, requirementList, userId, otherResponse, deployedVersion, domainId} = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
 
@@ -184,7 +181,6 @@ class App extends Component{
         <main className="chatGrid chatStyle">
           <ChatRoom
             userId={userId}
-            numSession={numSession}
             otherResponse={otherResponse}
             deployedVersion={deployedVersion}
             domainId={domainId}
@@ -203,7 +199,6 @@ class App extends Component{
         <div className="rightSideBar">
           <RightSideBar
             userId={userId}
-            numSession={numSession}
             domainId={domainId}
             deployedVersion={deployedVersion}
             endButtonStatus={endButtonStatus}
