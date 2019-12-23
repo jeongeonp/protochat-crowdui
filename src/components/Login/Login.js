@@ -20,9 +20,14 @@ export class Login extends Component {
 
             // ImageSource
             tutorial_list: [
-                {source: 'tutorial_A.jpg'},
-                {source: 'tutorial_B.png'},
-                {source: 'tutorial_C.png'}
+                {source: '[12_23] Crowd Tutorial-1.png'},
+                {source: '[12_23] Crowd Tutorial-2.png'},
+                {source: '[12_23] Crowd Tutorial-3.png'},
+                {source: '[12_23] Crowd Tutorial-4.png'},
+                {source: '[12_23] Crowd Tutorial-5.png'},
+                {source: '[12_23] Crowd Tutorial-6.png'},
+                {source: '[12_23] Crowd Tutorial-7.png'},
+                {source: '[12_23] Crowd Tutorial-8.png'},
             ],
             tutorial_num: 0,
 
@@ -90,8 +95,6 @@ export class Login extends Component {
             { key: 'nb', text: 'Non-binary or third gender', value: GENDER.NB },
             { key: 'p', text: 'Prefer not to answer', value: GENDER.P },
         ]
-
-        console.log(tutorial_list, tutorial_num)
 
         return (
             <div>
