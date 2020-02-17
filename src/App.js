@@ -167,7 +167,7 @@ class App extends Component{
 
     return (
       <div className="backGround">
-        {/*login ? null : <Login changeLoginState={changeLoginState}/>*/}
+        {login ? null : <Login changeLoginState={changeLoginState}/>}
         {/* FIXME: put it back later to enable login & tutorial*/}
         { quit ? <Quit/> : null }
         <div className="leftSideBar">

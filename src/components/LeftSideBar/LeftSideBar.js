@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Message, Header, Icon, Modal, Button } from 'semantic-ui-react'
+import { Header, Icon, Modal, Button } from 'semantic-ui-react'
 import './LeftSideBar.css';
 //import { Popup } from "./Popup/Popup";
 
