@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Modal, Form, Image } from 'semantic-ui-react'
+import { Button, Modal, Form, Image, Popup } from 'semantic-ui-react'
 import './Login.css'
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/"
@@ -33,8 +33,12 @@ export class Login extends Component {
 
             timestamp: null,
             name: null,
-            gender: null,
-            age: null,
+            //gender: null,
+            //age: null,
+            task: null,
+
+            domainID: null,
+            domainName: null,
         }
         this.userPost = this.userPost.bind(this)
         this.sendAndPost = this.sendAndPost.bind(this)
@@ -42,6 +46,47 @@ export class Login extends Component {
         this.addTutorialNum = this.addTutorialNum.bind(this)
         this.reduceTutorialNum = this.reduceTutorialNum.bind(this)
     }
+
+    componentDidMount() {
+        const domainID = this.getURLParams('domain')
+
+        this.setState({
+            domainID: domainID,
+        })
+
+        this.getDomains('domains/data/'+ domainID + '/name');      
+    }
+
+    getDomains(address) {
+        fetch(`${databaseURL+address}.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(domainName => {
+            this.setState({domainName: domainName})
+        });
+    }
+
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
+    }
+
 
     userPost(user) {
         return fetch(`${databaseURL}`+'/users/data.json', {
@@ -59,12 +104,22 @@ export class Login extends Component {
     }
 
     sendAndPost = () => {
+        const { name } = this.state
+        if (!name){
+            
+        } else {
+            const newUser = {timestamp: new Date(), name: name }
+            this.userPost(newUser)
+        }
+    }
+
+    /*sendAndPost = () => {
         const { name, gender, age} = this.state
         if (name && gender && age){
             const newUser = {timestamp: new Date(), name: name,gender: gender, age: age}
             this.userPost(newUser)
         }
-    }
+    }*/
 
     changeTutorialState = () => {
         this.setState(prevState => ({
@@ -87,7 +142,7 @@ export class Login extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
     render() {
-        const { name, gender, age, tutorial, tutorial_list, tutorial_num } = this.state
+        const { name, gender, age, tutorial, tutorial_list, tutorial_num, domainName, task } = this.state
         const { sendAndPost, changeTutorialState, addTutorialNum, reduceTutorialNum } = this
         const options = [
             { key: 'm', text: 'Male', value: GENDER.M },
@@ -98,19 +153,33 @@ export class Login extends Component {
 
         return (
             <div>
-                { tutorial
+                { !tutorial
                     ?   <Modal open={true}>
-                            <Modal.Header>Tutorial</Modal.Header>
+                            <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
                                 <Modal.Content>
-                                    {tutorial_list.map((item, id) => {
+                                    <p style={{textAlign:"center", fontSize:"130%", lineHeight:"1.8"}}>
+                                        Your task is to finish <b>{domainName}</b> with the chatbot. <br/> <br/>
+                                        During the conversation, there is a sequence of conversation topics <br/>
+                                        you need to answer in order to finish your task. <br/> <br/>
+                                        When you wish to elaborate more on the chatbot's conversation, <br/>
+                                        please do so by clicking <u>A. Insert new conversation</u> to manually add what you want the chatbot to say.
+                                    </p>
+                                    {/*tutorial_list.map((item, id) => {
                                         return id === tutorial_num
                                             ?   <Image src={require('./Tutorial/' + item.source)} />
                                             :   null
                                         })
-                                    }
+                                    */}
                                 </Modal.Content>
                                 <Modal.Actions>
-                                    {(tutorial_num === (Object.keys(tutorial_list).length) || tutorial_num === 0)
+                                    <Button
+                                        onClick={changeTutorialState}
+                                        positive
+                                        labelPosition='right'
+                                        icon='checkmark'
+                                        content='Next'
+                                    />
+                                    {/*(tutorial_num === (Object.keys(tutorial_list).length) || tutorial_num === 0)
                                         ?   null
                                         :   <Button
                                                 onClick={reduceTutorialNum}
@@ -135,13 +204,13 @@ export class Login extends Component {
                                                 icon='checkmark'
                                                 content='Next'
                                             />
-                                    }
+                                    */}
                                 </Modal.Actions>
                         </Modal>
                     :   <Modal open={true}>
-                            <Modal.Header>Protobot Data Collecting Experiment</Modal.Header>
+                            <Modal.Header>Crowd ID</Modal.Header>
                                 <Modal.Content>
-                                    <p>Please write your information before the experiment</p>
+                                    <p style={{fontSize:"130%", lineHeight:"1.8"}}>Please fill out your <b>Crowd ID</b> and the <b>Task Name</b> to begin the experiment session</p>
                                     <div style={{height: '10px'}}></div>
                                     <Form>
                                         <Form.Group widths='equal'>
@@ -153,31 +222,56 @@ export class Login extends Component {
                                                 onChange={this.handleChange}
                                             />
                                             <Form.Input 
+                                                fluid label='Task Name' 
+                                                placeholder='Type your task'
+                                                name='task'
+                                                value={task}
+                                                onChange={this.handleChange}
+                                            />
+                                            {/*<Form.Input 
                                                 fluid label='Age'
                                                 placeholder='Type your age'
                                                 name='age'
                                                 value={age}
                                                 onChange={this.handleChange}    
-                                            />
+                                            />*/}
                                         </Form.Group>
-                                        <Form.Select
+                                        {/*<Form.Select
                                             options={options}
                                             placeholder='Gender'
                                             name='gender'
                                             value={gender}
                                             onChange={this.handleChange}    
-                                        />
+                                        />*/}
                                     </Form>
-                                    <div style={{height: '10px'}}></div>
                                 </Modal.Content>
                                 <Modal.Actions>
                                     <Button
                                         onClick={changeTutorialState}
                                         positive
+                                        labelPosition='left'
+                                        icon='checkmark'
+                                        content='Prev'
+                                    />
+                                    { name && task && (task.toLowerCase() === "hotel reservation".toLowerCase())
+                                    ? <Button  
+                                        onClick={sendAndPost}
+                                        positive
                                         labelPosition='right'
                                         icon='checkmark'
-                                        content='Go to Tutorial'
+                                        content='Begin Task' 
                                     />
+                                    : <Popup
+                                        content="Please double-check your Crowd ID and Task Name"
+                                        on="click"  
+                                        trigger={<Button  
+                                            positive
+                                            labelPosition='right'
+                                            icon='checkmark'
+                                            content='Begin Task' />}
+                                    />
+                                    }
+                                    
                                 </Modal.Actions>
                         </Modal>
                 }

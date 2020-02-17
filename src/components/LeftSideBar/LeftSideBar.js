@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Message } from 'semantic-ui-react'
+import { Message, Header, Icon, Modal, Button } from 'semantic-ui-react'
 import './LeftSideBar.css';
+//import { Popup } from "./Popup/Popup";
 
 export class LeftSideBar extends Component {
     num_requirement = 0;
@@ -10,6 +11,7 @@ export class LeftSideBar extends Component {
         this.state = {
             input: '',
             r_List: [],
+            modalOpen: true,
         }
 	    this.changeCheckedRequirement = this.changeCheckedRequirement.bind(this);
     }
@@ -53,17 +55,38 @@ export class LeftSideBar extends Component {
         });
     }
 
+    handleClose = () => this.setState({ modalOpen: false })
+
     render() {
-        const {r_List} = this.state
+        const {r_List, modalOpen} = this.state
         return (
             <div className="leftGrid">
-                <div className="protobotLogo">Protobot</div>
+                <div className="protobotLogo">ProtoChat</div>
                 <div className="sessionBox">Conversation Session</div>
                 <div className="leftInsBox">
                 <div className="leftInsBoxText">
                     { r_List.length === 0
                         ?   null
-                        :   <span style={{fontSize: '17px', color: '#E8EAF6', fontWeight: 'bold'}}>Sequence of Conversation</span>
+                        :   <div>
+                                <span style={{fontSize: '17px', color: '#E8EAF6', fontWeight: 'bold'}}>Sequence of Conversation Topics</span>
+                                <Modal
+                                    //trigger={<Button onClick={this.handleOpen}>Show Modal</Button>}
+                                    open={modalOpen}
+                                    onClose={this.handleClose}
+                                    basic
+                                    size='small'
+                                >
+                                    <Header icon='info' content='Sequence of Conversation Topics' />
+                                    <Modal.Content>
+                                        <p style={{lineHeight: '1.8', fontSize:"130%",}}> {"<-- The list on the left is the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} </p>
+                                    </Modal.Content>
+                                    <Modal.Actions>
+                                        <Button color='green' onClick={this.handleClose} inverted>
+                                            <Icon name='checkmark' /> Got it
+                                        </Button>
+                                    </Modal.Actions>
+                                </Modal>
+                        </div>
                     }
                     <div style={{height:'25px'}}></div>
                     {r_List.map((requirement, i) => {
