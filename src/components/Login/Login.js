@@ -253,7 +253,7 @@ export class Login extends Component {
                                         icon='checkmark'
                                         content='Prev'
                                     />
-                                    { name && task && (task.toLowerCase() === "hotel reservation".toLowerCase())
+                                    { name && task && (task.toLowerCase() === "AppleCare".toLowerCase())
                                     ? <Button  
                                         onClick={sendAndPost}
                                         positive
