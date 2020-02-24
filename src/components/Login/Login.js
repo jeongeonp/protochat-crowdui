@@ -253,7 +253,7 @@ export class Login extends Component {
                                         icon='checkmark'
                                         content='Prev'
                                     />
-                                    { name && task && (task.toLowerCase() === "AppleCare".toLowerCase())
+                                    { name && task && (task.toLowerCase() === domainName.toLowerCase())
                                     ? <Button  
                                         onClick={sendAndPost}
                                         positive
