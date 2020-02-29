@@ -32,6 +32,7 @@ export class SystemBotButton extends Component {
         this.handleSelect = this.handleSelect.bind(this)
         this.handleRequirement = this.handleRequirement.bind(this)
         this.handleKeyPress = this.handleKeyPress.bind(this)
+        this.postNewUtterance = this.postNewUtterance.bind(this)
     }
 
     postUtterance(utterance, start, require) {
@@ -49,6 +50,18 @@ export class SystemBotButton extends Component {
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance, start, require)
         });
+    }
+
+    postNewUtterance(utterance) {
+        return fetch(`${databaseURL+'/utterances/new-data'+this.extension}`, {
+            method: 'POST',
+            body: JSON.stringify(utterance)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText)
+            }
+            return res.json()
+        })
     }
 
     postBranch(branch, utterance, start, addRequired) {
@@ -184,7 +197,7 @@ export class SystemBotButton extends Component {
         const { input } = this.state
         const { domainId, userId, deployedVersion, numSession } = this.props
         const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
-        
+        const newlyAddedUtterance = {text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
 
         this.setState({
             input: '',
@@ -192,6 +205,7 @@ export class SystemBotButton extends Component {
 
         // Adding new answer(Bot)
         this.postUtterance(newUtterance, false, true)
+        this.postNewUtterance(newlyAddedUtterance)
     }
 
     handleRequirement = (requirement) => {

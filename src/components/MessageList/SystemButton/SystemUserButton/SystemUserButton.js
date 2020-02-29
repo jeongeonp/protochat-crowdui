@@ -125,8 +125,8 @@ export class SystemUserButton extends Component {
             <div className="systemUserButtonBox">
                 <span className="systemUserText">
                     { otherResponse
-                        ?   'Select the message which has same meaning with your message right above'
-                        :   'click the [Next Bot Utterance] Button'
+                        ?   'If you can find a message with the exact same meaning, select it.'
+                        :   'Click the [Next Bot Utterance] Button'
                     }
                 </span>
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
