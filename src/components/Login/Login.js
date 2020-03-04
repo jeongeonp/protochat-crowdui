@@ -156,14 +156,11 @@ export class Login extends Component {
                 { !tutorial
                     ?   <Modal open={true}>
                             <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
-                                <Modal.Content>
-                                    <p style={{textAlign:"center", fontSize:"130%", lineHeight:"1.8"}}>
-                                        Your task is to finish <b>{domainName}</b> with the chatbot. <br/> <br/>
-                                        During the conversation, there is a sequence of conversation topics <br/>
-                                        you need to answer in order to finish your task. <br/> <br/>
-                                        When you wish to elaborate more on the chatbot's conversation, <br/>
-                                        please do so by clicking <u>A. Insert new conversation</u> to manually add what you want the chatbot to say.
-                                    </p>
+                                <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
+                                    <p>Your task is to finish <b>{domainName}</b> with the chatbot. </p>
+                                    <p>During the conversation, there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
+                                    <p>When you wish to elaborate more on the chatbot's conversation, <br/> please do so by clicking <u>A. Insert new conversation</u> to manually add what you want the chatbot to say.</p>
+                                    <p style={{fontSize: "80%"}}><br/> <b>We recommend zomming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {
                                         return id === tutorial_num
                                             ?   <Image src={require('./Tutorial/' + item.source)} />
