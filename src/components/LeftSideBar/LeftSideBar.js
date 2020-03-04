@@ -80,22 +80,18 @@ export class LeftSideBar extends Component {
                                     <Header icon='info' content='Sequence of Conversation Topics' />
                                     <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
                                         <p> 
-                                        {"<--  The list on the left is the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} 
+                                        {"<--  The list on the left has the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} 
                                         </p>
-                                        <p>During every chatbot's turn, there will be a <u>Add new response</u> button like the below image. Please <b><u>add at least one</u></b> new response throughout the conversation session.</p>
-                                        <Image src={instruction} size='medium' centered rounded />
+                                        {/*<p>During every chatbot's turn, there will be a <u>Add new response</u> button like the below image. Please <b><u>add at least one</u></b> new response throughout the conversation session.</p>
+                                        <Image src={instruction} size='medium' centered rounded />*/}
                                     </Modal.Content>
                                     <Modal.Actions>
                                         <Button color='green' onClick={this.handleClose} inverted>
-                                            <Icon name='checkmark' /> Yes, I will add at least one response
+                                            {/*<Icon name='checkmark' /> Yes, I will add at least one response*/}
+                                            <Icon name='checkmark' /> Yes, I will refer to the list
                                         </Button>
                                     </Modal.Actions>
                                 </Modal>
-                                {/*<TransitionablePortal open={modalOpen} onClose={this.handleClose}>
-                                    <Segment style={{lineHeight: '1.8', fontSize:"130%"}}>
-                                        <p>hello</p>
-                                    </Segment>
-                    </TransitionablePortal>*/}
                         </div>
                     }
                     <div style={{height:'25px'}}></div>

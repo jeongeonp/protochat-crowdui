@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import { Segment, Button, Input, Label, Image } from 'semantic-ui-react';
+import { Segment, Button, Input, Label, Image, Modal, Icon, Header } from 'semantic-ui-react';
 import './SystemBotButton.css';
 
 import bot from './../../Message/images/bot.png';
+import botsTurn from './bots-turn.PNG';
+import A1 from './add-new-response-button.PNG';
+import A2 from './show-others-responses-button.PNG';
+import B from './next-sequence-button.PNG'
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
@@ -17,6 +21,7 @@ export class SystemBotButton extends Component {
             input: '',
             inputState: true,
             buttonState: true,
+            modalOpen: true,
         }
         this.postUtterance = this.postUtterance.bind(this)
         this.postBranch = this.postBranch.bind(this)
@@ -233,11 +238,14 @@ export class SystemBotButton extends Component {
         }
     }
 
+    handleClose = () => this.setState({ modalOpen: false, })
+
     render() {
-        const { inputState, input, buttonState } = this.state
+        const { inputState, input, buttonState, modalOpen, } = this.state
         const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState } = this
         
+
         if (Object.keys(answerList + r_answerList).length > 3){
             console.log("answerlist: ")
             console.log(answerList)
@@ -250,7 +258,35 @@ export class SystemBotButton extends Component {
             <div className="systemBotButtonBox">
                 { (prevBranch === null || requirementList.length === 0)
                     ?   null
-                    :   <div className="systemBotText">It's <Image avatar spaced='right' src={bot} />Bot's turn! You can choose between option A and B</div>
+                    :   <div>
+                            <div className="systemBotText">
+                                It's <Image avatar spaced='right' src={bot} />Bot's turn! You can choose between option A and B
+                            </div>
+                            { (requirementList.length === 7)
+                                ?   <Modal
+                                    open={modalOpen}
+                                    onClose={this.handleClose}
+                                    basic
+                                    size='small'
+                                    >
+                                        <Header icon='info' content="On every chatbot's turn" />
+                                        <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
+                                            <p>After you finish your turn, you will be choosing from different options as the below image.</p>
+                                            <Image src={botsTurn} size='large' centered rounded />
+                                            <p> </p>
+                                            <p>On the left side, there is the <i><u>Add new response button</u></i> and the <u><i>Show others' responses button</i></u> to elaborate on the current conversation topic.</p>
+                                            <p>If there is no need to add new responses, please continue by clicking on the right-side <u><i>next conversation topic button</i></u> to continue.</p>
+                                            
+                                        </Modal.Content>
+                                        <Modal.Actions>
+                                            <Button color='green' onClick={this.handleClose} inverted>
+                                                <Icon name='checkmark' /> Okay, I understand
+                                            </Button>
+                                        </Modal.Actions>
+                                    </Modal>
+                                :   null
+                            }
+                        </div>
                 }
                 <div style={{marginTop:"10px", width:"100%", display:"table"}}>
                 
@@ -275,21 +311,22 @@ export class SystemBotButton extends Component {
                                         </div>
                                         <div style={{height: '15px'}}></div>
                                         { inputState
-                                            ? <Button fluid positive color='teal' onClick={changeInputState}>Add new response</Button>
+                                            ? <Button fluid color='teal' onClick={changeInputState}>Add new response</Button>
                                             : <Input fluid type='text' placeholder='Type your answer...' action>
-                                                <Label color={'green'}>
+                                                {/*<Label color='teal'>
                                                     <Image avatar spaced='right' src={bot} />
-                                                    Bot
-                                                </Label>    
+                                                    
+                                                </Label>    */}
+                                                <Image avatar verticalAlign='middle' spaced='right' src={bot} />
                                                 <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
-                                                <Button positive type='submit' onClick={handleCreate}>Add</Button>
+                                                <Button type='submit' color='teal' onClick={handleCreate}>Add</Button>
                                             </Input>
                                         }
                                         <div style={{height: '8px'}}></div>
                                         { buttonState
-                                            ? <Button fluid positive color='teal' onClick={changeButtonState}>Show others' responses</Button>
+                                            ? <Button fluid color='teal' onClick={changeButtonState}>Show others' responses</Button>
                                             : <div>
-                                                <Button fluid positive color='orange' onClick={changeButtonState}>Hide others' responses</Button>
+                                                <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
                                                 <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
                                                 { otherResponse
                                                     ?   start_requirement === true
