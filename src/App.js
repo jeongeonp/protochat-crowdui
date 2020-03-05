@@ -62,6 +62,28 @@ class App extends Component{
         domainId: domainId,
       })
     }
+
+    fetch(`${'https://protobot-rawdata.firebaseio.com/utterances/new-data'}.json`).then(res => {
+      if(res.status !== 200) {
+        throw new Error(res.statusText);
+      }
+      return res.json();
+      
+    }).then((newData) => {
+      //this.setState({new_utterances: newData})
+      const filtered_utterance = [];
+      for (const i in newData) {
+        if (newData[i].version === this.state.deployedVersion) {
+          filtered_utterance.push({
+            utteranceID: i,
+            utterance: newData[i].text
+          })
+        }
+      }
+      console.log(filtered_utterance)
+      //console.log(newData["-M1EnYPs0SwF16nukbqW"].domain)
+      
+    });
   }
 
   // Get parameters from URL

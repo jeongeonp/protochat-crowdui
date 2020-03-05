@@ -202,8 +202,7 @@ export class SystemBotButton extends Component {
         const { input } = this.state
         const { domainId, userId, deployedVersion, numSession } = this.props
         const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
-        const newlyAddedUtterance = {text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
-
+        const newlyAddedUtterance = {time: new Date(),text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
         this.setState({
             input: '',
         })
@@ -247,10 +246,10 @@ export class SystemBotButton extends Component {
         
 
         if (Object.keys(answerList + r_answerList).length > 3){
-            console.log("answerlist: ")
+            /*console.log("answerlist: ")
             console.log(answerList)
             console.log("r_answerlist: ")
-            console.log(r_answerList)
+            console.log(r_answerList)*/
             this.overflowCondition = 'scroll'
         }
 
