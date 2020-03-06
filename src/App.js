@@ -63,6 +63,8 @@ class App extends Component{
       })
     }
 
+    //Enable to see a list of newly added Utterances
+    /*
     fetch(`${'https://protobot-rawdata.firebaseio.com/utterances/new-data'}.json`).then(res => {
       if(res.status !== 200) {
         throw new Error(res.statusText);
@@ -81,9 +83,9 @@ class App extends Component{
         }
       }
       console.log(filtered_utterance)
-      //console.log(newData["-M1EnYPs0SwF16nukbqW"].domain)
       
     });
+    */
   }
 
   // Get parameters from URL
@@ -189,8 +191,9 @@ class App extends Component{
 
     return (
       <div className="backGround">
-        {login ? null : <Login changeLoginState={changeLoginState}/>}
         {/* FIXME: put it back later to enable login & tutorial*/}
+        {/*login ? null : <Login changeLoginState={changeLoginState}/>*/}
+        
         { quit ? <Quit/> : null }
         <div className="leftSideBar">
           <LeftSideBar

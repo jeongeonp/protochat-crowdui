@@ -60,6 +60,8 @@ export class ChatRoom extends Component {
             turnNotice: false,
             selectBotStatus: true,
             similarUserStatus: true,
+
+            instructionPosition: -1,
         };
 	    this.getDomains = this.getDomains.bind(this);
 	    this.getURLParams = this.getURLParams.bind(this);
@@ -105,6 +107,18 @@ export class ChatRoom extends Component {
         } else {
             this.getDomains('/last-deployed/data/');
         }
+
+        // for bot-side response walkthrough; will send to SystemBotButton to open instruction on first occurance
+        fetch(`${databaseURL + 'deployed-history/data/' + domainID + '/' + deployedVersion + '/topics'}.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(result => {
+            console.log(result)
+            //console.log(Object.keys(result).length-1)
+            this.setState({instructionPosition: Object.keys(result).length-1})
+        });
     }
     
     componentDidUpdate() {
@@ -588,7 +602,7 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus } = this.state;
+            similarUserStatus, instructionPosition } = this.state;
         const {
             handleChangeText,
             handleCreate,
@@ -646,6 +660,7 @@ export class ChatRoom extends Component {
                                                             startBranch={startBranch}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
+                                                            instructionPosition={instructionPosition}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
                             </div>

@@ -4,9 +4,9 @@ import './SystemBotButton.css';
 
 import bot from './../../Message/images/bot.png';
 import botsTurn from './bots-turn.PNG';
-import A1 from './add-new-response-button.PNG';
+/*import A1 from './add-new-response-button.PNG';
 import A2 from './show-others-responses-button.PNG';
-import B from './next-sequence-button.PNG'
+import B from './next-sequence-button.PNG'*/
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
@@ -241,7 +241,7 @@ export class SystemBotButton extends Component {
 
     render() {
         const { inputState, input, buttonState, modalOpen, } = this.state
-        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse } = this.props
+        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState } = this
         
 
@@ -261,7 +261,7 @@ export class SystemBotButton extends Component {
                             <div className="systemBotText">
                                 It's <Image avatar spaced='right' src={bot} />Bot's turn! You can choose between option A and B
                             </div>
-                            { (requirementList.length === 7)
+                            { (requirementList.length === instructionPosition)
                                 ?   <Modal
                                     open={modalOpen}
                                     onClose={this.handleClose}

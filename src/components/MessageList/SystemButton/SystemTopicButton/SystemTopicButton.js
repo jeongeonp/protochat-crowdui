@@ -28,7 +28,7 @@ export class SystemTopicButton extends Component {
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center'>
-                            <div >
+                            <div>
                                 <Button fluid onClick={handleCreate.bind(this, domains, 0)}>{domains.name}</Button>
                             </div>
                             {/* {Object.keys(this.props.domains).map(id => {
