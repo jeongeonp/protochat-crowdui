@@ -115,8 +115,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(result => {
-            console.log(result)
-            //console.log(Object.keys(result).length-1)
             this.setState({instructionPosition: Object.keys(result).length-1})
         });
     }

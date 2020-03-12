@@ -1,12 +1,13 @@
 .rightGrid {
     height: 100%;
+    overflow: hidden;
 }
 
 .rightInsBox {
-    margin-left: 10%;
+    margin-left: 0%;
     /* background-color: #434866; */
-    height: 50%;
-    width: 80%;
+    height: 60%;
+    width: 100%;
 }
 
 .rightinfoBox {
@@ -14,7 +15,7 @@
     bottom: 50px;
     position: absolute;
     /* background-color: #434866; */
-    height: 20%;
+    height: 15%;
     width: 80%;
 }
 
@@ -22,10 +23,22 @@
     margin-left: auto;
     margin-right: auto;
     position: relative;
-    top: 50%;
+    top: 30%;
     transform: translateY(-50%);
     color: white;
     font-weight: bold;
     font-size: 25px;
     text-align: center;
+}
+
+.textBoxFormat {
+    width: 88%;
+    margin: 5% auto 0px;
+    padding: 10px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    min-height: 50%;
+    /*background-color: blueviolet;*/
+    border: medium solid white;
 }

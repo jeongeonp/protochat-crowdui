@@ -122,7 +122,12 @@ export class RightSideBar extends Component {
 
         return (
             <div className="rightGrid">
+                
                 <div className="rightInsBox">
+                    <div className="textBoxFormat">
+                        <h2>Instruction</h2>
+                        <p>** the designer's custom instruction will go in here **</p>
+                    </div>
                     <div className="textCenter">
                         { numSession === 1
                             ?   null
