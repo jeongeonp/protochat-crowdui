@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Header, Icon, Modal, Button, Image } from 'semantic-ui-react'
+import { Header, Icon, Modal, Button } from 'semantic-ui-react'
 import './LeftSideBar.css';
 import instruction from './add-new-response.PNG';
-//import { Popup } from "./Popup/Popup";
 
 export class LeftSideBar extends Component {
     num_requirement = 0;
