@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Header, Icon, Modal, Button } from 'semantic-ui-react'
 import './LeftSideBar.css';
-import instruction from './add-new-response.PNG';
+import { Flowchart } from './FlowChart.js';
+
+import * as d3 from 'd3'
 
 export class LeftSideBar extends Component {
     num_requirement = 0;
@@ -12,8 +14,15 @@ export class LeftSideBar extends Component {
             input: '',
             r_List: [],
             modalOpen: true,
+
+            /* For the flowchart */
+            nodes: [],
+            links: [],
         }
-	    this.changeCheckedRequirement = this.changeCheckedRequirement.bind(this);
+        this.changeCheckedRequirement = this.changeCheckedRequirement.bind(this);
+        this.addNodes = this.addNodes.bind(this)
+        this.addLinks = this.addLinks.bind(this)
+        this.createDiagram = this.createDiagram.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -31,9 +40,13 @@ export class LeftSideBar extends Component {
             this.setState({
                 r_List: this.props.requirementList
             })
+            this.createDiagram()
         }
         if (prevProps.requirement !== this.props.requirement){
             this.changeCheckedRequirement()
+            console.log(prevProps.requirement)
+            console.log(this.props.requirement)
+            console.log(this.props.requirementList)
         }
     }
 
@@ -47,74 +60,92 @@ export class LeftSideBar extends Component {
                 : r
             )
         })
+        this.createDiagram()
     }
 
-    handleChangeText = (e) => {
-        this.setState({
-            input: e.target.value
-        });
-    }
 
     handleClose = () => this.setState({ modalOpen: false })
 
+    addNodes = (id, label, color = '#afcbff') => {
+        var colorString = 'fill: ' + color
+        var config = { style: colorString }
+        var newNode = { id: id, label: label, labelType: "string", config: config }
+        var currNodes = this.state.nodes
+        currNodes.push(newNode)
+        this.setState({
+            nodes: currNodes
+        })
+    }
+
+    addLinks = (source, target, label = '') => {
+        var newLink = { source: source, target: target, label: label, config: {curve: d3.curveLinear} }
+        var currLinks = this.state.links
+        currLinks.push(newLink)
+        this.setState({
+            links: currLinks
+        })
+    }
+
+
+    /* TODO: Adjust the structure to new database */
+    createDiagram = () => {
+        const { r_List } = this.state
+        const { addLinks, addNodes } = this
+        r_List.map((requirement, i) => {
+            if (requirement.checked === true) {
+                addNodes(i, requirement.requirement, '#FFFFFF')
+            } else {
+            addNodes(i, requirement.requirement)
+            }
+            addLinks(i, i+1)
+            return true;
+        })
+        addNodes(r_List.length, 'end')
+    }
+
+
+
     render() {
-        const {r_List, modalOpen} = this.state
+        const { r_List, modalOpen, nodes, links } = this.state
+
         return (
             <div className="leftGrid">
                 <div className="protobotLogo">ProtoChat</div>
                 <div className="sessionBox">Conversation Session</div>
                 <div className="leftInsBox">
-                <div className="leftInsBoxText">
-                    { r_List.length === 0
-                        ?   null
-                        :   <div>
-                                <span style={{fontSize: '17px', color: '#E8EAF6', fontWeight: 'bold'}}>Sequence of Conversation Topics</span>
-                                <Modal
-                                    //trigger={<Button onClick={this.handleOpen}>Show Modal</Button>}
-                                    open={modalOpen}
-                                    onClose={this.handleClose}
-                                    basic
-                                    size='small'
-                                >
-                                    <Header icon='info' content='Sequence of Conversation Topics' />
-                                    <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
-                                        <p> 
-                                        {"<--  The list on the left has the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} 
-                                        </p>
-                                        {/*<p>During every chatbot's turn, there will be a <u>Add new response</u> button like the below image. Please <b><u>add at least one</u></b> new response throughout the conversation session.</p>
-                                        <Image src={instruction} size='medium' centered rounded />*/}
-                                    </Modal.Content>
-                                    <Modal.Actions>
-                                        <Button color='green' onClick={this.handleClose} inverted>
-                                            {/*<Icon name='checkmark' /> Yes, I will add at least one response*/}
-                                            <Icon name='checkmark' /> Yes, I will refer to the list
-                                        </Button>
-                                    </Modal.Actions>
-                                </Modal>
-                        </div>
-                    }
-                    <div style={{height:'25px'}}></div>
-                    {r_List.map((requirement, i) => {
-                        return requirement.checked
-                            ?   <div key={i}>
-                                    <div style={{height:'10px'}}></div>
-                                    <div className="ui checkbox">
-                                        <input type="checkbox" checked={true} className="hidden" readOnly="" tabIndex={i}/>
-                                        <label style={{color:'white'}}>{requirement.requirement}</label>
-                                    </div>
-                                </div>
-                            :   <div key={i}>
-                                    <div style={{height:'10px'}}></div>
-                                    <div className="ui checkbox">
-                                        <input type="checkbox" className="hidden" readOnly="" tabIndex={i}/>
-                                        <label style={{color:'white'}}>{requirement.requirement}</label>
-                                    </div>
-                                </div>
-                        })
-                    }
+                    <div className="leftInsBoxText">
+                        { r_List.length === 0
+                            ?   null
+                            :   <div>
+                                    <span style={{fontSize: '17px', color: '#E8EAF6', fontWeight: 'bold'}}>Sequence of Conversation Topics</span>
+                                    <Modal
+                                        open={modalOpen}
+                                        onClose={this.handleClose}
+                                        basic
+                                        size='small'
+                                    >
+                                        <Header icon='info' content='Sequence of Conversation Topics' />
+                                        <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
+                                            <p> 
+                                            {"<--  The graph on the left has the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} 
+                                            </p>
+                                        </Modal.Content>
+                                        <Modal.Actions>
+                                            <Button color='green' onClick={this.handleClose} inverted>
+                                                <Icon name='checkmark' /> Yes, I will refer to the list
+                                            </Button>
+                                        </Modal.Actions>
+                                    </Modal>
+                            </div>
+                        }
+                        <div style={{height:'25px'}}></div>
+                        <Flowchart 
+                            nodes={nodes}
+                            links={links}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
         );
     }
 }

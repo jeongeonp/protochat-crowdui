@@ -1,0 +1,12 @@
+.nodes {
+	fill: #afcbff;
+}
+.nodes text {
+	fill: black;
+}
+
+path {
+	stroke: black;
+	fill: black;
+	stroke-width: 1.5px;
+}

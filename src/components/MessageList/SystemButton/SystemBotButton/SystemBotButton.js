@@ -216,17 +216,22 @@ export class SystemBotButton extends Component {
         const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props
         this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
         if(startBranch){
+            // FIXME: console.log(requirement)
+            // FIXME: console.log(requirement.bId)
             if (requirement.bId){
                 const branch = Object.keys(requirement.bId)            
                 this.patchUserBranch(branch[0], userId, domainId, num_experiment, turn)
                 this.sendAnswer(requirement, branch[0], false)
+                // FIXME: console.log(branch)
             } else{
                 const newBranch = {domain: domainId, parent: prevBranch, version: deployedVersion, utterances: {[requirement.uId]: true}}
                 this.postBranch(newBranch, requirement, false, true)
+                // FIXME: console.log(newBranch)
             }
         } else {
             const newBranch = {domain: domainId, parent: prevBranch, version: deployedVersion, utterances: {[requirement.uId]: true}}
             this.postBranch(newBranch, requirement, true, true)
+            // FIXME: console.log(newBranch)
         }
         changeRequirment(requirement)
     }
@@ -259,7 +264,7 @@ export class SystemBotButton extends Component {
                     ?   null
                     :   <div>
                             <div className="systemBotText">
-                                It's <Image avatar spaced='right' src={bot} />Bot's turn! You can choose between option A and B
+                                It's <Image avatar spaced='right' src={bot} />Bot's turn!
                             </div>
                             { (requirementList.length === instructionPosition)
                                 ?   <Modal
@@ -287,8 +292,37 @@ export class SystemBotButton extends Component {
                             }
                         </div>
                 }
+                {/*  FIXME: more depth
+                <div style={{minHeight: "150px"}}>
+                    <Segment.Group>
+                        <Segment textAlign='center' color='teal' >
+                            <div>
+                            {requirementList.map((requirement, id) => {
+                                return id === Object.keys(requirementList).length - num_requirement?
+                                    <div key={id}>
+                                        <Button fluid color='teal'>{requirement.text}</Button>
+                                    </div>
+                                    : null
+                                })
+                            }
+                            </div>
+                        </Segment>
+                        <Segment textAlign='center' color='teal' >
+                            <div>
+                            {requirementList.map((requirement, id) => {
+                                return id === Object.keys(requirementList).length - num_requirement?
+                                    <div key={id}>
+                                        <div>Do you think this message is appropriate?</div>
+                                    </div>
+                                    : null
+                                })
+                            }
+                            </div>
+                        </Segment>
+                    </Segment.Group>
+                </div>
+                        */}
                 <div style={{marginTop:"10px", width:"100%", display:"table"}}>
-                
                 <div style={{marginTop:"10px", display: "table-cell", width: "50%"}}>
                     { prevBranch === null
                         ?   null
@@ -356,32 +390,6 @@ export class SystemBotButton extends Component {
                                                 </div>
                                             </div>
                                         }
-                                        {/* otherResponse
-                                            ?   start_requirement === true
-                                                    ?   Object.keys(r_answerList).map(id => {
-                                                            const r_answer = r_answerList[id]
-                                                            return (
-                                                                <div key={id}>
-                                                                    <div style={{height: '10px'}}></div>
-                                                                    <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
-                                                                </div>
-                                                            )
-                                                        })
-                                                    :   null
-                                            : null
-                                        }
-                                        { otherResponse
-                                            ?   Object.keys(answerList).map(id => {
-                                                    const answer = answerList[id]
-                                                    return (
-                                                        <div key={id}>
-                                                            <div style={{height: '10px'}}></div>
-                                                            <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
-                                                        </div>
-                                                    )
-                                                })
-                                            :   null
-                                            */}
                                     </Segment>
                                 </Segment.Group>
                             </div>

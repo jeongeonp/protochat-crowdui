@@ -8,6 +8,7 @@ import { MessageList } from "./../MessageList/MessageList.js";
 import { SystemTopicButton } from "./../MessageList/SystemButton/SystemTopicButton/SystemTopicButton.js";
 import { SystemBotButton } from "./../MessageList/SystemButton/SystemBotButton/SystemBotButton.js";
 import { SystemUserButton } from "./../MessageList/SystemButton/SystemUserButton/SystemUserButton.js";
+import { SystemBranchButton } from "./../MessageList/SystemButton/SystemBranchButton/SystemBranchButton.js"
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
@@ -625,6 +626,25 @@ export class ChatRoom extends Component {
                                 <span>{time.toLocaleTimeString()}</span>
                             </div>
                             <div>
+                                {/*<SystemBranchButton
+                                userId={this.props.userId}
+                                otherResponse={otherResponse}
+                                selectAnswer={selectAnswer}
+                                save_requirement={save_requirement}
+                                answerList={answerList}
+                                r_answerList={r_answerList}
+                                start_requirement={start_requirement}
+                                requirementList={requirementList}
+                                changeRequirment={changeRequirment}
+                                num_requirement={num_requirement}
+                                deployedVersion={deployedVersion}
+                                domainId={domainID}
+                                prevBranch={prevBranch}
+                                startBranch={startBranch}
+                                num_experiment={this.num_experiment}
+                                turn={this.turn}
+                                instructionPosition={instructionPosition}
+                                ></SystemBranchButton>*/}
                                 <MessageList messageList={messageList}/>
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
                                 {similarUserStatus ? null : <SystemUserButton
@@ -661,7 +681,7 @@ export class ChatRoom extends Component {
                                                             instructionPosition={instructionPosition}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
-                            </div>
+                                </div>
                             <div style={{float:'left', clear:'both', height:'80px'}} ref={(el) => { this.messagesEnd = el; }}></div>
                         </main>
                         <div className="textInputBox">

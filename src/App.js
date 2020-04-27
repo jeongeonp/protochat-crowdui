@@ -115,7 +115,7 @@ class App extends Component{
     })
   }
 
-  // Contorl the requirement
+  // Control the requirement
   setStateRequirment = (requirement) => {
     this.setState({
         requirement: requirement
@@ -132,6 +132,7 @@ class App extends Component{
     this.setState({
       requirementList: [],
     })
+    console.log("initializing requirementList")
   }
 
   // Control the 'endButtonStatus'
