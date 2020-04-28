@@ -43,7 +43,8 @@ export class ChatRoom extends Component {
             type: 'user',
             originResponse: '',
             messageList: [
-                { id: 0, type: 'system', time: null, text: "Let's start " + 'conversation ' + this.num_experiment},
+                //{ id: 0, type: 'system', time: null, text: "Let's start " + 'conversation ' + this.num_experiment},
+                { id: 0, type: 'system', time: null, text: "Chatroom"},
             ],
 
             // Data lists for conversation flow
@@ -614,7 +615,7 @@ export class ChatRoom extends Component {
         } = this;
 
         const sysNotice = [
-            { id: 0, type: 'system', time: null, text: "Now it's your turn!\n\nPlease enter your response as a user in the input field at the bottom of the page."},
+            { id: 0, type: 'system', time: null, text: "Now it's your turn!\n\nPlease enter your response in the input field at the bottom of the page."},
             { id: 2, type: 'loading', time: null, text: "  "},
         ];
 

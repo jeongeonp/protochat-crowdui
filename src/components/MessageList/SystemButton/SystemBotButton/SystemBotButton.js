@@ -13,7 +13,7 @@ const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 export class SystemBotButton extends Component {
     extension = '.json'
     addedpath = ''
-    overflowCondition: ''
+    overflowCondition = ''
 
     constructor(props) {
         super(props)
@@ -22,6 +22,10 @@ export class SystemBotButton extends Component {
             inputState: true,
             buttonState: true,
             modalOpen: true,
+
+            path: '',
+            yesDisabled: false,
+            noDisabled: false,
         }
         this.postUtterance = this.postUtterance.bind(this)
         this.postBranch = this.postBranch.bind(this)
@@ -38,6 +42,8 @@ export class SystemBotButton extends Component {
         this.handleRequirement = this.handleRequirement.bind(this)
         this.handleKeyPress = this.handleKeyPress.bind(this)
         this.postNewUtterance = this.postNewUtterance.bind(this)
+        this.beginPathA = this.beginPathA.bind(this)
+        this.beginPathB = this.beginPathB.bind(this)
     }
 
     postUtterance(utterance, start, require) {
@@ -191,10 +197,11 @@ export class SystemBotButton extends Component {
     handleSelect = (answer, branch) => {
         const { userId, domainId, num_experiment, turn } = this.props
 
-
         this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
         this.sendAnswer(answer, branch, false)
+
+        this.resetButtons()
     }
 
     // Add New answer of Bot, state: true
@@ -210,6 +217,8 @@ export class SystemBotButton extends Component {
         // Adding new answer(Bot)
         this.postUtterance(newUtterance, false, true)
         this.postNewUtterance(newlyAddedUtterance)
+
+        this.resetButtons()
     }
 
     handleRequirement = (requirement) => {
@@ -234,6 +243,8 @@ export class SystemBotButton extends Component {
             // FIXME: console.log(newBranch)
         }
         changeRequirment(requirement)
+        
+        this.resetButtons()
     }
 
     handleKeyPress = (e) => {
@@ -244,23 +255,23 @@ export class SystemBotButton extends Component {
 
     handleClose = () => this.setState({ modalOpen: false, })
 
+    beginPathB = () => this.setState({ path: 'pathB', noDisabled: true })
+    beginPathA = () => this.setState({ path: 'pathA', yesDisabled: true })
+    resetButtons = () => this.setState({ noDisabled: false, yesDisabled: false })
+
     render() {
-        const { inputState, input, buttonState, modalOpen, } = this.state
+        const { inputState, input, buttonState, modalOpen, path, yesDisabled, noDisabled } = this.state
         const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition } = this.props
-        const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState } = this
+        const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState, beginPathA, beginPathB } = this
         
 
         if (Object.keys(answerList + r_answerList).length > 3){
-            /*console.log("answerlist: ")
-            console.log(answerList)
-            console.log("r_answerlist: ")
-            console.log(r_answerList)*/
             this.overflowCondition = 'scroll'
         }
 
         return (
             <div className="systemBotButtonBox">
-                { (prevBranch === null || requirementList.length === 0)
+                {/* (prevBranch === null || requirementList.length === 0)
                     ?   null
                     :   <div>
                             <div className="systemBotText">
@@ -291,141 +302,155 @@ export class SystemBotButton extends Component {
                                 :   null
                             }
                         </div>
-                }
-                {/*  FIXME: more depth
-                <div style={{minHeight: "150px"}}>
+                        */}
+                
+                {/* Increase depth */}
+                { prevBranch === null
+                    ?
+                    <Button fluid color='teal' size='small' onClick={beginPathB}>Click here to begin</Button>
+                    : 
+                    <div style={{width: "75%", marginLeft: '0', marginRight: 'auto'}}>
                     <Segment.Group>
-                        <Segment textAlign='center' color='teal' >
-                            <div>
+                        <Segment.Group>
+                            <Segment textAlign='center' color='teal'>
+                                <div>
+                                {requirementList.map((requirement, id) => {
+                                    return id === Object.keys(requirementList).length - num_requirement?
+                                        <div key={id}>
+                                            {requirement.text}
+                                        </div>
+                                        : null
+                                })}
+                                </div>
+                            </Segment>
+                        </Segment.Group>
+                        <Segment textAlign='center'>
                             {requirementList.map((requirement, id) => {
-                                return id === Object.keys(requirementList).length - num_requirement?
-                                    <div key={id}>
-                                        <Button fluid color='teal'>{requirement.text}</Button>
+                                return id === Object.keys(requirementList).length - num_requirement
+                                ? <div key={id}>
+                                        <div className="systemBotText">Do you think the above message suits the context?</div>
+                                        <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={yesDisabled}>yes</Button>
+                                            </div>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={noDisabled}>no</Button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    : null
+                                : null
                                 })
                             }
-                            </div>
-                        </Segment>
-                        <Segment textAlign='center' color='teal' >
-                            <div>
-                            {requirementList.map((requirement, id) => {
-                                return id === Object.keys(requirementList).length - num_requirement?
-                                    <div key={id}>
-                                        <div>Do you think this message is appropriate?</div>
-                                    </div>
-                                    : null
-                                })
-                            }
-                            </div>
                         </Segment>
                     </Segment.Group>
-                </div>
-                        */}
+                </div>}
+                
                 <div style={{marginTop:"10px", width:"100%", display:"table"}}>
-                <div style={{marginTop:"10px", display: "table-cell", width: "50%"}}>
-                    { prevBranch === null
-                        ?   null
-                        :   <div>
-                                <Segment.Group>
-                                    <Segment textAlign='center' color='teal'>
-                                        <span className="systemBotText" style={{height:"25px"}}>
-                                            { requirementList.length === 0
-                                                ?   "If you wish to elaborate more, insert new bot's conversation"
-                                                :   "A: If you wish to elaborate more, insert new bot's conversation before moving on"
-                                            }
-                                        </span>
-                                        <div style={{height: '10px'}}></div>
-                                        <div className="systemBotText" style={{color: 'red'}}>
-                                            { otherResponse
-                                                ?   "You can (1) insert new bot's response or (2) select from what other people suggested"
-                                                :   "You can insert new bot's response"
-                                            }
-                                        </div>
-                                        <div style={{height: '15px'}}></div>
-                                        { inputState
-                                            ? <Button fluid color='teal' onClick={changeInputState}>Add new response</Button>
-                                            : <Input fluid type='text' placeholder='Type your answer...' action>
-                                                {/*<Label color='teal'>
-                                                    <Image avatar spaced='right' src={bot} />
-                                                    
-                                                </Label>    */}
-                                                <Image avatar verticalAlign='middle' spaced='right' src={bot} />
-                                                <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
-                                                <Button type='submit' color='teal' onClick={handleCreate}>Add</Button>
-                                            </Input>
-                                        }
-                                        <div style={{height: '8px'}}></div>
-                                        { buttonState
-                                            ? <Button fluid color='teal' onClick={changeButtonState}>Show others' responses</Button>
-                                            : <div>
-                                                <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
-                                                <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
-                                                { otherResponse
-                                                    ?   start_requirement === true
-                                                            ?   Object.keys(r_answerList).map(id => {
-                                                                    const r_answer = r_answerList[id]
-                                                                    return (
-                                                                        <div key={id}>
-                                                                            <div style={{height: '10px'}}></div>
-                                                                            <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
-                                                                        </div>
-                                                                    )
-                                                                })
-                                                            :   null
-                                                    : null
+                    {path === 'pathA'
+                    ?
+                    <div style={{marginTop:"5px"}}>
+                        { prevBranch === null
+                            ?   null
+                            :   <div>
+                                    <Segment.Group>
+                                        <Segment textAlign='center' color='teal'>
+                                            {/*<span className="systemBotText" style={{height:"25px"}}>
+                                                { requirementList.length === 0
+                                                    ?   "If you wish to elaborate more, insert new bot's conversation"
+                                                    :   "A: If you wish to elaborate more, insert new bot's conversation before moving on"
                                                 }
+                                            </span>
+                                            <div style={{height: '10px'}}></div>*/}
+                                            <div className="systemBotText">
                                                 { otherResponse
-                                                    ?   Object.keys(answerList).map(id => {
-                                                            const answer = answerList[id]
-                                                            return (
-                                                                <div key={id}>
-                                                                    <div style={{height: '10px'}}></div>
-                                                                    <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
-                                                                </div>
-                                                            )
-                                                        })
-                                                    :   null
+                                                    ?   "Please continue by (1) inserting a new bot's response or (2) selecting from what other people suggested"
+                                                    :   "Please insert a new bot's response"
                                                 }
-                                                </div>
                                             </div>
-                                        }
-                                    </Segment>
-                                </Segment.Group>
-                            </div>
-                        }
-                </div>
-                <div style={{display: "table-cell"}}>
-                    { requirementList.length === 0
-                        ?   null
-                        :   <div style={{minHeight: "150px"}}>
-                                <Segment.Group>
-                                    <Segment textAlign='center' color='teal' >
-                                        <div className="systemBotText" style={{height:"25px"}}>
-                                            { prevBranch === null
-                                                ?   'Begin the conversation with first topic'
-                                                :   'B: Just continue with next conversation topic'
+                                            <div style={{height: '15px'}}></div>
+                                            { inputState
+                                                ? <Button fluid color='teal' onClick={changeInputState}>Add new response</Button>
+                                                : <Input fluid type='text' placeholder='Type your answer...' action>
+                                                    <Image avatar verticalAlign='middle' spaced='right' src={bot} />
+                                                    <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
+                                                    <Button type='submit' color='teal' onClick={handleCreate}>Add</Button>
+                                                </Input>
                                             }
-                                        </div>
-                                        <div style={{height: '15px'}}></div>
-                                        <div>
-                                        {requirementList.map((requirement, id) => {
-                                            return id === Object.keys(requirementList).length - num_requirement?
-                                                <div key={id}>
-                                                    <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, requirement, id)}>{requirement.text}</Button>
+                                            <div style={{height: '8px'}}></div>
+                                            { buttonState
+                                                ? <Button fluid color='teal' onClick={changeButtonState}>Show others' responses</Button>
+                                                : <div>
+                                                    <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
+                                                    <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
+                                                    { otherResponse
+                                                        ?   start_requirement === true
+                                                                ?   Object.keys(r_answerList).map(id => {
+                                                                        const r_answer = r_answerList[id]
+                                                                        return (
+                                                                            <div key={id}>
+                                                                                <div style={{height: '10px'}}></div>
+                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                                            </div>
+                                                                        )
+                                                                    })
+                                                                :   null
+                                                        : null
+                                                    }
+                                                    { otherResponse
+                                                        ?   Object.keys(answerList).map(id => {
+                                                                const answer = answerList[id]
+                                                                return (
+                                                                    <div key={id}>
+                                                                        <div style={{height: '10px'}}></div>
+                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        :   null
+                                                    }
+                                                    </div>
                                                 </div>
-                                                : null
-                                            })
-                                        }
-                                        </div>
-                                    </Segment>
-                                </Segment.Group>
-                            </div>
+                                            }
+                                        </Segment>
+                                    </Segment.Group>
+                                </div>
+                            }
+                    </div>
+                    : null
                     }
-                    {/*<div style={{height:'10px'}}></div>*/}
+                    { path === 'pathB'
+                    ?
+                    <div style={{marginTop: '5px'}}>
+                        { requirementList.length === 0
+                            ?   null
+                            :   <div style={{minHeight: "150px"}}>
+                                    <Segment.Group>
+                                        <Segment textAlign='center' color='teal' >
+                                            <div className="systemBotText" style={{height:"25px"}}>
+                                                { prevBranch === null
+                                                    ?   'Begin conversation with the first topic'
+                                                    :   'Please continue with the next topic'
+                                                }
+                                            </div>
+                                            <div>
+                                            {requirementList.map((requirement, id) => {
+                                                return id === Object.keys(requirementList).length - num_requirement?
+                                                    <div key={id}>
+                                                        <div style={{height: '5px'}}></div>
+                                                        <Button fluid color='teal' onClick={handleRequirement.bind(this, requirement, id)}>{requirement.text}</Button>
+                                                    </div>
+                                                    : null
+                                                })
+                                            }
+                                            </div>
+                                        </Segment>
+                                    </Segment.Group>
+                                </div>
+                        }
                     
-                </div>
+                    </div>
+                    : null
+                    }
                 </div>
             </div>
         );
