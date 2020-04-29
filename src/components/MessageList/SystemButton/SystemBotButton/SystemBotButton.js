@@ -4,9 +4,6 @@ import './SystemBotButton.css';
 
 import bot from './../../Message/images/bot.png';
 import botsTurn from './bots-turn.PNG';
-/*import A1 from './add-new-response-button.PNG';
-import A2 from './show-others-responses-button.PNG';
-import B from './next-sequence-button.PNG'*/
 
 const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
@@ -201,7 +198,7 @@ export class SystemBotButton extends Component {
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
         this.sendAnswer(answer, branch, false)
 
-        this.resetButtons()
+        //this.resetButtons()
     }
 
     // Add New answer of Bot, state: true
@@ -218,7 +215,7 @@ export class SystemBotButton extends Component {
         this.postUtterance(newUtterance, false, true)
         this.postNewUtterance(newlyAddedUtterance)
 
-        this.resetButtons()
+        //this.resetButtons()
     }
 
     handleRequirement = (requirement) => {
@@ -243,8 +240,8 @@ export class SystemBotButton extends Component {
             // FIXME: console.log(newBranch)
         }
         changeRequirment(requirement)
-        
-        this.resetButtons()
+
+        //this.resetButtons()
     }
 
     handleKeyPress = (e) => {
@@ -255,9 +252,9 @@ export class SystemBotButton extends Component {
 
     handleClose = () => this.setState({ modalOpen: false, })
 
-    beginPathB = () => this.setState({ path: 'pathB', noDisabled: true })
-    beginPathA = () => this.setState({ path: 'pathA', yesDisabled: true })
-    resetButtons = () => this.setState({ noDisabled: false, yesDisabled: false })
+    beginPathB = () => this.setState({ path: 'pathB', })
+    beginPathA = () => this.setState({ path: 'pathA', })
+    //resetButtons = () => this.setState({ noDisabled: false, yesDisabled: false })
 
     render() {
         const { inputState, input, buttonState, modalOpen, path, yesDisabled, noDisabled } = this.state
@@ -331,10 +328,10 @@ export class SystemBotButton extends Component {
                                         <div className="systemBotText">Do you think the above message suits the context?</div>
                                         <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
                                             <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={yesDisabled}>yes</Button>
+                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
                                             </div>
                                             <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={noDisabled}>no</Button>
+                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
                                             </div>
                                         </div>
                                     </div>

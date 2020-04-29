@@ -41,6 +41,7 @@ export class LeftSideBar extends Component {
                 r_List: this.props.requirementList
             })
             this.createDiagram()
+
         }
         if (prevProps.requirement !== this.props.requirement){
             this.changeCheckedRequirement()
@@ -92,15 +93,20 @@ export class LeftSideBar extends Component {
         const { r_List } = this.state
         const { addLinks, addNodes } = this
         r_List.map((requirement, i) => {
-            if (requirement.checked === true) {
+            if (requirement === this.props.requirement) {
+                addNodes(i, requirement.requirement, '#FFBB00')
+            } else if (requirement.checked === true) {
                 addNodes(i, requirement.requirement, '#FFFFFF')
             } else {
             addNodes(i, requirement.requirement)
             }
-            addLinks(i, i+1)
+            //addLinks(i, i+1)
             return true;
         })
-        addNodes(r_List.length, 'end')
+        for (var i=0; i<r_List.length-1; i++) {
+            addLinks(i, i+1)
+        }
+        //addNodes(r_List.length, 'end')
     }
 
 
@@ -127,7 +133,7 @@ export class LeftSideBar extends Component {
                                         <Header icon='info' content='Sequence of Conversation Topics' />
                                         <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
                                             <p> 
-                                            {"<--  The graph on the left has the mandatory conversation topics arranged in order. Please refer to your current topic during the conversation by looking at the checkboxes."} 
+                                            {"<--  The graph on the left shows the mandatory conversation topics. Please refer to your current topic by looking for the yellow node."} 
                                             </p>
                                         </Modal.Content>
                                         <Modal.Actions>
@@ -138,7 +144,7 @@ export class LeftSideBar extends Component {
                                     </Modal>
                             </div>
                         }
-                        <div style={{height:'25px'}}></div>
+                        <div style={{height:'5px'}}></div>
                         <Flowchart 
                             nodes={nodes}
                             links={links}

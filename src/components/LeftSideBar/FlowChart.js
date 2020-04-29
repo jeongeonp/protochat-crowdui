@@ -55,7 +55,7 @@ export class Flowchart extends Component {
                         
                     }}
                     width='250'
-                    height='400'
+                    height='440'
                     animate={0}
                     shape='rect'
                     fitBoundaries

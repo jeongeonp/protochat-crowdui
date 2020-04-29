@@ -6,7 +6,7 @@ const databaseURL = "https://protobot-rawdata.firebaseio.com/";
 
 export class SystemUserButton extends Component {
     extension = '.json';
-    overflowCondition: '';
+    overflowCondition = '';
 
     constructor(props) {
         super(props);
