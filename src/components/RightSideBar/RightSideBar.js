@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { Button, Icon, } from 'semantic-ui-react'
 import './RightSideBar.css'
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/"
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 export class RightSideBar extends Component {
     extension = '.json'
@@ -21,7 +22,7 @@ export class RightSideBar extends Component {
     }
 
     componentDidMount() {
-        const numSession = parseInt(this.getURLParams('numSession'))
+        const numSession = 1
 
         this.setState({
             numSession: numSession,
@@ -47,7 +48,7 @@ export class RightSideBar extends Component {
     }
 
     patchUserEndTime(sessionNum, userId, date) {
-        return fetch(`${databaseURL+'/users/data/'+userId+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/data/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[sessionNum]: date})
         }).then(res => {
@@ -59,7 +60,7 @@ export class RightSideBar extends Component {
     }
 
     patchUserSetId(domainId, userId, deployedVersion, checkSessionObject) {
-        return fetch(`${databaseURL+'/users/lists/domains/'+domainId + '/' + deployedVersion + '/' + userId + '/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domains/'+domainId + '/' + deployedVersion + '/' + userId + '/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(checkSessionObject)
         }).then(res => {

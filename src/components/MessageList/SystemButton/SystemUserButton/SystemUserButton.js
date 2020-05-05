@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Segment, Button } from 'semantic-ui-react';
 import './SystemUserButton.css';
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 export class SystemUserButton extends Component {
     extension = '.json';
@@ -23,7 +24,7 @@ export class SystemUserButton extends Component {
     }
 
     postUtterance(utterance) {
-        return fetch(`${databaseURL+'/utterances/data'+this.extension}`, {
+        return fetch(`${databaseURL+'/utterances/data/'+this.props.domainId + '/' + this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
         }).then(res => {
@@ -40,7 +41,7 @@ export class SystemUserButton extends Component {
     }
 
     postBranch(branch, utterance) {
-        return fetch(`${databaseURL+'/tree-structure/data'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(branch)
         }).then(res => {
@@ -58,7 +59,7 @@ export class SystemUserButton extends Component {
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -70,7 +71,7 @@ export class SystemUserButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -82,7 +83,7 @@ export class SystemUserButton extends Component {
     }
 
     patchChildren(prevBranch, children) {
-        return fetch(`${databaseURL+'/tree-structure/data/'+prevBranch+'/children/'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+'/'+prevBranch+'/children/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(children)
         }).then(res => {

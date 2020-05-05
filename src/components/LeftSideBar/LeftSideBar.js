@@ -92,6 +92,7 @@ export class LeftSideBar extends Component {
     createDiagram = () => {
         const { r_List } = this.state
         const { addLinks, addNodes } = this
+        console.log(this.props.requirement)
         r_List.map((requirement, i) => {
             if (requirement === this.props.requirement) {
                 addNodes(i, requirement.requirement, '#FFBB00')

@@ -5,7 +5,8 @@ import './SystemBotButton.css';
 import bot from './../../Message/images/bot.png';
 import botsTurn from './bots-turn.PNG';
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 export class SystemBotButton extends Component {
     extension = '.json'
@@ -23,6 +24,10 @@ export class SystemBotButton extends Component {
             path: '',
             yesDisabled: false,
             noDisabled: false,
+
+            /* Since passing via prop was not working */
+            deployedVersion: '',
+            domainId: '',
         }
         this.postUtterance = this.postUtterance.bind(this)
         this.postBranch = this.postBranch.bind(this)
@@ -41,10 +46,39 @@ export class SystemBotButton extends Component {
         this.postNewUtterance = this.postNewUtterance.bind(this)
         this.beginPathA = this.beginPathA.bind(this)
         this.beginPathB = this.beginPathB.bind(this)
+        this.getURLParams = this.getURLParams.bind(this)
+    }
+
+    componentDidMount() {
+        const deployedVersion = this.getURLParams('deployedVersion')
+        const domainId = this.getURLParams('domain')
+
+        this.setState({
+            deployedVersion: deployedVersion,
+            domainId: domainId,
+        })
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
     }
 
     postUtterance(utterance, start, require) {
-        return fetch(`${databaseURL+'/utterances/data'+this.extension}`, {
+        return fetch(`${databaseURL+'/utterances/data/'+ this.props.domainId + '/' + this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
         }).then(res => {
@@ -73,7 +107,7 @@ export class SystemBotButton extends Component {
     }
 
     postBranch(branch, utterance, start, addRequired) {
-        return fetch(`${databaseURL+'/tree-structure/data'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(branch)
         }).then(res => {
@@ -88,7 +122,7 @@ export class SystemBotButton extends Component {
                 this.patchChildren(prevBranch, branch)
             }
             if (start) {
-                this.patchFirstBranch(domainId, deployedVersion, branch)
+                this.patchFirstBranch(domainId, this.state.deployedVersion, branch)
             }
             if (addRequired) {
                 if(save_requirement && !utterance.required){
@@ -103,7 +137,7 @@ export class SystemBotButton extends Component {
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -115,7 +149,7 @@ export class SystemBotButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -128,7 +162,7 @@ export class SystemBotButton extends Component {
 
     patchFirstBranch(domainId, deployedVersion, f_branch) {
         // return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
-        return fetch(`${databaseURL+'/deployed-history/data/'+domainId+'/'+deployedVersion+'/branches'+this.extension}`, {
+        return fetch(`${databaseURL+'/deployments/data/'+domainId+'/'+ deployedVersion+'/branches'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(f_branch)
         }).then(res => {
@@ -140,7 +174,8 @@ export class SystemBotButton extends Component {
     }
 
     patchBranchRequired(requirement, bId) {
-        return fetch(`${databaseURL+'/labels/data/'+requirement.topic+'/branch'+this.extension}`, {
+        const { domainId } = this.state
+        return fetch(`${databaseURL+'/topics/data/'+ domainId + '/' + requirement.topic+'/branch'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[bId]: true})
         }).then(res => {
@@ -152,7 +187,7 @@ export class SystemBotButton extends Component {
     }
 
     patchChildren(prevBranch, children) {
-        return fetch(`${databaseURL+'/tree-structure/data/'+prevBranch+'/children'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+'/'+prevBranch+'/children'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(children)
         }).then(res => {

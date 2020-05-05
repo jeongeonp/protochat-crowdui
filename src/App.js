@@ -51,7 +51,7 @@ class App extends Component{
   }
 
   componentDidMount() {
-    const otherResponse = (this.getURLParams('otherResponse') === 'true')
+    const otherResponse = true /*(this.getURLParams('otherResponse') === 'true')*/
     const deployedVersion = this.getURLParams('deployedVersion')
     const domainId = this.getURLParams('domain')
 

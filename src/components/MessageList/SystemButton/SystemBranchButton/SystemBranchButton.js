@@ -5,7 +5,8 @@ import './SystemBranchButton.css';
 //import bot from './../../Message/images/bot.png';
 //import botsTurn from './bots-turn.PNG';
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 export class SystemBranchButton extends Component {
     extension = '.json'
@@ -67,7 +68,7 @@ export class SystemBranchButton extends Component {
     }
 
     postBranch(branch, utterance, start, addRequired) {
-        return fetch(`${databaseURL+'/tree-structure/data'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(branch)
         }).then(res => {
@@ -97,7 +98,7 @@ export class SystemBranchButton extends Component {
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -109,7 +110,7 @@ export class SystemBranchButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/users/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -122,7 +123,7 @@ export class SystemBranchButton extends Component {
 
     patchFirstBranch(domainId, deployedVersion, f_branch) {
         // return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
-        return fetch(`${databaseURL+'/deployed-history/data/'+domainId+'/'+deployedVersion+'/branches'+this.extension}`, {
+        return fetch(`${databaseURL+'/deployments/data/'+domainId+'/'+deployedVersion+'/branches'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(f_branch)
         }).then(res => {
@@ -134,7 +135,8 @@ export class SystemBranchButton extends Component {
     }
 
     patchBranchRequired(requirement, bId) {
-        return fetch(`${databaseURL+'/labels/data/'+requirement.topic+'/branch'+this.extension}`, {
+        const { domainID } = this.props
+        return fetch(`${databaseURL+'/topics/data/'+ domainID + '/' + requirement.topic+'/branch'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[bId]: true})
         }).then(res => {
@@ -146,7 +148,7 @@ export class SystemBranchButton extends Component {
     }
 
     patchChildren(prevBranch, children) {
-        return fetch(`${databaseURL+'/tree-structure/data/'+prevBranch+'/children'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+'/'+prevBranch+'/children'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(children)
         }).then(res => {

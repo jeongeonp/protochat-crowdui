@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './FlowChart.css';
 
 import DagreGraph from 'dagre-d3-react'
-import * as d3 from 'd3'
+//import * as d3 from 'd3'
 
 
 
@@ -59,7 +59,7 @@ export class Flowchart extends Component {
                     animate={0}
                     shape='rect'
                     fitBoundaries
-                    zoomable
+                    //zoomable
                     onNodeClick={e => console.log(e)}
                     onRelationshipClick={e => console.log(e)}
                 />

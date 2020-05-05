@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Button, Modal, Form, Image, Popup } from 'semantic-ui-react'
 import './Login.css'
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/"
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 const GENDER = {
     M: 'MALE',
@@ -158,9 +159,8 @@ export class Login extends Component {
                             <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
                                 <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
                                     <p>Your task is to finish <b>{domainName}</b> with the chatbot. </p>
-                                    <p>During the conversation, there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
-                                    <p>When you wish to elaborate more on the chatbot's conversation, <br/> please do so by clicking <u>A. Insert new conversation</u> to manually add what you want the chatbot to say.</p>
-                                    <p style={{fontSize: "80%"}}><br/> <b>We recommend zomming out a little for better screen display!</b></p>
+                                    <p>During the conversation, keep in mind that there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
+                                    <p style={{fontSize: "80%"}}><br/> <b>We recommend zooming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {
                                         return id === tutorial_num
                                             ?   <Image src={require('./Tutorial/' + item.source)} />

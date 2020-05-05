@@ -10,7 +10,8 @@ import { SystemBotButton } from "./../MessageList/SystemButton/SystemBotButton/S
 import { SystemUserButton } from "./../MessageList/SystemButton/SystemUserButton/SystemUserButton.js";
 import { SystemBranchButton } from "./../MessageList/SystemButton/SystemBranchButton/SystemBranchButton.js"
 
-const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+//const databaseURL = "https://protobot-rawdata.firebaseio.com/";
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
 
 export class ChatRoom extends Component {
     id = 0;
@@ -28,6 +29,7 @@ export class ChatRoom extends Component {
             deployedVersion: '',
             domainID: '',
             otherResponse: null,
+            task: '',
 
             // Keeping pre-defined topic
             preTopic: null,
@@ -89,6 +91,7 @@ export class ChatRoom extends Component {
         this.handleChangeText = this.handleChangeText.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.getTask = this.getTask.bind(this);
     }
     
     /* A. Lifecycle Function */
@@ -96,7 +99,7 @@ export class ChatRoom extends Component {
     componentDidMount() {
         const deployedVersion = this.getURLParams('deployedVersion')
         const domainID = this.getURLParams('domain')
-        const otherResponse = (this.getURLParams('otherResponse') === 'true')
+        const otherResponse = true /*(this.getURLParams('otherResponse') === 'true')*/
 
         this.setState({
             deployedVersion: deployedVersion,
@@ -105,13 +108,16 @@ export class ChatRoom extends Component {
         })
 
         if (deployedVersion && domainID){
-            this.getDomains('/deployed-history/data/'+ domainID + '/' + deployedVersion);
+            this.getDomains('/deployments/data/'+ domainID + '/' + deployedVersion);
         } else {
-            this.getDomains('/last-deployed/data/');
+            this.getDomains('/currentEdit/data/');
         }
+        console.log(this.state.domains)
+
+        this.getTask('/domains/data/' + domainID);
 
         // for bot-side response walkthrough; will send to SystemBotButton to open instruction on first occurance
-        fetch(`${databaseURL + 'deployed-history/data/' + domainID + '/' + deployedVersion + '/topics'}.json`).then(res => {
+        fetch(`${databaseURL + 'deployments/data/' + domainID + '/' + deployedVersion + '/topicList'}.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -172,9 +178,20 @@ export class ChatRoom extends Component {
         }
     }
 
+    getTask(address) {
+        fetch(`${databaseURL+address}.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(taskName => {
+            this.setState({task: taskName})
+        });
+    }
+
     // utterance list에 branch까지 같이 저장해서, 다음 branch 바로 넘겨줄 수 있도록
     getChildBranches(branch, type) {
-        fetch(`${databaseURL+'/tree-structure/data/'+branch+'/children'}/.json`).then(res => {
+        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+'/'+branch+'/children'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -194,7 +211,7 @@ export class ChatRoom extends Component {
     }
 
     getChildUtterance(branch, type, required) {
-        fetch(`${databaseURL+'/tree-structure/data/'+branch+'/utterances'}/.json`).then(res => {
+        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+'/'+branch+'/utterances'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -210,7 +227,8 @@ export class ChatRoom extends Component {
     }
 
     getUtteranceText(branch, utteranceId, type){
-        fetch(`${databaseURL+'/utterances/data/'+utteranceId}/.json`).then(res => {
+        const { domainID } = this.state;
+        fetch(`${databaseURL+'/utterances/data/'+ domainID + '/' + utteranceId}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -240,7 +258,8 @@ export class ChatRoom extends Component {
     }
 
     getR_ChildBranch(topic_name){
-        fetch(`${databaseURL+'/labels/data/'+topic_name+'/branch/'}/.json`).then(res => {
+        const { domainID } = this.state;
+        fetch(`${databaseURL+'/topics/data/'+ domainID + '/' + topic_name+'/branch/'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -256,7 +275,8 @@ export class ChatRoom extends Component {
     }
 
     getR_UtteranceText(branch, utteranceId){
-        fetch(`${databaseURL+'/utterances/data/'+utteranceId}/.json`).then(res => {
+        const { domainID } = this.state;
+        fetch(`${databaseURL+'/utterances/data/'+ domainID + '/' + utteranceId}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -276,19 +296,21 @@ export class ChatRoom extends Component {
     }
 
     getRequirements(path, order) {
-        fetch(`${databaseURL+'/labels/data/'+path}/.json`).then(res => {
+        const { domainID } = this.state
+        fetch(`${databaseURL+'/topics/data/'+ domainID + '/' + path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
         }).then(topic => {
             // const u_list = Object.keys(topic.utterances)
-            this.getRequirementsText(topic.mainUtterance, topic.name, topic.branch, path, order)
+            this.getRequirementsText(topic.designUtteranceId, topic.name, topic.branch, path, order)
         });
     }
 
     getRequirementsText(path, name, branch, topicEmbedded, order){
-        fetch(`${databaseURL+'/utterances/data/'+path}/.json`).then(res => {
+        const { domainID } = this.state;
+        fetch(`${databaseURL+'/utterances/data/'+domainID+'/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -297,10 +319,10 @@ export class ChatRoom extends Component {
             this.setState({
                 requirementList: this.state.requirementList.concat({
                     checked: false,
-                    requirement: name,
-                    text: utterance.text,
-                    topic: topicEmbedded,
-                    topics: utterance.topics,
+                    requirement: name, // topics -> data -> name
+                    text: utterance.text, // utterances -> data -> text
+                    topic: topicEmbedded, // deployment??
+                    topics: utterance.topic, // ???
                     uId: path,
                     bId: branch,
                     required: true,
@@ -320,8 +342,9 @@ export class ChatRoom extends Component {
     }
 
     setRequirements(domain) {
-        Object.entries(domain.topics).map(([key, order]) => {
-            this.getRequirements(key, order)
+        console.log(domain)
+        Object.entries(domain.topicList).map(([key, order]) => {
+            this.getRequirements(order, key)
         })
     }
 
@@ -373,7 +396,7 @@ export class ChatRoom extends Component {
     startConversation = () => {
         this.num_experiment ++
         this.after_require = false
-        this.getDomains('/deployed-history/data/'+ this.state.domainID + '/' + this.state.deployedVersion)
+        this.getDomains('/deployments/data/'+ this.state.domainID + '/' + this.state.deployedVersion)
         this.id = 0
         this.turn = 0
         this.setState({
@@ -602,7 +625,7 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus, instructionPosition } = this.state;
+            similarUserStatus, instructionPosition, task } = this.state;
         const {
             handleChangeText,
             handleCreate,
