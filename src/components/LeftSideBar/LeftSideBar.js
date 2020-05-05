@@ -13,6 +13,8 @@ export class LeftSideBar extends Component {
         this.state = {
             input: '',
             r_List: [],
+            tp_List: [],
+            tt_List: [],
             modalOpen: true,
 
             /* For the flowchart */
@@ -26,6 +28,17 @@ export class LeftSideBar extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (prevProps.requirementList !== this.props.requirementList || 
+            prevProps.topicPathList !== this.props.topicPathList || 
+            prevProps.topicTransitionList !== this.props.topicTransitionList) {
+                this.setState({
+                    r_List: this.props.requirementList,
+                    tp_List: this.props.topicPathList,
+                    tt_List: this.props.topicTransitionList,
+                })
+                this.createDiagram()
+            }
+
         if (prevProps.end !== this.props.end){
             if(this.props.end){
                 this.setState({
@@ -36,18 +49,8 @@ export class LeftSideBar extends Component {
             }
         }
 
-        if (prevProps.requirementList !== this.props.requirementList){
-            this.setState({
-                r_List: this.props.requirementList
-            })
-            this.createDiagram()
-
-        }
         if (prevProps.requirement !== this.props.requirement){
             this.changeCheckedRequirement()
-            console.log(prevProps.requirement)
-            console.log(this.props.requirement)
-            console.log(this.props.requirementList)
         }
     }
 
@@ -57,7 +60,7 @@ export class LeftSideBar extends Component {
         this.num_requirement += 1
         this.setState({
             r_List: r_List.map(r => r.requirement === requirement.requirement
-                ? { requirement: requirement.requirement, text: requirement.text, checked: true}
+                ? { requirement: requirement.requirement, text: requirement.text, checked: true, topic: requirement.topic}
                 : r
             )
         })
@@ -78,7 +81,7 @@ export class LeftSideBar extends Component {
         })
     }
 
-    addLinks = (source, target, label = '') => {
+    addLinks = (source, target, label) => {
         var newLink = { source: source, target: target, label: label, config: {curve: d3.curveLinear} }
         var currLinks = this.state.links
         currLinks.push(newLink)
@@ -90,24 +93,41 @@ export class LeftSideBar extends Component {
 
     /* TODO: Adjust the structure to new database */
     createDiagram = () => {
-        const { r_List } = this.state
+        const { r_List, tp_List, tt_List } = this.state
         const { addLinks, addNodes } = this
-        console.log(this.props.requirement)
-        r_List.map((requirement, i) => {
+
+        this.setState({
+            nodes: [],
+            links: []
+        })
+        
+        //console.log(r_List)
+        r_List.map((requirement) => {
             if (requirement === this.props.requirement) {
-                addNodes(i, requirement.requirement, '#FFBB00')
+                addNodes(requirement.topic, requirement.requirement, '#FFBB00')
             } else if (requirement.checked === true) {
-                addNodes(i, requirement.requirement, '#FFFFFF')
+                addNodes(requirement.topic, requirement.requirement, '#FFFFFF')
             } else {
-            addNodes(i, requirement.requirement)
+            addNodes(requirement.topic, requirement.requirement)
             }
-            //addLinks(i, i+1)
             return true;
         })
-        for (var i=0; i<r_List.length-1; i++) {
-            addLinks(i, i+1)
-        }
-        //addNodes(r_List.length, 'end')
+
+        //console.log(topicPathList)
+        //console.log(topicTransitionList)
+
+        tt_List.map((path) => {
+            var correctPath;
+            tp_List.map((p) => {
+                if (p.topic === path.path ) {
+                    correctPath = p
+                }
+            })
+
+            if (correctPath) {
+                addLinks(path.startNode, path.endNode, correctPath.text)
+            }
+        })
     }
 
 

@@ -289,7 +289,6 @@ export class SystemBotButton extends Component {
 
     beginPathB = () => this.setState({ path: 'pathB', })
     beginPathA = () => this.setState({ path: 'pathA', })
-    //resetButtons = () => this.setState({ noDisabled: false, yesDisabled: false })
 
     render() {
         const { inputState, input, buttonState, modalOpen, path, yesDisabled, noDisabled } = this.state
@@ -303,39 +302,6 @@ export class SystemBotButton extends Component {
 
         return (
             <div className="systemBotButtonBox">
-                {/* (prevBranch === null || requirementList.length === 0)
-                    ?   null
-                    :   <div>
-                            <div className="systemBotText">
-                                It's <Image avatar spaced='right' src={bot} />Bot's turn!
-                            </div>
-                            { (requirementList.length === instructionPosition)
-                                ?   <Modal
-                                    open={modalOpen}
-                                    onClose={this.handleClose}
-                                    basic
-                                    size='small'
-                                    >
-                                        <Header icon='info' content="On every chatbot's turn" />
-                                        <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
-                                            <p>After you finish your turn, you will be choosing from different options as the below image.</p>
-                                            <Image src={botsTurn} size='large' centered rounded />
-                                            <p> </p>
-                                            <p>On the left side, there is the <i><u>Add new response button</u></i> and the <u><i>Show others' responses button</i></u> to elaborate on the current conversation topic.</p>
-                                            <p>If there is no need to add new responses, please continue by clicking on the right-side <u><i>next conversation topic button</i></u> to continue.</p>
-                                            
-                                        </Modal.Content>
-                                        <Modal.Actions>
-                                            <Button color='green' onClick={this.handleClose} inverted>
-                                                <Icon name='checkmark' /> Okay, I understand
-                                            </Button>
-                                        </Modal.Actions>
-                                    </Modal>
-                                :   null
-                            }
-                        </div>
-                        */}
-                
                 {/* Increase depth */}
                 { prevBranch === null
                     ?

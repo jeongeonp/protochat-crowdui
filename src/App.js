@@ -33,6 +33,8 @@ class App extends Component{
       // Control the requirementList
       requirementList: [],
       requirement: [],
+      topicPathList: [],
+      topicTransitionList: [],
 
       // Control each button's disabled status
       endButtonStatus: false,
@@ -48,6 +50,9 @@ class App extends Component{
     this.controlEndStatus = this.controlEndStatus.bind(this);
     this.controlStartStatus = this.controlStartStatus.bind(this);
     this.controlQuitStatus = this.controlQuitStatus.bind(this);
+    this.topicPathListConvey = this.topicPathListConvey.bind(this);
+    this.initializeTopicPathList = this.initializeTopicPathList.bind(this);
+    this.topicTransitionConvey = this.topicTransitionConvey.bind(this);
   }
 
   componentDidMount() {
@@ -128,12 +133,32 @@ class App extends Component{
     })
   }
 
+  topicPathListConvey = (topicPathList) => {
+    this.setState({
+      topicPathList: topicPathList
+    })
+  }
+
+  topicTransitionConvey = (topicTransitionList) => {
+    this.setState({
+      topicTransitionList: topicTransitionList
+    })
+  }
+
   initializeRequirementList = () => {
     this.setState({
       requirementList: [],
     })
     console.log("initializing requirementList")
   }
+
+  initializeTopicPathList = () => {
+    this.setState({
+      topicPathList: [],
+    })
+    console.log("initializing topicPathList")
+  }
+
 
   // Control the 'endButtonStatus'
   controlEndButtonStatus = () => {
@@ -186,9 +211,11 @@ class App extends Component{
 
   render(){
     const { login, quit, end, start, endButtonStatus, nextButtonStatus,
-      requirement, requirementList, userId, otherResponse, deployedVersion, domainId} = this.state;
+      requirement, requirementList, userId, otherResponse, deployedVersion, domainId,
+      topicPathList, topicTransitionList } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
-      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus } = this;
+      controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus, 
+      topicPathListConvey, topicTransitionConvey } = this;
 
     return (
       <div className="backGround">
@@ -203,6 +230,8 @@ class App extends Component{
             end={end}
             start={start}
             requirementList={requirementList}
+            topicPathList={topicPathList}
+            topicTransitionList={topicTransitionList}
           />
         </div>
         <main className="chatGrid chatStyle">
@@ -214,6 +243,9 @@ class App extends Component{
             end={end}
             start={start}
             requirementListConvey={requirementListConvey}
+            requirement={requirement}
+            topicPathListConvey={topicPathListConvey}
+            topicTransitionConvey={topicTransitionConvey}
             blockEndButtonStatus={blockEndButtonStatus}
             unblockEndButtonStatus={unblockEndButtonStatus}
             controlEndButtonStatus={controlEndButtonStatus}

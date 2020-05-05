@@ -45,7 +45,6 @@ export class ChatRoom extends Component {
             type: 'user',
             originResponse: '',
             messageList: [
-                //{ id: 0, type: 'system', time: null, text: "Let's start " + 'conversation ' + this.num_experiment},
                 { id: 0, type: 'system', time: null, text: "Chatroom"},
             ],
 
@@ -57,6 +56,8 @@ export class ChatRoom extends Component {
             num_requirement: -1,
             requirementList: [],
             otherResponseList: [],
+            topicPathList: [],
+            topicTransitionList: [],
 
             // Status for controlling chatflow
             inputButtonState: false,
@@ -64,6 +65,7 @@ export class ChatRoom extends Component {
             turnNotice: false,
             selectBotStatus: true,
             similarUserStatus: true,
+            branchTopicStatus: true,
 
             instructionPosition: -1,
         };
@@ -92,6 +94,9 @@ export class ChatRoom extends Component {
         this.handleCreate = this.handleCreate.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.getTask = this.getTask.bind(this);
+        this.getTopicPaths = this.getTopicPaths.bind(this);
+        this.getTopicPathsText = this.getTopicPathsText.bind(this);
+        this.getTopicTransitions = this.getTopicTransitions.bind(this);
     }
     
     /* A. Lifecycle Function */
@@ -112,7 +117,6 @@ export class ChatRoom extends Component {
         } else {
             this.getDomains('/currentEdit/data/');
         }
-        console.log(this.state.domains)
 
         this.getTask('/domains/data/' + domainID);
 
@@ -341,14 +345,73 @@ export class ChatRoom extends Component {
         });
     }
 
+    getTopicPaths(path, order) {
+        const { domainID } = this.state
+        fetch(`${databaseURL+'/topicPath/data/'+ domainID + '/' + path}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(topicPath => {
+            this.getTopicPathsText(topicPath.designUtteranceId, topicPath.name, path, order)
+        });
+    }
+
+    getTopicPathsText(path, name, topicEmbedded, order){
+        const { domainID } = this.state;
+        fetch(`${databaseURL+'/utterances/data/'+domainID+'/'+path}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(utterance => {
+            this.setState({
+                topicPathList: this.state.topicPathList.concat({
+                    checked: false,
+                    requirement: name, // topics -> data -> name
+                    text: utterance.text, // utterances -> data -> text
+                    topic: topicEmbedded, // deployment??
+                    topics: utterance.topic, // ???
+                    uId: path,
+                    //required: true,
+                    order: parseInt(order, 10),
+                }),
+                //num_requirement: Object.keys(this.state.topicPathList).length + 1
+            })
+            this.props.topicPathListConvey(this.state.topicPathList);
+        });
+    }
+
+    getTopicTransitions(order, key) {
+        const currState = this.state.topicTransitionList
+        currState.push({
+            order: parseInt(order, 10),
+            startNode: key.start,
+            endNode: key.end,
+            path: key.transition,
+        })
+        this.setState({
+            topicTransitionList: currState
+        })
+        this.props.topicTransitionConvey(this.state.topicTransitionList)
+    }
+
     setRequirements(domain) {
         console.log(domain)
-        Object.entries(domain.topicList).map(([key, order]) => {
-            this.getRequirements(order, key)
+        Object.entries(domain.topicList).map(([order, key]) => {
+            this.getRequirements(key, order)
         })
+        Object.entries(domain.topicPaths).map(([order, key]) => {
+            this.getTopicPaths(key, order)
+        })
+        Object.entries(domain.topicTransitions).map(([order, key]) => {
+            this.getTopicTransitions(order, key)
+        })
+        
     }
 
     /* C. Controlling Functions */
+
 
     // Auto scrolling to bottom
     scrollToBottom = () => {
@@ -625,7 +688,7 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus, instructionPosition, task } = this.state;
+            similarUserStatus, instructionPosition, task, branchTopicStatus } = this.state;
         const {
             handleChangeText,
             handleCreate,
@@ -650,40 +713,40 @@ export class ChatRoom extends Component {
                                 <span>{time.toLocaleTimeString()}</span>
                             </div>
                             <div>
-                                {/*<SystemBranchButton
-                                userId={this.props.userId}
-                                otherResponse={otherResponse}
-                                selectAnswer={selectAnswer}
-                                save_requirement={save_requirement}
-                                answerList={answerList}
-                                r_answerList={r_answerList}
-                                start_requirement={start_requirement}
-                                requirementList={requirementList}
-                                changeRequirment={changeRequirment}
-                                num_requirement={num_requirement}
-                                deployedVersion={deployedVersion}
-                                domainId={domainID}
-                                prevBranch={prevBranch}
-                                startBranch={startBranch}
-                                num_experiment={this.num_experiment}
-                                turn={this.turn}
-                                instructionPosition={instructionPosition}
-                                ></SystemBranchButton>*/}
                                 <MessageList messageList={messageList}/>
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
+                                {branchTopicStatus ? null : <SystemBranchButton
+                                                            userId={this.props.userId}
+                                                            otherResponse={otherResponse}
+                                                            selectAnswer={selectAnswer}
+                                                            save_requirement={save_requirement}
+                                                            answerList={answerList}
+                                                            r_answerList={r_answerList}
+                                                            start_requirement={start_requirement}
+                                                            requirementList={requirementList}
+                                                            changeRequirment={changeRequirment}
+                                                            num_requirement={num_requirement}
+                                                            deployedVersion={deployedVersion}
+                                                            domainId={domainID}
+                                                            prevBranch={prevBranch}
+                                                            startBranch={startBranch}
+                                                            num_experiment={this.num_experiment}
+                                                            turn={this.turn}
+                                                            instructionPosition={instructionPosition}
+                                                            />}
                                 {similarUserStatus ? null : <SystemUserButton
-                                                                userId={this.props.userId}
-                                                                otherResponse={otherResponse}
-                                                                similarResponse={similarResponse}
-                                                                originResponse={originResponse}
-                                                                otherResponseList={otherResponseList}
-                                                                domainId={domainID}
-                                                                deployedVersion={deployedVersion}
-                                                                prevBranch={prevBranch}
-                                                                preTopic={preTopic}
-                                                                initializeTopic={initializeTopic}
-                                                                num_experiment={this.num_experiment}
-                                                                turn={this.turn}
+                                                            userId={this.props.userId}
+                                                            otherResponse={otherResponse}
+                                                            similarResponse={similarResponse}
+                                                            originResponse={originResponse}
+                                                            otherResponseList={otherResponseList}
+                                                            domainId={domainID}
+                                                            deployedVersion={deployedVersion}
+                                                            prevBranch={prevBranch}
+                                                            preTopic={preTopic}
+                                                            initializeTopic={initializeTopic}
+                                                            num_experiment={this.num_experiment}
+                                                            turn={this.turn}
                                                             />}
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
