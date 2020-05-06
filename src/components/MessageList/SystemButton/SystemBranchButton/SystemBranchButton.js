@@ -240,9 +240,10 @@ export class SystemBranchButton extends Component {
 
     render() {
         const { inputState, input, buttonState, modalOpen, } = this.state
-        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition } = this.props
+        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition,
+        requirement, setNextTopicOnList } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState } = this
-        
+
 
         if (Object.keys(answerList + r_answerList).length > 3){
             this.overflowCondition = 'scroll'
@@ -277,7 +278,7 @@ export class SystemBranchButton extends Component {
                                     return (
                                         <div key={id}>
                                             <div style={{height: '10px'}}></div>
-                                            <Button fluid>{answer}</Button>
+                                            <Button fluid onClick={setNextTopicOnList(answer)}>{answer}</Button>
                                         </div>
                                     )
                                 })}

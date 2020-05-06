@@ -59,6 +59,9 @@ export class ChatRoom extends Component {
             topicPathList: [],
             topicTransitionList: [],
 
+            currentTopicOnList: [],
+            nextTopicOnList: [],
+
             // Status for controlling chatflow
             inputButtonState: false,
             startSession: true,
@@ -131,8 +134,8 @@ export class ChatRoom extends Component {
         });
     }
     
-    componentDidUpdate() {
-        const { end, start, controlEndStatus, controlStartStatus } = this.props;
+    componentDidUpdate(prevProps) {
+        const { end, start, controlEndStatus, controlStartStatus, } = this.props;
         if ( end === true ) {
             this.resetMessageList();
             this.setState({
@@ -147,6 +150,20 @@ export class ChatRoom extends Component {
             controlStartStatus();
         }
         this.scrollToBottom();
+
+        if (prevProps.nextTopicOnList !== this.props.nextTopicOnList) {
+            this.setState({
+                nextTopicOnList: this.props.nextTopicOnList
+            })  
+        }
+        if (prevProps.requirement !== this.props.requirement) {
+            this.setState({
+                currentTopicOnList: this.props.requirement
+            })
+        } 
+
+        //console.log(this.state.currentTopicOnList)
+        //console.log(this.state.nextTopicOnList)
     }
 
     /* B. Data import  */
@@ -307,7 +324,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(topic => {
-            // const u_list = Object.keys(topic.utterances)
             this.getRequirementsText(topic.designUtteranceId, topic.name, topic.branch, path, order)
         });
     }
@@ -688,7 +704,7 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus, instructionPosition, task, branchTopicStatus } = this.state;
+            similarUserStatus, instructionPosition, task, branchTopicStatus, currentTopicOnList, nextTopicOnList } = this.state;
         const {
             handleChangeText,
             handleCreate,
@@ -697,7 +713,8 @@ export class ChatRoom extends Component {
             selectAnswer,
             similarResponse,
             changeRequirment,
-            initializeTopic
+            initializeTopic,
+            
         } = this;
 
         const sysNotice = [
@@ -766,6 +783,8 @@ export class ChatRoom extends Component {
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
                                                             instructionPosition={instructionPosition}
+                                                            currentTopicOnList={currentTopicOnList}
+                                                            nextTopicOnList={nextTopicOnList}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
                                 </div>

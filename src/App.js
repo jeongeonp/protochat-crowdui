@@ -53,6 +53,8 @@ class App extends Component{
     this.topicPathListConvey = this.topicPathListConvey.bind(this);
     this.initializeTopicPathList = this.initializeTopicPathList.bind(this);
     this.topicTransitionConvey = this.topicTransitionConvey.bind(this);
+    this.getNextTopicOnList = this.getNextTopicOnList.bind(this);
+    this.setNextTopicOnList = this.setNextTopicOnList.bind(this);
   }
 
   componentDidMount() {
@@ -124,6 +126,31 @@ class App extends Component{
   setStateRequirment = (requirement) => {
     this.setState({
         requirement: requirement
+    })
+    console.log("**** Hello!!!!! ****")
+    console.log(requirement)
+    this.getNextTopicOnList(requirement)
+  }
+
+  getNextTopicOnList = (requirement) => {
+    //console.log(this.state.requirementList)
+    //console.log(requirement)
+
+    this.state.topicTransitionList.map((transition) => {
+      if (transition.startNode === requirement.topic) {
+        // FIXME: get choice from userBranchButton and set nextTopicOnList
+        var endNodes = this.state.requirementList.filter((re)=>(transition.endNode === re.topic))
+        this.setNextTopicOnList(endNodes[0])
+      }
+    })
+  }
+
+  setNextTopicOnList = (requirement) => {
+    //console.log("***At a correct spot")
+    //console.log(requirement)
+    //TODO: Get requirement from requirement.text
+    this.setState({
+        nextTopicOnList: requirement
     })
   }
 
@@ -212,7 +239,7 @@ class App extends Component{
   render(){
     const { login, quit, end, start, endButtonStatus, nextButtonStatus,
       requirement, requirementList, userId, otherResponse, deployedVersion, domainId,
-      topicPathList, topicTransitionList } = this.state;
+      topicPathList, topicTransitionList, nextTopicOnList } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus, 
       topicPathListConvey, topicTransitionConvey } = this;
@@ -220,7 +247,7 @@ class App extends Component{
     return (
       <div className="backGround">
         {/* FIXME: put it back later to enable login & tutorial*/}
-        {/*login ? null : <Login changeLoginState={changeLoginState}/>*/}
+        {login ? null : <Login changeLoginState={changeLoginState}/>}
         
         { quit ? <Quit/> : null }
         <div className="leftSideBar">
@@ -244,6 +271,7 @@ class App extends Component{
             start={start}
             requirementListConvey={requirementListConvey}
             requirement={requirement}
+            nextTopicOnList={nextTopicOnList}
             topicPathListConvey={topicPathListConvey}
             topicTransitionConvey={topicTransitionConvey}
             blockEndButtonStatus={blockEndButtonStatus}

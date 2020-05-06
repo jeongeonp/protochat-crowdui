@@ -57,6 +57,25 @@ export class SystemBotButton extends Component {
             deployedVersion: deployedVersion,
             domainId: domainId,
         })
+
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.currentTopicOnList !== this.props.currentTopicOnList) {
+            this.setState({
+                currentTopicOnList: this.props.currentTopicOnList
+            })
+        } 
+        if (prevProps.nextTopicOnList !== this.props.nextTopicOnList) {
+            this.setState({
+                nextTopicOnList: this.props.nextTopicOnList
+            })  
+        }
+
+        console.log(this.state.currentTopicOnList)
+        console.log(this.state.nextTopicOnList)
+        console.log(this.props.currentTopicOnList)
+        console.log(this.props.nextTopicOnList)
     }
 
     getURLParams = (param) => {
@@ -232,7 +251,8 @@ export class SystemBotButton extends Component {
         this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
         this.sendAnswer(answer, branch, false)
-
+        
+        console.log(this.props.requirement )
         //this.resetButtons()
     }
 
@@ -254,6 +274,7 @@ export class SystemBotButton extends Component {
     }
 
     handleRequirement = (requirement) => {
+        console.log(requirement)
         const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props
         this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
         if(startBranch){
@@ -302,7 +323,7 @@ export class SystemBotButton extends Component {
 
         return (
             <div className="systemBotButtonBox">
-                {/* Increase depth */}
+                {/* First depth: Yes or no */}
                 { prevBranch === null
                     ?
                     <Button fluid color='teal' size='small' onClick={beginPathB}>Click here to begin</Button>
@@ -312,13 +333,14 @@ export class SystemBotButton extends Component {
                         <Segment.Group>
                             <Segment textAlign='center' color='teal'>
                                 <div>
-                                {requirementList.map((requirement, id) => {
+                                {/*requirementList.map((requirement, id) => {
                                     return id === Object.keys(requirementList).length - num_requirement?
                                         <div key={id}>
-                                            {requirement.text}
+                                            {this.props.nextTopicOnList}
                                         </div>
                                         : null
-                                })}
+                                })*/}
+                                {this.props.nextTopicOnList.text}
                                 </div>
                             </Segment>
                         </Segment.Group>
@@ -352,13 +374,6 @@ export class SystemBotButton extends Component {
                             :   <div>
                                     <Segment.Group>
                                         <Segment textAlign='center' color='teal'>
-                                            {/*<span className="systemBotText" style={{height:"25px"}}>
-                                                { requirementList.length === 0
-                                                    ?   "If you wish to elaborate more, insert new bot's conversation"
-                                                    :   "A: If you wish to elaborate more, insert new bot's conversation before moving on"
-                                                }
-                                            </span>
-                                            <div style={{height: '10px'}}></div>*/}
                                             <div className="systemBotText">
                                                 { otherResponse
                                                     ?   "Please continue by (1) inserting a new bot's response or (2) selecting from what other people suggested"
@@ -430,8 +445,9 @@ export class SystemBotButton extends Component {
                                                     :   'Please continue with the next topic'
                                                 }
                                             </div>
-                                            <div>
+                                            {/*<div>
                                             {requirementList.map((requirement, id) => {
+                                                console.log(requirement)
                                                 return id === Object.keys(requirementList).length - num_requirement?
                                                     <div key={id}>
                                                         <div style={{height: '5px'}}></div>
@@ -440,7 +456,17 @@ export class SystemBotButton extends Component {
                                                     : null
                                                 })
                                             }
-                                            </div>
+                                            </div>*/}
+                                            { prevBranch === null 
+                                            ?   <div>
+                                                    <div style={{height: '5px'}}></div>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, requirementList[0])}>{requirementList[0].text}</Button>
+                                                </div>
+                                            :   <div>
+                                                    <div style={{height: '5px'}}></div>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList)}>{this.props.nextTopicOnList.text}</Button>
+                                                </div>
+                                            }
                                         </Segment>
                                     </Segment.Group>
                                 </div>
