@@ -13,6 +13,10 @@ export class SystemUserButton extends Component {
         super(props);
         this.state = {
             inputButtonState: false,
+
+            /* Since passing via prop was not working */
+            deployedVersion: '',
+            domainId: '',
         };
         this.postUtterance = this.postUtterance.bind(this);
         this.postBranch = this.postBranch.bind(this);
@@ -21,6 +25,35 @@ export class SystemUserButton extends Component {
         this.patchChildren = this.patchChildren.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
         this.handleNotapplicable = this.handleNotapplicable.bind(this);
+    }
+
+    componentDidMount() {
+        const deployedVersion = this.getURLParams('deployedVersion')
+        const domainId = this.getURLParams('domain')
+
+        this.setState({
+            deployedVersion: deployedVersion,
+            domainId: domainId,
+        })
+
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
     }
 
     postUtterance(utterance) {
@@ -59,7 +92,7 @@ export class SystemUserButton extends Component {
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -71,7 +104,7 @@ export class SystemUserButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {

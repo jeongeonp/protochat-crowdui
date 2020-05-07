@@ -96,10 +96,7 @@ export class LeftSideBar extends Component {
         const { r_List, tp_List, tt_List } = this.state
         const { addLinks, addNodes } = this
 
-        this.setState({
-            nodes: [],
-            links: []
-        })
+        
         
         //console.log(r_List)
         r_List.map((requirement) => {

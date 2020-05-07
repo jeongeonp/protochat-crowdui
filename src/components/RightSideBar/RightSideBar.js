@@ -48,7 +48,8 @@ export class RightSideBar extends Component {
     }
 
     patchUserEndTime(sessionNum, userId, date) {
-        return fetch(`${databaseURL+'/crowd/data/'+userId+'/'+this.extension}`, {
+        console.log(this.extension)
+        return fetch(`${databaseURL+'/crowd/data/'+this.props.domainId+'/'+this.props.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[sessionNum]: date})
         }).then(res => {

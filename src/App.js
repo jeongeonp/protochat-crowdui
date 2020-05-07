@@ -35,6 +35,8 @@ class App extends Component{
       requirement: [],
       topicPathList: [],
       topicTransitionList: [],
+      nextTopicOnList: [],
+      possibleNextTopics: [],
 
       // Control each button's disabled status
       endButtonStatus: false,
@@ -55,6 +57,7 @@ class App extends Component{
     this.topicTransitionConvey = this.topicTransitionConvey.bind(this);
     this.getNextTopicOnList = this.getNextTopicOnList.bind(this);
     this.setNextTopicOnList = this.setNextTopicOnList.bind(this);
+    this.setPossibleNextTopics = this.setPossibleNextTopics.bind(this);
   }
 
   componentDidMount() {
@@ -127,30 +130,39 @@ class App extends Component{
     this.setState({
         requirement: requirement
     })
-    console.log("**** Hello!!!!! ****")
-    console.log(requirement)
     this.getNextTopicOnList(requirement)
   }
 
   getNextTopicOnList = (requirement) => {
     //console.log(this.state.requirementList)
     //console.log(requirement)
-
+    this.setNextTopicOnList([])
+    var allEndNodes = []
     this.state.topicTransitionList.map((transition) => {
       if (transition.startNode === requirement.topic) {
         // FIXME: get choice from userBranchButton and set nextTopicOnList
         var endNodes = this.state.requirementList.filter((re)=>(transition.endNode === re.topic))
+        allEndNodes.push(endNodes[0])
+        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        console.log(endNodes[0])
         this.setNextTopicOnList(endNodes[0])
       }
     })
+    console.log(allEndNodes)
+    this.setPossibleNextTopics(allEndNodes)
   }
 
-  setNextTopicOnList = (requirement) => {
-    //console.log("***At a correct spot")
-    //console.log(requirement)
+  setPossibleNextTopics = (topics) => {
+    this.setState({
+      possibleNextTopics: topics
+    })
+    
+  }
+
+  setNextTopicOnList = (selected) => {
     //TODO: Get requirement from requirement.text
     this.setState({
-        nextTopicOnList: requirement
+        nextTopicOnList: selected
     })
   }
 
@@ -239,7 +251,7 @@ class App extends Component{
   render(){
     const { login, quit, end, start, endButtonStatus, nextButtonStatus,
       requirement, requirementList, userId, otherResponse, deployedVersion, domainId,
-      topicPathList, topicTransitionList, nextTopicOnList } = this.state;
+      topicPathList, topicTransitionList, nextTopicOnList, possibleNextTopics } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus, 
       topicPathListConvey, topicTransitionConvey } = this;
@@ -272,6 +284,7 @@ class App extends Component{
             requirementListConvey={requirementListConvey}
             requirement={requirement}
             nextTopicOnList={nextTopicOnList}
+            possibleNextTopics={possibleNextTopics}
             topicPathListConvey={topicPathListConvey}
             topicTransitionConvey={topicTransitionConvey}
             blockEndButtonStatus={blockEndButtonStatus}

@@ -72,10 +72,6 @@ export class SystemBotButton extends Component {
             })  
         }
 
-        console.log(this.state.currentTopicOnList)
-        console.log(this.state.nextTopicOnList)
-        console.log(this.props.currentTopicOnList)
-        console.log(this.props.nextTopicOnList)
     }
 
     getURLParams = (param) => {
@@ -135,6 +131,7 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
+            console.log(data)
             const { prevBranch, domainId, userId, num_experiment, turn, save_requirement, deployedVersion } = this.props
             const branch = {[data.name]: true}
             if (prevBranch){
@@ -156,7 +153,7 @@ export class SystemBotButton extends Component {
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -168,7 +165,7 @@ export class SystemBotButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/branches/'+userId+'/'+domainId+'/'+num_experiment+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -345,22 +342,17 @@ export class SystemBotButton extends Component {
                             </Segment>
                         </Segment.Group>
                         <Segment textAlign='center'>
-                            {requirementList.map((requirement, id) => {
-                                return id === Object.keys(requirementList).length - num_requirement
-                                ? <div key={id}>
-                                        <div className="systemBotText">Do you think the above message suits the context?</div>
-                                        <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
-                                            </div>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
-                                            </div>
-                                        </div>
+                            <div>
+                                <div className="systemBotText">Do you think the above message suits the context?</div>
+                                <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
+                                    <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                        <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
                                     </div>
-                                : null
-                                })
-                            }
+                                    <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                        <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
+                                    </div>
+                                </div>
+                            </div>
                         </Segment>
                     </Segment.Group>
                 </div>}
@@ -464,7 +456,9 @@ export class SystemBotButton extends Component {
                                                 </div>
                                             :   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList)}>{this.props.nextTopicOnList.text}</Button>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList)}>
+                                                        {this.props.nextTopicOnList.text}
+                                                    </Button>
                                                 </div>
                                             }
                                         </Segment>

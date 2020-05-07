@@ -61,6 +61,7 @@ export class ChatRoom extends Component {
 
             currentTopicOnList: [],
             nextTopicOnList: [],
+            possibleNextTopics: [],
 
             // Status for controlling chatflow
             inputButtonState: false,
@@ -95,6 +96,7 @@ export class ChatRoom extends Component {
         this.similarResponse = this.similarResponse.bind(this);
         this.handleChangeText = this.handleChangeText.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
+        this.handleBranch = this.handleBranch.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.getTask = this.getTask.bind(this);
         this.getTopicPaths = this.getTopicPaths.bind(this);
@@ -161,9 +163,15 @@ export class ChatRoom extends Component {
                 currentTopicOnList: this.props.requirement
             })
         } 
+        if (prevProps.possibleNextTopics !== this.props.possibleNextTopics) {
+            this.setState({
+                possibleNextTopics: this.props.possibleNextTopics
+            })
+        }
 
         //console.log(this.state.currentTopicOnList)
-        //console.log(this.state.nextTopicOnList)
+        console.log(this.state.nextTopicOnList)
+        console.log(this.state.possibleNextTopics)
     }
 
     /* B. Data import  */
@@ -518,14 +526,15 @@ export class ChatRoom extends Component {
     // For preventing the message ordering, block the endbutton during 1000ms through 'controlEndButtonStatus'
     updateRenderUntilSysBot(){
         const { blockEndButtonStatus, unblockEndButtonStatus } = this.props;
-        if (this.state.num_requirement === 0){
+        if (this.state.nextTopicOnList === []){
             blockEndButtonStatus();
         }
         setTimeout(() => {
             this.setState(prevState => ({
                 selectBotStatus: !prevState.selectBotStatus
             }));
-            if (this.state.num_requirement === 0){
+            if (this.state.nextTopicOnList.length === 0 && this.state.currentTopicOnList.length !== 0){
+                
                 unblockEndButtonStatus();
             }
         }, 1000);
@@ -535,7 +544,7 @@ export class ChatRoom extends Component {
     // For preventing the message ordering, block the endbutton during 1000ms through 'controlEndButtonStatus' function
     updateRenderUntilUserBot(){
         const { blockEndButtonStatus, unblockEndButtonStatus } = this.props;
-        if (this.state.num_requirement === 0){
+        if (this.state.nextTopicOnList === []){
             blockEndButtonStatus();
         }
         setTimeout(() => {
@@ -543,8 +552,9 @@ export class ChatRoom extends Component {
             this.setState(prevState => ({
                 similarUserStatus: !prevState.similarUserStatus,
             }));
-            if (this.state.num_requirement === 0){
-                unblockEndButtonStatus();
+            if (this.state.nextTopicOnList.length === 0 && this.state.currentTopicOnList.length !== 0){
+                
+                //unblockEndButtonStatus(); FIXME: if this causes some sort of error
             }
         }, 1000);
     }
@@ -596,6 +606,7 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
+        console.log("***ENTERED selectAnswer ***")
         
         if(newAnswerState === true) {
             this.setState({
@@ -625,12 +636,36 @@ export class ChatRoom extends Component {
             })
         }
 
+        console.log(this.state.messageList)
+
         if ((num_requirement === 0) && (this.after_requirement === false)){
             this.props.unblockEndButtonStatus();
             this.after_requirement = true;
         }
 
+        //console.log(this.state.possibleNextTopics)
+        /*console.log(this.state.messageList)
+        var nextPathCount = 0;
+        if (this.state.possibleNextTopics.length > 0) {
+            this.state.topicTransitionList.map((t) => {
+                if (t.startNode === this.state.possibleNextTopics[0].topic) {
+                    nextPathCount = nextPathCount + 1
+                }
+            })
+        }
+        console.log(nextPathCount)
+        if (nextPathCount < 2) {
+            this.changeTurnNotice();
+        }
+        else {
+            setTimeout(() => {
+                this.setState(() => ({
+                    similarUserStatus : false
+                }));
+            }, 900);
+        }*/
         this.changeTurnNotice();
+        
     }
 
     initializeTopic = () => {
@@ -693,6 +728,25 @@ export class ChatRoom extends Component {
         this.scrollToBottom();
     }
 
+    handleBranch = (text) => {
+        const { input, type, time, messageList } = this.state;
+        this.setState({
+            input: '',
+            turnNotice: false,
+            originResponse: text,
+            inputButtonState: false,
+            messageList: messageList.concat({
+                id: this.id++,
+                type: type,
+                time: time.toLocaleTimeString(),
+                text: text,
+            }),
+        })
+        this.setOtherResponseList();
+        this.updateRenderUntilUserBot();
+        this.scrollToBottom();
+    }
+
     handleKeyPress = (e) => {
         if(e.key === 'Enter') {
             this.handleCreate();
@@ -704,7 +758,8 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus, instructionPosition, task, branchTopicStatus, currentTopicOnList, nextTopicOnList } = this.state;
+            similarUserStatus, instructionPosition, task, branchTopicStatus, currentTopicOnList, nextTopicOnList, possibleNextTopics,
+            topicPathList, topicTransitionList } = this.state;
         const {
             handleChangeText,
             handleCreate,
@@ -732,26 +787,12 @@ export class ChatRoom extends Component {
                             <div>
                                 <MessageList messageList={messageList}/>
                                 {startSession ? <SystemTopicButton domains={domains} selectDomain={selectDomain}/> : null}
-                                {branchTopicStatus ? null : <SystemBranchButton
-                                                            userId={this.props.userId}
-                                                            otherResponse={otherResponse}
-                                                            selectAnswer={selectAnswer}
-                                                            save_requirement={save_requirement}
-                                                            answerList={answerList}
-                                                            r_answerList={r_answerList}
-                                                            start_requirement={start_requirement}
-                                                            requirementList={requirementList}
-                                                            changeRequirment={changeRequirment}
-                                                            num_requirement={num_requirement}
-                                                            deployedVersion={deployedVersion}
-                                                            domainId={domainID}
-                                                            prevBranch={prevBranch}
-                                                            startBranch={startBranch}
-                                                            num_experiment={this.num_experiment}
-                                                            turn={this.turn}
-                                                            instructionPosition={instructionPosition}
-                                                            />}
-                                {similarUserStatus ? null : <SystemUserButton
+                                {branchTopicStatus ? null : null}
+                                {similarUserStatus  ? null 
+                                                    : <div>
+                                                        { possibleNextTopics.length >= 2 
+                                                        ?
+                                                        /*<SystemBranchButton
                                                             userId={this.props.userId}
                                                             otherResponse={otherResponse}
                                                             similarResponse={similarResponse}
@@ -764,7 +805,42 @@ export class ChatRoom extends Component {
                                                             initializeTopic={initializeTopic}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
-                                                            />}
+                                                            possibleNextTopics={possibleNextTopics}
+                                                            topicList={requirementList}
+                                                            topicPathList={topicPathList}
+                                                            topicTransitionList={topicTransitionList}
+                                                        />*/
+                                                        <SystemUserButton
+                                                            userId={this.props.userId}
+                                                            otherResponse={otherResponse}
+                                                            similarResponse={similarResponse}
+                                                            originResponse={originResponse}
+                                                            otherResponseList={otherResponseList}
+                                                            domainId={domainID}
+                                                            deployedVersion={deployedVersion}
+                                                            prevBranch={prevBranch}
+                                                            preTopic={preTopic}
+                                                            initializeTopic={initializeTopic}
+                                                            num_experiment={this.num_experiment}
+                                                            turn={this.turn}
+                                                        />
+                                                        :  
+                                                        <SystemUserButton
+                                                            userId={this.props.userId}
+                                                            otherResponse={otherResponse}
+                                                            similarResponse={similarResponse}
+                                                            originResponse={originResponse}
+                                                            otherResponseList={otherResponseList}
+                                                            domainId={domainID}
+                                                            deployedVersion={deployedVersion}
+                                                            prevBranch={prevBranch}
+                                                            preTopic={preTopic}
+                                                            initializeTopic={initializeTopic}
+                                                            num_experiment={this.num_experiment}
+                                                            turn={this.turn}
+                                                        />}
+                                                    </div>
+                                                            }
                                 {selectBotStatus ? null : <SystemBotButton
                                                             userId={this.props.userId}
                                                             otherResponse={otherResponse}
