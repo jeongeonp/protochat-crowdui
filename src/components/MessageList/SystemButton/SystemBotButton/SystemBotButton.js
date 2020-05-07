@@ -325,37 +325,36 @@ export class SystemBotButton extends Component {
                     ?
                     <Button fluid color='teal' size='small' onClick={beginPathB}>Click here to begin</Button>
                     : 
-                    <div style={{width: "75%", marginLeft: '0', marginRight: 'auto'}}>
-                    <Segment.Group>
-                        <Segment.Group>
-                            <Segment textAlign='center' color='teal'>
-                                <div>
-                                {/*requirementList.map((requirement, id) => {
-                                    return id === Object.keys(requirementList).length - num_requirement?
-                                        <div key={id}>
-                                            {this.props.nextTopicOnList}
+                    <div>
+                    { this.props.nextTopicOnList.length === 0 
+                        ?
+                        <Button fluid color='teal' size='small' onClick={beginPathA}>Do you think the bot missed something?</Button>
+                        :
+                        <div style={{width: "75%", marginLeft: '0', marginRight: 'auto'}}>
+                            <Segment.Group>
+                                <Segment.Group>
+                                    <Segment textAlign='center' color='teal'>
+                                        <div>{this.props.nextTopicOnList.text}</div>
+                                    </Segment>
+                                </Segment.Group>
+                                <Segment textAlign='center'>
+                                    <div>
+                                        <div className="systemBotText">Do you think the above message suits the current context?</div>
+                                        <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
+                                            </div>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
+                                            </div>
                                         </div>
-                                        : null
-                                })*/}
-                                {this.props.nextTopicOnList.text}
-                                </div>
-                            </Segment>
-                        </Segment.Group>
-                        <Segment textAlign='center'>
-                            <div>
-                                <div className="systemBotText">Do you think the above message suits the context?</div>
-                                <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
-                                    <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                        <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
                                     </div>
-                                    <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                        <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Segment>
-                    </Segment.Group>
-                </div>}
+                                </Segment>
+                            </Segment.Group>
+                        </div>
+                    }
+                    </div>
+                }
                 
                 <div style={{marginTop:"10px", width:"100%", display:"table"}}>
                     {path === 'pathA'
@@ -368,7 +367,7 @@ export class SystemBotButton extends Component {
                                         <Segment textAlign='center' color='teal'>
                                             <div className="systemBotText">
                                                 { otherResponse
-                                                    ?   "Please continue by (1) inserting a new bot's response or (2) selecting from what other people suggested"
+                                                    ?   "Please continue by (1) inserting a more suitable bot's response or (2) selecting from what other people suggested"
                                                     :   "Please insert a new bot's response"
                                                 }
                                             </div>
@@ -426,7 +425,7 @@ export class SystemBotButton extends Component {
                     { path === 'pathB'
                     ?
                     <div style={{marginTop: '5px'}}>
-                        { requirementList.length === 0
+                        { prevBranch !== null && this.props.nextTopicOnList.length === 0
                             ?   null
                             :   <div style={{minHeight: "150px"}}>
                                     <Segment.Group>
@@ -437,18 +436,6 @@ export class SystemBotButton extends Component {
                                                     :   'Please continue with the next topic'
                                                 }
                                             </div>
-                                            {/*<div>
-                                            {requirementList.map((requirement, id) => {
-                                                console.log(requirement)
-                                                return id === Object.keys(requirementList).length - num_requirement?
-                                                    <div key={id}>
-                                                        <div style={{height: '5px'}}></div>
-                                                        <Button fluid color='teal' onClick={handleRequirement.bind(this, requirement, id)}>{requirement.text}</Button>
-                                                    </div>
-                                                    : null
-                                                })
-                                            }
-                                            </div>*/}
                                             { prevBranch === null 
                                             ?   <div>
                                                     <div style={{height: '5px'}}></div>

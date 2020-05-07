@@ -24,8 +24,7 @@ export class Quit extends Component {
         const { postAnswer } = this
         return (
             <div>
-            {   survey
-                ? <Modal size='small' open={true}>
+                <Modal size='small' open={true}>
                     <Modal.Header>End the experiment</Modal.Header>
                     <Modal.Content>
                         <div style={{fontSize: '15px'}}>Thank you for your participation!</div>
@@ -34,6 +33,18 @@ export class Quit extends Component {
                     </Modal.Content>
                     <Modal.Actions>
                         {/*<Button positive labelPosition='left' icon='left chevron' content='prev'/>*/}
+                    </Modal.Actions>
+                </Modal>
+            {/*   survey
+                ? <Modal size='small' open={true}>
+                    <Modal.Header>End the experiment</Modal.Header>
+                    <Modal.Content>
+                        <div style={{fontSize: '15px'}}>Thank you for your participation!</div>
+                        <div style={{fontSize: '15px'}}>Please go back to the MTurk website, and submit the verified code: <b>39dwjlkd17</b></div>
+                        <div style={{fontSize: '15px', marginTop:"10px"}}>Thanks!</div>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        
                     </Modal.Actions>
                 </Modal>
                 : <Modal size='small' open={true}>
@@ -45,7 +56,7 @@ export class Quit extends Component {
                         <Button positive content='Submit' onClick={postAnswer} />
                     </Modal.Actions>
                 </Modal>
-            }
+            */}
             </div>
         );
     }
