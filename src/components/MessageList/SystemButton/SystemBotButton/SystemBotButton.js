@@ -152,7 +152,7 @@ export class SystemBotButton extends Component {
         });
     }
 
-    patchUserUtterance(id, userId, domainId, num_experiment, turn) {
+    patchUserUtterance(id, userId, domainId, num_experiment, turn, crowdCreated) {
         return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
@@ -164,7 +164,7 @@ export class SystemBotButton extends Component {
         });
     }
 
-    patchUserBranch(id, userId, domainId, num_experiment, turn) {
+    patchUserBranch(id, userId, domainId, num_experiment, turn, crowdCreated) {
         return fetch(`${databaseURL+'/crowd/lists/branches/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
@@ -176,7 +176,7 @@ export class SystemBotButton extends Component {
         });
     }
 
-    patchFirstBranch(domainId, deployedVersion, f_branch) {
+    patchFirstBranch(domainId, deployedVersion, f_branch, crowdCreated) {
         // return fetch(`${databaseURL+'/last-deployed/data/'+domainId+'/branches'+this.extension}`, {
         return fetch(`${databaseURL+'/deployments/data/'+domainId+'/'+ deployedVersion+'/branches'+this.extension}`, {
             method: 'PATCH',
@@ -242,11 +242,11 @@ export class SystemBotButton extends Component {
     }
 
     // Select origin answer of Bot, state: false
-    handleSelect = (answer, branch) => {
+    handleSelect = (answer, branch, crowdCreated) => {
         const { userId, domainId, num_experiment, turn } = this.props
 
-        this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn)
-        this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn)
+        this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn, crowdCreated)
+        this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn, crowdCreated)
         this.sendAnswer(answer, branch, false)
         
         console.log(this.props.requirement )
@@ -257,8 +257,8 @@ export class SystemBotButton extends Component {
     handleCreate = () => {
         const { input } = this.state
         const { domainId, userId, deployedVersion, numSession } = this.props
-        const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
-        const newlyAddedUtterance = {time: new Date(),text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession}
+        const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession, crowdCreated: true}
+        const newlyAddedUtterance = {time: new Date(),text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession, crowdCreated: true}
         this.setState({
             input: '',
         })
@@ -394,7 +394,7 @@ export class SystemBotButton extends Component {
                                                                         return (
                                                                             <div key={id}>
                                                                                 <div style={{height: '10px'}}></div>
-                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId)}>{r_answer.text}</Button>
+                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId, true)}>{r_answer.text}</Button>
                                                                             </div>
                                                                         )
                                                                     })
@@ -407,7 +407,7 @@ export class SystemBotButton extends Component {
                                                                 return (
                                                                     <div key={id}>
                                                                         <div style={{height: '10px'}}></div>
-                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId)}>{answer.text}</Button>
+                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId, true)}>{answer.text}</Button>
                                                                     </div>
                                                                 )
                                                             })
@@ -452,11 +452,11 @@ export class SystemBotButton extends Component {
                                             { prevBranch === null 
                                             ?   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, requirementList[0])}>{requirementList[0].text}</Button>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, requirementList[0], false)}>{requirementList[0].text}</Button>
                                                 </div>
                                             :   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList)}>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList, false)}>
                                                         {this.props.nextTopicOnList.text}
                                                     </Button>
                                                 </div>

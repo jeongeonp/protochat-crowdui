@@ -2,24 +2,72 @@ import React, { Component } from 'react';
 import { Segment, Button } from 'semantic-ui-react';
 import './SystemTopicButton.css';
 
+const databaseURL = "https://kixlab-uplb-hci-protobot-v2.firebaseio.com/";
+
 export class SystemTopicButton extends Component {
     overflowCondition = ''
 
     constructor(props) {
         super(props);
         this.state = {
+            domainId: '',
+            domainName: '',
         };
         this.handleCreate = this.handleCreate.bind(this);
     }
 
+    componentDidMount() {
+        const domainId = this.getURLParams('domain')
+
+        this.setState({
+            domainId: domainId,
+        })
+
+        this.getDomainName(domainId)
+
+    }
+
     handleCreate = (domain, id) => {
-        const { selectDomain } = this.props;
-        selectDomain(domain, id);
+        const { selectDomain } = this.props
+        const { domainName } = this.state
+        selectDomain(domain, domainName, id);
+    }
+
+    getDomainName = (domainId) => {
+        fetch(`${databaseURL+'/domains/data/'+ domainId}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(domainName => {
+            this.setState({
+                domainName: domainName.name
+            })
+        });
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
     }
 
     render() {
-        const { handleCreate } = this;
+        const { handleCreate } = this
         const { domains } = this.props
+        const { domainName } = this.state
 
         return (
             <div className="systemTopicButtonBox">
@@ -29,7 +77,7 @@ export class SystemTopicButton extends Component {
                     <Segment.Group>
                         <Segment textAlign='center'>
                             <div>
-                                <Button fluid onClick={handleCreate.bind(this, domains, 0)}>{domains.name}</Button>
+                                <Button fluid onClick={handleCreate.bind(this, domains, 0)}>{domainName}</Button>
                             </div>
                             {/* {Object.keys(this.props.domains).map(id => {
                                 const domain = this.props.domains[id];

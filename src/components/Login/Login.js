@@ -39,6 +39,7 @@ export class Login extends Component {
             task: null,
 
             domainID: null,
+            deployedVersion: '',
             domainName: null,
         }
         this.userPost = this.userPost.bind(this)
@@ -49,9 +50,11 @@ export class Login extends Component {
     }
 
     componentDidMount() {
+        const deployedVersion = this.getURLParams('deployedVersion')
         const domainID = this.getURLParams('domain')
 
         this.setState({
+            deployedVersion: deployedVersion,
             domainID: domainID,
         })
 
@@ -90,7 +93,8 @@ export class Login extends Component {
 
 
     userPost(user) {
-        return fetch(`${databaseURL}`+'/users/data.json', {
+        const {domainID, deployedVersion} = this.state
+        return fetch(`${databaseURL}`+'/crowd/data/'+domainID+'/'+deployedVersion+'.json', {
             method: 'POST',
             body: JSON.stringify(user)
         }).then(res => {
@@ -158,7 +162,6 @@ export class Login extends Component {
                     ?   <Modal open={true}>
                             <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
                                 <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
-                                    <p>Your task is to finish <b>{domainName}</b> with the chatbot. </p>
                                     <p>During the conversation, keep in mind that there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
                                     <p style={{fontSize: "80%"}}><br/> <b>We recommend zooming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {

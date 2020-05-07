@@ -170,8 +170,8 @@ export class ChatRoom extends Component {
         }
 
         //console.log(this.state.currentTopicOnList)
-        console.log(this.state.nextTopicOnList)
-        console.log(this.state.possibleNextTopics)
+        //console.log(this.state.nextTopicOnList)
+        //console.log(this.state.possibleNextTopics)
     }
 
     /* B. Data import  */
@@ -230,8 +230,11 @@ export class ChatRoom extends Component {
                 otherResponseList: [],
                 answerList: []
             })
+            console.log(children)
             if(children !== null){
                 const childBranches = Object.keys(children)
+                console.log("&&&&&&&& has child branch&&&&&&&")
+                console.log(childBranches)
                 childBranches.map((branch) => {
                     this.getChildUtterance(branch, type, false)
                 })
@@ -325,6 +328,7 @@ export class ChatRoom extends Component {
     }
 
     getRequirements(path, order) {
+        console.log(path)
         const { domainID } = this.state
         fetch(`${databaseURL+'/topics/data/'+ domainID + '/' + path}/.json`).then(res => {
             if(res.status !== 200) {
@@ -332,6 +336,7 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(topic => {
+            console.log(topic)
             this.getRequirementsText(topic.designUtteranceId, topic.name, topic.branch, path, order)
         });
     }
@@ -344,28 +349,30 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            this.setState({
-                requirementList: this.state.requirementList.concat({
-                    checked: false,
-                    requirement: name, // topics -> data -> name
-                    text: utterance.text, // utterances -> data -> text
-                    topic: topicEmbedded, // deployment??
-                    topics: utterance.topic, // ???
-                    uId: path,
-                    bId: branch,
-                    required: true,
-                    order: parseInt(order, 10),
-                }),
-                num_requirement: Object.keys(this.state.requirementList).length + 1
-            })
+            if (utterance.length !== 0) {
+                this.setState({
+                    requirementList: this.state.requirementList.concat({
+                        checked: false,
+                        requirement: name, // topics -> data -> name
+                        text: utterance.text, // utterances -> data -> text
+                        topic: topicEmbedded, // deployment??
+                        topics: utterance.topic, // ???
+                        uId: path,
+                        bId: branch,
+                        required: true,
+                        order: parseInt(order, 10),
+                    }),
+                    num_requirement: Object.keys(this.state.requirementList).length + 1
+                })
 
-            // For sorting of requirmentList by given ordering
-            // Because setState is proceeded asynchronously
-            this.state.requirementList.sort(function(a, b){
-                return a.order < b.order ? -1: a.order > b.order ? 1: 0;
-            })
+                // For sorting of requirmentList by given ordering
+                // Because setState is proceeded asynchronously
+                this.state.requirementList.sort(function(a, b){
+                    return a.order < b.order ? -1: a.order > b.order ? 1: 0;
+                })
 
-            this.props.requirementListConvey(this.state.requirementList);
+                this.props.requirementListConvey(this.state.requirementList);
+            }
         });
     }
 
@@ -562,7 +569,7 @@ export class ChatRoom extends Component {
     // Putting topic from the SystemTopicButton
     // And start the conversation with user's utterance (selected Topic)
     // Also unblock the endbutton through 'controlEndButtonStatus' function
-    selectDomain = (dataFromChild, id) => {
+    selectDomain = (dataFromChild, domainName, id) => {
         const { messageList, time } = this.state;
         this.setRequirements(dataFromChild)
         if (dataFromChild.branches) {
@@ -578,7 +585,7 @@ export class ChatRoom extends Component {
                 id: this.id++,
                 type: 'user',
                 time: time.toLocaleTimeString(),
-                text: dataFromChild.name,
+                text: domainName,
             }),
             domainId: id,
         })
@@ -606,7 +613,7 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
-        console.log("***ENTERED selectAnswer ***")
+        //console.log("***ENTERED selectAnswer ***")
         
         if(newAnswerState === true) {
             this.setState({
@@ -636,7 +643,7 @@ export class ChatRoom extends Component {
             })
         }
 
-        console.log(this.state.messageList)
+        //console.log(this.state.messageList)
 
         if ((num_requirement === 0) && (this.after_requirement === false)){
             this.props.unblockEndButtonStatus();

@@ -143,12 +143,12 @@ class App extends Component{
         // FIXME: get choice from userBranchButton and set nextTopicOnList
         var endNodes = this.state.requirementList.filter((re)=>(transition.endNode === re.topic))
         allEndNodes.push(endNodes[0])
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        console.log(endNodes[0])
+        //console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        //console.log(endNodes[0])
         this.setNextTopicOnList(endNodes[0])
       }
     })
-    console.log(allEndNodes)
+    //console.log(allEndNodes)
     this.setPossibleNextTopics(allEndNodes)
   }
 
@@ -259,7 +259,7 @@ class App extends Component{
     return (
       <div className="backGround">
         {/* FIXME: put it back later to enable login & tutorial*/}
-        {login ? null : <Login changeLoginState={changeLoginState}/>}
+        {/*login ? null : <Login changeLoginState={changeLoginState}/>*/}
         
         { quit ? <Quit/> : null }
         <div className="leftSideBar">
