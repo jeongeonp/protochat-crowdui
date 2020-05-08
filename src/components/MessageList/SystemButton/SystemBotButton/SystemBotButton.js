@@ -25,6 +25,8 @@ export class SystemBotButton extends Component {
             yesDisabled: false,
             noDisabled: false,
 
+            number: 0,
+
             /* Since passing via prop was not working */
             deployedVersion: '',
             domainId: '',
@@ -47,6 +49,8 @@ export class SystemBotButton extends Component {
         this.beginPathA = this.beginPathA.bind(this)
         this.beginPathB = this.beginPathB.bind(this)
         this.getURLParams = this.getURLParams.bind(this)
+        this.postSubUtterance = this.postSubUtterance.bind(this)
+        this.patchSubTopic = this.patchSubTopic.bind(this)
     }
 
     componentDidMount() {
@@ -109,6 +113,22 @@ export class SystemBotButton extends Component {
         });
     }
 
+    postSubUtterance(utterance) {
+        return fetch(`${databaseURL+'/utterances/data/'+ this.props.domainId + '/' + this.extension}`, {
+            method: 'POST',
+            body: JSON.stringify(utterance)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText)
+            }
+            return res.json()
+        }).then(data => {
+            const { domainId, userId, num_experiment, turn, deployedVersion } = this.props
+            this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
+            this.patchSubTopic(data.name, domainId, utterance.topicId, utterance.subTopicId)
+        });
+    }
+
     postNewUtterance(utterance) {
         return fetch(`${databaseURL+'/utterances/new-data'+this.extension}`, {
             method: 'POST',
@@ -162,6 +182,22 @@ export class SystemBotButton extends Component {
             }
             return res.json();
         });
+    }
+
+    patchSubTopic(id, domainId, topicId, subTopicId) {
+        const { number } = this.state
+        return fetch(`${databaseURL+'/subtopics/lists/utterances/'+domainId+'/'+topicId+'/'+subTopicId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[number]:id})
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(() => {
+            this.setState({ number: number+1 })
+        });
+        
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn, crowdCreated) {
@@ -272,8 +308,10 @@ export class SystemBotButton extends Component {
 
     handleRequirement = (requirement) => {
         console.log(requirement)
-        const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props
+        const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn,  } = this.props
+        const { deployedVersion } = this.state
         this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
+
         if(startBranch){
             // FIXME: console.log(requirement)
             // FIXME: console.log(requirement.bId)
@@ -294,8 +332,17 @@ export class SystemBotButton extends Component {
         }
         changeRequirment(requirement)
 
+        requirement.subTopics.map((st, id) => {
+            const { subTopics } = this.props
+            const newSubUtterance = {bot: true, text: st, domain: domainId, userId: userId, version: deployedVersion, topicId: requirement.topic ,subTopicId: subTopics.filter((i) => (i.topicNode === requirement.topic))[0].subTopicId[id]}
+            this.postSubUtterance(newSubUtterance)
+            console.log(newSubUtterance)
+        })
+        
         //this.resetButtons()
     }
+
+
 
     handleKeyPress = (e) => {
         if(e.key === 'Enter') {

@@ -128,6 +128,8 @@ export class SystemUserButton extends Component {
     }
 
     handleCreate = (response, id, selected) => {
+        console.log(response)
+        console.log(id)
         const { similarResponse, userId, domainId, num_experiment, turn } = this.props
         if (selected){
             this.patchUserUtterance(response.uId, userId, domainId, num_experiment, turn)
@@ -138,8 +140,8 @@ export class SystemUserButton extends Component {
 
     handleNotapplicable = () => {
         const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, numSession } = this.props;
-        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topics: preTopic, numSession: numSession, }
-        
+        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topic: preTopic, numSession: numSession, }
+        console.log(this.props)
         this.setState({
             inputButtonState: true,
         })
@@ -165,6 +167,7 @@ export class SystemUserButton extends Component {
                         <Segment textAlign='center' style={{height: '200px', overflowY: "scroll"}}>
                             { Object.keys(otherResponseList).map(id => {
                                 const response = otherResponseList[id];
+                                console.log(response)
                                 return (
                                     <div key={id}>
                                     <div style={{height: '10px'}}></div>

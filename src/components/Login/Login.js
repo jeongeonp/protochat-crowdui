@@ -47,6 +47,8 @@ export class Login extends Component {
         this.changeTutorialState = this.changeTutorialState.bind(this)
         this.addTutorialNum = this.addTutorialNum.bind(this)
         this.reduceTutorialNum = this.reduceTutorialNum.bind(this)
+        this.getDomainName = this.getDomainName.bind(this)
+        this.getURLParams = this.getURLParams.bind(this)
     }
 
     componentDidMount() {
@@ -58,17 +60,21 @@ export class Login extends Component {
             domainID: domainID,
         })
 
-        this.getDomains('domains/data/'+ domainID + '/name');      
+        this.getDomainName(domainID)   
+        console.log(this.state.domainName)
     }
 
-    getDomains(address) {
-        fetch(`${databaseURL+address}.json`).then(res => {
+    getDomainName = (domainId) => {
+        fetch(`${databaseURL+'/domains/data/'+ domainId}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
         }).then(domainName => {
-            this.setState({domainName: domainName})
+            console.log(domainName)
+            this.setState({
+                domainName: domainName.name
+            })
         });
     }
 
@@ -162,6 +168,7 @@ export class Login extends Component {
                     ?   <Modal open={true}>
                             <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
                                 <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
+                                <p>Your task is to finish <b>{domainName}</b> with the chatbot. </p>
                                     <p>During the conversation, keep in mind that there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
                                     <p style={{fontSize: "80%"}}><br/> <b>We recommend zooming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {
@@ -253,7 +260,7 @@ export class Login extends Component {
                                         icon='checkmark'
                                         content='Prev'
                                     />
-                                    { name && task && (task.toLowerCase() === domainName.toLowerCase())
+                                    { name && task && (domainName.toLowerCase().includes(task.toLowerCase()))
                                     ? <Button  
                                         onClick={sendAndPost}
                                         positive

@@ -63,6 +63,10 @@ export class ChatRoom extends Component {
             nextTopicOnList: [],
             possibleNextTopics: [],
 
+            subTopicsKey: [],
+            subTopics: [],
+            hasSubTopics: [],
+
             // Status for controlling chatflow
             inputButtonState: false,
             startSession: true,
@@ -102,6 +106,7 @@ export class ChatRoom extends Component {
         this.getTopicPaths = this.getTopicPaths.bind(this);
         this.getTopicPathsText = this.getTopicPathsText.bind(this);
         this.getTopicTransitions = this.getTopicTransitions.bind(this);
+        this.getSubTopics = this.getSubTopics.bind(this);
     }
     
     /* A. Lifecycle Function */
@@ -134,9 +139,22 @@ export class ChatRoom extends Component {
         }).then(result => {
             this.setState({instructionPosition: Object.keys(result).length-1})
         });
+
+        // Get all the subtopics in the particular deployment
+        fetch(`${databaseURL + 'topics/lists/subtopics/' + domainID }.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(result => {
+            this.setState({
+                hasSubTopics : Object.keys(result).filter((result) => result.includes(deployedVersion))
+            })
+            this.getSubTopics()
+        });
     }
     
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
         const { end, start, controlEndStatus, controlStartStatus, } = this.props;
         if ( end === true ) {
             this.resetMessageList();
@@ -226,6 +244,8 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(children => {
+            console.log("******** getChildBranches ********")
+            console.log(children)
             this.setState({
                 otherResponseList: [],
                 answerList: []
@@ -249,6 +269,8 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
+            console.log("******** getChildUtterance ********")
+            console.log(utterance)
             const utteranceId = Object.keys(utterance)
             if(required){
                 this.getR_UtteranceText(branch, utteranceId)
@@ -266,6 +288,8 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
+            console.log("******* getUtteranceText *******")
+            console.log(utterance)
             if (utterance.required || (utterance.version !== this.state.deployedVersion)){
             } else {
                 if (type){
@@ -342,7 +366,7 @@ export class ChatRoom extends Component {
     }
 
     getRequirementsText(path, name, branch, topicEmbedded, order){
-        const { domainID } = this.state;
+        const { domainID, hasSubTopics, subTopics } = this.state;
         fetch(`${databaseURL+'/utterances/data/'+domainID+'/'+path}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
@@ -350,23 +374,42 @@ export class ChatRoom extends Component {
             return res.json();
         }).then(utterance => {
             if (utterance.length !== 0) {
-                this.setState({
-                    requirementList: this.state.requirementList.concat({
-                        checked: false,
-                        requirement: name, // topics -> data -> name
-                        text: utterance.text, // utterances -> data -> text
-                        topic: topicEmbedded, // deployment??
-                        topics: utterance.topic, // ???
-                        uId: path,
-                        bId: branch,
-                        required: true,
-                        order: parseInt(order, 10),
-                    }),
-                    num_requirement: Object.keys(this.state.requirementList).length + 1
-                })
+                if (hasSubTopics.includes(topicEmbedded)) {
+                    this.setState({
+                        requirementList: this.state.requirementList.concat({
+                            checked: false,
+                            requirement: name, // topics -> data -> name
+                            text: utterance.text, // utterances -> data -> text
+                            topic: topicEmbedded, // key in topics/data
+                            topics: utterance.topic, // ???
+                            uId: path,
+                            bId: branch,
+                            required: true,
+                            subTopics: subTopics.filter((t) => (t.topicNode === topicEmbedded))[0].subTopicNode,
+                            order: parseInt(order, 10),
+                        }),
+                        num_requirement: Object.keys(this.state.requirementList).length + 1
+                    })  
+                } else {
+                    this.setState({
+                        requirementList: this.state.requirementList.concat({
+                            checked: false,
+                            requirement: name, // topics -> data -> name
+                            text: utterance.text, // utterances -> data -> text
+                            topic: topicEmbedded, // key in topics/data
+                            topics: utterance.topic, // ???
+                            uId: path,
+                            bId: branch,
+                            required: true,
+                            subTopics: [],
+                            order: parseInt(order, 10),
+                        }),
+                        num_requirement: Object.keys(this.state.requirementList).length + 1
+                    })  
+                }
+                
+                console.log(this.state.requirementList)
 
-                // For sorting of requirmentList by given ordering
-                // Because setState is proceeded asynchronously
                 this.state.requirementList.sort(function(a, b){
                     return a.order < b.order ? -1: a.order > b.order ? 1: 0;
                 })
@@ -374,6 +417,47 @@ export class ChatRoom extends Component {
                 this.props.requirementListConvey(this.state.requirementList);
             }
         });
+    }
+
+    getSubTopics() {
+        const { hasSubTopics, domainID, deployedVersion } = this.state
+        fetch(`${databaseURL+'/subtopics/data/'+domainID}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(result => {
+            hasSubTopics.map((key) => {
+                this.setState({
+                    subTopicsKey: this.state.subTopicsKey.concat({
+                        topicNode: key,
+                        subTopicNode: result[key]
+                    })
+                })
+            })
+            this.getSubTopicsText()
+        });
+        
+    }
+
+    getSubTopicsText() {
+        const { subTopicsKey } = this.state
+        subTopicsKey.map((key) => {
+            var subTopicsText = []
+            var subTopicsKey = []
+            Object.keys(key.subTopicNode).map((value) => {
+                subTopicsText.push(key.subTopicNode[value].name)
+                subTopicsKey.push(value)
+            })
+            
+            this.setState({
+                subTopics: this.state.subTopics.concat({
+                    topicNode: key.topicNode,
+                    subTopicNode: subTopicsText,
+                    subTopicId: subTopicsKey
+                })
+            })
+        })
     }
 
     getTopicPaths(path, order) {
@@ -401,8 +485,8 @@ export class ChatRoom extends Component {
                     checked: false,
                     requirement: name, // topics -> data -> name
                     text: utterance.text, // utterances -> data -> text
-                    topic: topicEmbedded, // deployment??
-                    topics: utterance.topic, // ???
+                    topic: topicEmbedded, // topic - deployment
+                    topics: utterance.topic, // topic from designer side
                     uId: path,
                     //required: true,
                     order: parseInt(order, 10),
@@ -613,7 +697,8 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
-        //console.log("***ENTERED selectAnswer ***")
+        console.log("***ENTERED selectAnswer ***")
+        console.log(dataFromChild)
         
         if(newAnswerState === true) {
             this.setState({
@@ -629,13 +714,28 @@ export class ChatRoom extends Component {
                 preTopic: dataFromChild.topics
             })
         } else{
+            var currMessageList = messageList
+            currMessageList.push({
+                id: this.id++,
+                    type: 'bot',
+                    time: time.toLocaleDateString(),
+                    text: dataFromChild.text,
+            })
+            dataFromChild.subTopics.map((st) => {
+                currMessageList.push({
+                    id: this.id++,
+                    type: 'bot',
+                    time: new Date().toLocaleDateString(),
+                    text: st,
+                })
+            })
             this.setState({
-                messageList: messageList.concat({
+                /*messageList: messageList.concat({
                     id: this.id++,
                     type: 'bot',
                     time: time.toLocaleDateString(),
                     text: dataFromChild.text,
-                }),
+                }),*/
                 selectBotStatus: true,
                 start_requirement: false,
                 prevBranch: branch,
@@ -643,34 +743,14 @@ export class ChatRoom extends Component {
             })
         }
 
-        //console.log(this.state.messageList)
+
+        console.log(this.state.messageList)
 
         if ((num_requirement === 0) && (this.after_requirement === false)){
             this.props.unblockEndButtonStatus();
             this.after_requirement = true;
         }
 
-        //console.log(this.state.possibleNextTopics)
-        /*console.log(this.state.messageList)
-        var nextPathCount = 0;
-        if (this.state.possibleNextTopics.length > 0) {
-            this.state.topicTransitionList.map((t) => {
-                if (t.startNode === this.state.possibleNextTopics[0].topic) {
-                    nextPathCount = nextPathCount + 1
-                }
-            })
-        }
-        console.log(nextPathCount)
-        if (nextPathCount < 2) {
-            this.changeTurnNotice();
-        }
-        else {
-            setTimeout(() => {
-                this.setState(() => ({
-                    similarUserStatus : false
-                }));
-            }, 900);
-        }*/
         this.changeTurnNotice();
         
     }
@@ -766,7 +846,7 @@ export class ChatRoom extends Component {
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
             similarUserStatus, instructionPosition, task, branchTopicStatus, currentTopicOnList, nextTopicOnList, possibleNextTopics,
-            topicPathList, topicTransitionList } = this.state;
+            topicPathList, topicTransitionList, subTopics } = this.state;
         const {
             handleChangeText,
             handleCreate,
@@ -868,6 +948,7 @@ export class ChatRoom extends Component {
                                                             instructionPosition={instructionPosition}
                                                             currentTopicOnList={currentTopicOnList}
                                                             nextTopicOnList={nextTopicOnList}
+                                                            subTopics={subTopics}
                                                             />}
                                 {turnNotice ? <MessageList messageList={sysNotice}/> : null}
                                 </div>

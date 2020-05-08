@@ -119,11 +119,59 @@ export class SystemBranchButton extends Component {
     }
 
     render() {
-        const { otherResponseList } = this.props;
+        const { otherResponseList, possibleNextTopics } = this.props;
         const { handleCreate, handleNotapplicable } = this;
 
         return (
-            <div className="systemBotButtonBox">
+            <div className="systemUserButtonBox">
+                <span className="systemUserText">
+                    If you can find a message with the same meaning, select it.
+                </span>
+                <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
+                    <Segment.Group>
+                        <Segment textAlign='center' style={{height: '200px', overflowY: "scroll"}}>
+                            { (possibleNextTopics).map((topics, id) => {
+                                var text = ""
+                                console.log(id)
+                                this.props.topicTransitionList.map((t) => {
+                                    console.log(this.props.topicTransitionList)
+                                    if (t.endNode === topics.topic) {
+                                        this.props.topicPathList.map((p)=> {
+                                            if (t.path === p.topic) {
+                                                text = p.text
+                                                console.log(p)
+                                            }
+                                        })
+                                    }
+                                })
+                                return (
+                                    <div key={id}>
+                                        <div style={{height: '10px'}}></div>
+                                        <Button fluid onClick={handleCreate.bind(this, topics, topics.bId, true)}>{text}</Button>
+                                    </div>
+                                );
+                            })}
+                        </Segment>
+                        <Segment textAlign='center'>
+                            { this.state.inputButtonState
+                                ?   <Button fluid disabled>
+                                        Nothing to select
+                                    </Button>
+                                :   <Button fluid negative onClick={handleNotapplicable}>
+                                        Nothing to select
+                                    </Button>
+                            }
+                        </Segment>
+                    </Segment.Group>
+                </div>
+            </div>
+            
+        );
+    }
+}
+
+
+/*<div className="systemBotButtonBox">
                 <div style={{marginTop:"10px", width:"100%", display:"table"}}>
                 <div style={{display: "table-cell"}}>
                     <div style={{minHeight: "150px"}}>
@@ -160,7 +208,4 @@ export class SystemBranchButton extends Component {
                     
                 </div>
                 </div>
-            </div>
-        );
-    }
-}
+            </div>*/
