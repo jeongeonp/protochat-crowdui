@@ -49,13 +49,13 @@ export class ChatRoom extends Component {
             ],
 
             // Data lists for conversation flow
-            answerList: [],
+            answerList: [], // for bot
             save_requirement: null,
             start_requirement: false,
             r_answerList: [],
             num_requirement: -1,
             requirementList: [],
-            otherResponseList: [],
+            otherResponseList: [], // for user
             topicPathList: [],
             topicTransitionList: [],
 
@@ -187,6 +187,18 @@ export class ChatRoom extends Component {
             })
         }
 
+        if (prevState.answerList !== this.state.answerList) {
+            this.state.answerList.sort(function(a, b){
+                return a.text < b.text ? -1: a.text > b.text ? 1: 0;
+            })
+
+        }
+        if (prevState.otherResponseList !== this.state.otherResponseList) {
+            this.state.otherResponseList.sort(function(a, b){
+                return a.text < b.text ? -1: a.text > b.text ? 1: 0;
+            })
+        }
+
         //console.log(this.state.currentTopicOnList)
         //console.log(this.state.nextTopicOnList)
         //console.log(this.state.possibleNextTopics)
@@ -238,7 +250,9 @@ export class ChatRoom extends Component {
 
     // utterance list에 branch까지 같이 저장해서, 다음 branch 바로 넘겨줄 수 있도록
     getChildBranches(branch, type) {
-        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+'/'+branch+'/children'}/.json`).then(res => {
+        console.log(this.state.domainID)
+        console.log(branch)
+        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainID+'/'+branch+'/children'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
@@ -263,14 +277,12 @@ export class ChatRoom extends Component {
     }
 
     getChildUtterance(branch, type, required) {
-        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+'/'+branch+'/utterances'}/.json`).then(res => {
+        fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainID+'/'+branch+'/utterances'}/.json`).then(res => {
             if(res.status !== 200) {
                 throw new Error(res.statusText);
             }
             return res.json();
         }).then(utterance => {
-            console.log("******** getChildUtterance ********")
-            console.log(utterance)
             const utteranceId = Object.keys(utterance)
             if(required){
                 this.getR_UtteranceText(branch, utteranceId)
@@ -512,7 +524,6 @@ export class ChatRoom extends Component {
     }
 
     setRequirements(domain) {
-        console.log(domain)
         Object.entries(domain.topicList).map(([order, key]) => {
             this.getRequirements(key, order)
         })
@@ -679,11 +690,13 @@ export class ChatRoom extends Component {
 
     setOtherResponseList = () => {
         const { prevBranch } = this.state;
+        console.log(prevBranch)
         // prevBranch에서 children 찾아서, 각각의 branch id, utterance id 담은 responseList만듦
         this.getChildBranches(prevBranch, false)
     }
 
     setAnswerList = (branch) => {
+        console.log(branch)
         this.getChildBranches(branch, true)
     }
 

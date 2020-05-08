@@ -97,6 +97,19 @@ export class SystemBranchButton extends Component {
         });
     }
 
+    patchTopicPath(prevBranch, children) {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+'/'+prevBranch+'/children/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify(children)
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        });
+    }
+
+    /* When crowd selects existing path */
     handleCreate = (response, id, selected) => {
         const { similarResponse, userId, domainId, num_experiment, turn } = this.props
         if (selected){
@@ -125,11 +138,11 @@ export class SystemBranchButton extends Component {
         return (
             <div className="systemUserButtonBox">
                 <span className="systemUserText">
-                    If you can find a message with the same meaning, select it.
+                    If your answer was one of the below choices, click it. If not, please click the <i>None resembles my answer</i> button
                 </span>
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
-                        <Segment textAlign='center' style={{height: '200px', overflowY: "scroll"}}>
+                        <Segment textAlign='center' /*style={{height: '200px', overflowY: "scroll"}}*/>
                             { (possibleNextTopics).map((topics, id) => {
                                 var text = ""
                                 console.log(id)
@@ -155,10 +168,10 @@ export class SystemBranchButton extends Component {
                         <Segment textAlign='center'>
                             { this.state.inputButtonState
                                 ?   <Button fluid disabled>
-                                        Nothing to select
+                                        None resembles my answer
                                     </Button>
-                                :   <Button fluid negative onClick={handleNotapplicable}>
-                                        Nothing to select
+                                :   <Button fluid  onClick={handleNotapplicable}>
+                                        None resembles my answer
                                     </Button>
                             }
                         </Segment>

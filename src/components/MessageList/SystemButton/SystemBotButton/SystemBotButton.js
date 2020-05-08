@@ -285,7 +285,6 @@ export class SystemBotButton extends Component {
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn, crowdCreated)
         this.sendAnswer(answer, branch, false)
         
-        console.log(this.props.requirement )
         //this.resetButtons()
     }
 
@@ -336,7 +335,6 @@ export class SystemBotButton extends Component {
             const { subTopics } = this.props
             const newSubUtterance = {bot: true, text: st, domain: domainId, userId: userId, version: deployedVersion, topicId: requirement.topic ,subTopicId: subTopics.filter((i) => (i.topicNode === requirement.topic))[0].subTopicId[id]}
             this.postSubUtterance(newSubUtterance)
-            console.log(newSubUtterance)
         })
         
         //this.resetButtons()
@@ -388,11 +386,11 @@ export class SystemBotButton extends Component {
                                     <div>
                                         <div className="systemBotText">Do you think the above message suits the current context?</div>
                                         <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>yes</Button>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 2%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false} style={{lineHeight: '1.5'}}>Yes, it's suitable</Button>
                                             </div>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 5%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>no</Button>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 2%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false} style={{lineHeight: '1.5'}}>No, it's not</Button>
                                             </div>
                                         </div>
                                     </div>
