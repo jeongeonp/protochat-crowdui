@@ -16,6 +16,12 @@ export class SystemBranchButton extends Component {
         super(props);
         this.state = {
             inputButtonState: false,
+
+            number: 0,
+
+            /* Since passing via prop was not working */
+            deployedVersion: '',
+            domainId: '',
         };
         this.postUtterance = this.postUtterance.bind(this);
         this.postBranch = this.postBranch.bind(this);
@@ -23,10 +29,40 @@ export class SystemBranchButton extends Component {
         this.patchUserBranch = this.patchUserBranch.bind(this);
         this.patchChildren = this.patchChildren.bind(this);
         this.handleCreate = this.handleCreate.bind(this);
+        this.getURLParams = this.getURLParams.bind(this);
         this.handleNotapplicable = this.handleNotapplicable.bind(this);
     }
 
-    postUtterance(utterance) {
+    componentDidMount() {
+        const deployedVersion = this.getURLParams('deployedVersion')
+        const domainId = this.getURLParams('domain')
+
+        this.setState({
+            deployedVersion: deployedVersion,
+            domainId: domainId,
+        })
+
+    }
+
+    getURLParams = (param) => {
+        const PageURL = window.location.href;
+        const s = '?'
+        if (PageURL.indexOf(s) !== -1){
+            const f_PageURL = PageURL.split('?');
+            const s_PageURL = f_PageURL[1]
+            var sURLVariables = s_PageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) 
+            {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === param) 
+                {
+                    return sParameterName[1]
+                }
+            }
+        }
+    }
+
+    postUtterance(utterance, existingPath) {
         return fetch(`${databaseURL+'/utterances/data/'+this.props.domainId + '/' + this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
@@ -36,11 +72,32 @@ export class SystemBranchButton extends Component {
             }
             return res.json();
         }).then(data => {
-            const { domainId, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props;
+            const { prevBranch, userId, num_experiment, turn } = this.props;
+            const { deployedVersion, domainId } = this.state
             const newBranch = {domain: domainId, parent: prevBranch, version: deployedVersion, utterances: {[data.name]: true}}
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance);
+            console.log(newBranch)
+            if (existingPath) {
+                this.patchTopicPathId(data.name, domainId, utterance.topicPathId)
+            }
         });
+    }
+
+    patchTopicPathId(id, domainId, topicPathId) {
+        const { number } = this.state
+        return fetch(`${databaseURL+'/topicPath/lists/utterances/'+domainId+'/'+topicPathId+'/'+this.extension}`, {
+            method: 'PATCH',
+            body: JSON.stringify({[number]:id})
+        }).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(() => {
+            this.setState({ number: number+1 })
+        });
+        
     }
 
     postBranch(branch, utterance) {
@@ -57,12 +114,13 @@ export class SystemBranchButton extends Component {
             const children = {[data.name]: true}
             this.patchChildren(prevBranch, children)
             this.patchUserBranch(data.name, userId, domainId, num_experiment, turn)
-            this.handleCreate(utterance, data.name, false);
+            
+            //this.handleCreate(utterance, data.name, false); TODO: Got rid of this because we don't need similarResponse method
         });
     }
 
     patchUserUtterance(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+domainId+'/'+this.props.deployedVersion+'/'+userId+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/domain-utterances/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -74,7 +132,7 @@ export class SystemBranchButton extends Component {
     }
 
     patchUserBranch(id, userId, domainId, num_experiment, turn) {
-        return fetch(`${databaseURL+'/crowd/lists/branches/'+domainId+'/'+this.props.deployedVersion+'/'+userId+'/'+this.extension}`, {
+        return fetch(`${databaseURL+'/crowd/lists/branches/'+domainId+'/'+this.state.deployedVersion+'/'+userId+'/'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[id]: turn})
         }).then(res => {
@@ -112,31 +170,32 @@ export class SystemBranchButton extends Component {
     /* When crowd selects existing path */
     handleCreate = (topics, path) => {
         console.log("**** in handleCreate ****")
-        const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, conveySelectedPath } = this.props;
+        const { deployedVersion, domainId } = this.state
+        const { userId, initializeTopic, conveySelectedPath } = this.props;
+        
         const newUtterance = {bot: false, text: path.text, domain: domainId, userId: userId, version: deployedVersion, topicPathId: path.topic }
-        //console.log(this.props)
         this.setState({
             inputButtonState: true,
         })
+        initializeTopic();
+        this.postUtterance(newUtterance, true);
 
-        //initializeTopic();
-        console.log(newUtterance)
-        //this.postUtterance(newUtterance);
-        //conveySelectedPath(topics, path.text)
+        conveySelectedPath(topics, path.text)
     }
 
     /* When crowd selects non existing path */
     handleNotapplicable = () => {
-        const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, numSession } = this.props;
-        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topics: preTopic, numSession: numSession}
+        console.log("**** in handleNotapplicable ****")
+        const { deployedVersion, domainId } = this.state
+        const { originResponse, userId, initializeTopic, conveyNewPath } = this.props;
         
+        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topicPathId: "New Path" }
         this.setState({
             inputButtonState: true,
         })
-
         initializeTopic();
-        this.postUtterance(newUtterance);
-        
+        this.postUtterance(newUtterance, false);
+        conveyNewPath(originResponse)
     }
 
     render() {
@@ -146,7 +205,7 @@ export class SystemBranchButton extends Component {
         return (
             <div className="systemUserButtonBox">
                 <span className="systemUserText">
-                    If your answer was one of the below choices, click it. If not, please click the <i>None resembles my answer</i> button
+                    If your answer was one of the below choices, click it. <br/> If not, please click the <i>None resembles my answer</i> button
                 </span>
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
@@ -156,14 +215,11 @@ export class SystemBranchButton extends Component {
                                 var path = null
                                 console.log(id)
                                 this.props.topicTransitionList.map((t) => {
-                                    //console.log(this.props.topicTransitionList)
                                     if (t.endNode === topics.topic) {
                                         this.props.topicPathList.map((p)=> {
                                             if (t.path === p.topic) {
                                                 text = p.text
                                                 //console.log(topics) // nexttopic이 되어야함
-                                                console.log(t)
-                                                console.log(p)
                                                 path = p
                                             }
                                         })

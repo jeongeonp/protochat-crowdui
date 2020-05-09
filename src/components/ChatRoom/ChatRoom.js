@@ -110,6 +110,7 @@ export class ChatRoom extends Component {
         this.getTopicTransitions = this.getTopicTransitions.bind(this);
         this.getSubTopics = this.getSubTopics.bind(this);
         this.conveySelectedPath = this.conveySelectedPath.bind(this);
+        this.conveyNewPath = this.conveyNewPath.bind(this);
     }
     
     /* A. Lifecycle Function */
@@ -265,7 +266,6 @@ export class ChatRoom extends Component {
                 otherResponseList: [],
                 answerList: []
             })
-            console.log(children)
             if(children !== null){
                 const childBranches = Object.keys(children)
                 childBranches.map((branch) => {
@@ -361,7 +361,6 @@ export class ChatRoom extends Component {
     }
 
     getRequirements(path, order) {
-        console.log(path)
         const { domainID } = this.state
         fetch(`${databaseURL+'/topics/data/'+ domainID + '/' + path}/.json`).then(res => {
             if(res.status !== 200) {
@@ -369,7 +368,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(topic => {
-            console.log(topic)
             this.getRequirementsText(topic.designUtteranceId, topic.name, topic.branch, path, order)
         });
     }
@@ -534,15 +532,91 @@ export class ChatRoom extends Component {
     }
 
     conveySelectedPath(topic, text) {
+        const { messageList, time } = this.state;
+        this.turn += 1
+
+        this.setState({
+            messageList: this.state.messageList.splice(-1, 1)
+        })
+
         this.setState({
             selectedPath: text,
-            nextTopicOnList: topic
+            nextTopicOnList: topic,
+
+            messageList: messageList.concat({
+                id: this.id++,
+                type: 'user',
+                time: time.toLocaleDateString(),
+                text: text,
+            }),
+            similarUserStatus: true,
+            //prevBranch: branch,
         })
-        console.log("***** Compare selected with nextTopicOnList *****")
-        console.log(topic)
-        console.log(this.state.nextTopicOnList)
+
         this.props.setNextTopicOnList(topic)
-        console.log(this.state.nextTopicOnList)
+        this.updateRenderUntilSysBot();
+    }
+
+    conveyNewPath(text) {
+        const { messageList, time } = this.state;
+        
+        this.turn += 1
+
+        this.setState({
+            messageList: this.state.messageList.splice(-1, 1)
+        })
+
+        var allEndNodes = []
+        var convergingNode;
+        this.state.topicTransitionList.map((transition) => {
+            if (allEndNodes.indexOf(transition.endNode) > 0) {
+                convergingNode = transition.endNode
+            }
+            allEndNodes.push(transition.endNode)
+        })
+
+        var temp = this.state.possibleNextTopics[0].topic
+        var validNextNode = false
+        while ( temp !== convergingNode ) {
+            var check
+            // eslint-disable-next-line no-loop-func
+            this.state.topicTransitionList.map((transition) => {
+                if (temp === transition.startNode) {
+                    check = transition
+                }
+                
+            })
+            temp = check.endNode
+            if (temp === convergingNode) {
+                validNextNode = true
+            }
+        }
+        
+        var newNextNode;
+        if (validNextNode) {
+            this.state.requirementList.map((topic) => {
+                if (convergingNode === topic.topic) {
+                    newNextNode = topic
+                }
+            })
+        }
+
+        this.setState({
+            selectedPath: text,
+            nextTopicOnList: newNextNode,
+
+            messageList: messageList.concat({
+                id: this.id++,
+                type: 'user',
+                time: time.toLocaleDateString(),
+                text: text,
+            }),
+            similarUserStatus: true,
+            //prevBranch: branch,
+        })
+
+        this.props.setNextTopicOnList(newNextNode)
+        this.updateRenderUntilSysBot();
     }
 
     /* C. Controlling Functions */
@@ -576,14 +650,14 @@ export class ChatRoom extends Component {
             this.setState({
                 messageList: [
                     { id: 0, type: 'system', time: null, text: 'End the experiment '},
-                    { id: 1, type: 'system', time: null, text: 'Click the [End experiment] Button in below'}
+                    { id: 1, type: 'system', time: null, text: 'Click the [End experiment] Button below'}
                 ],
             }) 
         } else {
             this.setState({
                 messageList: [
-                    { id: 0, type: 'system', time: null, text: 'End the '+ 'conversation ' + this.num_experiment},
-                    { id: 1, type: 'system', time: null, text: 'Click the [Next Conversation] Button in below'}
+                    { id: 0, type: 'system', time: null, text: 'End this conversation'},
+                    { id: 1, type: 'system', time: null, text: 'Click the [End Experiment] Button below'}
                 ],
             })
         }
@@ -717,8 +791,6 @@ export class ChatRoom extends Component {
         }
 
         this.turn += 1
-        console.log("***ENTERED selectAnswer ***")
-        console.log(dataFromChild)
         
         if(newAnswerState === true) {
             this.setState({
@@ -877,7 +949,7 @@ export class ChatRoom extends Component {
             changeRequirment,
             initializeTopic,
             conveySelectedPath,
-            
+            conveyNewPath,
         } = this;
 
         const sysNotice = [
@@ -919,21 +991,8 @@ export class ChatRoom extends Component {
                                                             topicPathList={topicPathList}
                                                             topicTransitionList={topicTransitionList}
                                                             conveySelectedPath={conveySelectedPath}
+                                                            conveyNewPath={conveyNewPath}
                                                         />
-                                                        /*<SystemUserButton
-                                                            userId={this.props.userId}
-                                                            otherResponse={otherResponse}
-                                                            similarResponse={similarResponse}
-                                                            originResponse={originResponse}
-                                                            otherResponseList={otherResponseList}
-                                                            domainId={domainID}
-                                                            deployedVersion={deployedVersion}
-                                                            prevBranch={prevBranch}
-                                                            preTopic={preTopic}
-                                                            initializeTopic={initializeTopic}
-                                                            num_experiment={this.num_experiment}
-                                                            turn={this.turn}
-                                                        />*/
                                                         :  
                                                         <SystemUserButton
                                                             userId={this.props.userId}
@@ -985,7 +1044,7 @@ export class ChatRoom extends Component {
                                                 <Image avatar spaced='right' src={user} />
                                                 User
                                             </Label>
-                                            <input style={{marginLeft:'3px'}} value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
+                                            <input style={{marginLeft:'3px'}} value={input} onChange={handleChangeText} onKeyPress={handleKeyPress} required/>
                                             <Button type='submit' onClick={handleCreate}>Send</Button>
                                         </Input>
                                     :   <Input fluid disabled type='text' placeholder='Type...' action>

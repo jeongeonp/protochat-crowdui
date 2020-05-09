@@ -385,12 +385,12 @@ export class SystemBotButton extends Component {
                                 <Segment textAlign='center'>
                                     <div>
                                         <div className="systemBotText">Do you think the above message suits the current context?</div>
-                                        <div style={{display: 'table', width: '90%', margin: '10px auto 0px'}}>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 2%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false} style={{lineHeight: '1.5'}}>Yes, it's suitable</Button>
+                                        <div style={{display: 'table', width: '100%', margin: '10px auto 0px'}}>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 3%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>Yes, it's suitable</Button>
                                             </div>
-                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 2%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false} style={{lineHeight: '1.5'}}>No, it's not</Button>
+                                            <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 3%'}}>
+                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>No, it's not</Button>
                                             </div>
                                         </div>
                                     </div>
