@@ -166,6 +166,7 @@ export class SystemUserButton extends Component {
                     <Segment.Group>
                         <Segment textAlign='center' style={{height: '200px', overflowY: "scroll"}}>
                             { Object.keys(otherResponseList).map(id => {
+                                console.log(otherResponseList)
                                 const response = otherResponseList[id];
                                 return (
                                     <div key={id}>

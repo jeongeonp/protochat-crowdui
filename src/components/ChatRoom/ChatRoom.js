@@ -59,6 +59,8 @@ export class ChatRoom extends Component {
             topicPathList: [],
             topicTransitionList: [],
 
+            selectedPath: '',
+
             currentTopicOnList: [],
             nextTopicOnList: [],
             possibleNextTopics: [],
@@ -107,6 +109,7 @@ export class ChatRoom extends Component {
         this.getTopicPathsText = this.getTopicPathsText.bind(this);
         this.getTopicTransitions = this.getTopicTransitions.bind(this);
         this.getSubTopics = this.getSubTopics.bind(this);
+        this.conveySelectedPath = this.conveySelectedPath.bind(this);
     }
     
     /* A. Lifecycle Function */
@@ -258,8 +261,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(children => {
-            console.log("******** getChildBranches ********")
-            console.log(children)
             this.setState({
                 otherResponseList: [],
                 answerList: []
@@ -267,8 +268,6 @@ export class ChatRoom extends Component {
             console.log(children)
             if(children !== null){
                 const childBranches = Object.keys(children)
-                console.log("&&&&&&&& has child branch&&&&&&&")
-                console.log(childBranches)
                 childBranches.map((branch) => {
                     this.getChildUtterance(branch, type, false)
                 })
@@ -300,8 +299,6 @@ export class ChatRoom extends Component {
             }
             return res.json();
         }).then(utterance => {
-            console.log("******* getUtteranceText *******")
-            console.log(utterance)
             if (utterance.required || (utterance.version !== this.state.deployedVersion)){
             } else {
                 if (type){
@@ -536,6 +533,18 @@ export class ChatRoom extends Component {
         
     }
 
+    conveySelectedPath(topic, text) {
+        this.setState({
+            selectedPath: text,
+            nextTopicOnList: topic
+        })
+        console.log("***** Compare selected with nextTopicOnList *****")
+        console.log(topic)
+        console.log(this.state.nextTopicOnList)
+        this.props.setNextTopicOnList(topic)
+        console.log(this.state.nextTopicOnList)
+    }
+
     /* C. Controlling Functions */
 
 
@@ -690,13 +699,11 @@ export class ChatRoom extends Component {
 
     setOtherResponseList = () => {
         const { prevBranch } = this.state;
-        console.log(prevBranch)
         // prevBranch에서 children 찾아서, 각각의 branch id, utterance id 담은 responseList만듦
         this.getChildBranches(prevBranch, false)
     }
 
     setAnswerList = (branch) => {
-        console.log(branch)
         this.getChildBranches(branch, true)
     }
 
@@ -869,6 +876,7 @@ export class ChatRoom extends Component {
             similarResponse,
             changeRequirment,
             initializeTopic,
+            conveySelectedPath,
             
         } = this;
 
@@ -892,7 +900,7 @@ export class ChatRoom extends Component {
                                                     : <div>
                                                         { possibleNextTopics.length >= 2 
                                                         ?
-                                                        /*<SystemBranchButton
+                                                        <SystemBranchButton
                                                             userId={this.props.userId}
                                                             otherResponse={otherResponse}
                                                             similarResponse={similarResponse}
@@ -905,12 +913,14 @@ export class ChatRoom extends Component {
                                                             initializeTopic={initializeTopic}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
+                                                            nextTopicOnList={nextTopicOnList}
                                                             possibleNextTopics={possibleNextTopics}
                                                             topicList={requirementList}
                                                             topicPathList={topicPathList}
                                                             topicTransitionList={topicTransitionList}
-                                                        />*/
-                                                        <SystemUserButton
+                                                            conveySelectedPath={conveySelectedPath}
+                                                        />
+                                                        /*<SystemUserButton
                                                             userId={this.props.userId}
                                                             otherResponse={otherResponse}
                                                             similarResponse={similarResponse}
@@ -923,7 +933,7 @@ export class ChatRoom extends Component {
                                                             initializeTopic={initializeTopic}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
-                                                        />
+                                                        />*/
                                                         :  
                                                         <SystemUserButton
                                                             userId={this.props.userId}

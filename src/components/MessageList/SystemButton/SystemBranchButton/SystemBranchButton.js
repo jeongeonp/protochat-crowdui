@@ -110,15 +110,22 @@ export class SystemBranchButton extends Component {
     }
 
     /* When crowd selects existing path */
-    handleCreate = (response, id, selected) => {
-        const { similarResponse, userId, domainId, num_experiment, turn } = this.props
-        if (selected){
-            this.patchUserUtterance(response.uId, userId, domainId, num_experiment, turn)
-            this.patchUserBranch(response.branchId, userId, domainId, num_experiment, turn)
-        }
-        similarResponse(response, id);
+    handleCreate = (topics, path) => {
+        console.log("**** in handleCreate ****")
+        const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, conveySelectedPath } = this.props;
+        const newUtterance = {bot: false, text: path.text, domain: domainId, userId: userId, version: deployedVersion, topicPathId: path.topic }
+        //console.log(this.props)
+        this.setState({
+            inputButtonState: true,
+        })
+
+        //initializeTopic();
+        console.log(newUtterance)
+        //this.postUtterance(newUtterance);
+        //conveySelectedPath(topics, path.text)
     }
 
+    /* When crowd selects non existing path */
     handleNotapplicable = () => {
         const { originResponse, domainId, userId, deployedVersion, preTopic, initializeTopic, numSession } = this.props;
         const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topics: preTopic, numSession: numSession}
@@ -129,10 +136,11 @@ export class SystemBranchButton extends Component {
 
         initializeTopic();
         this.postUtterance(newUtterance);
+        
     }
 
     render() {
-        const { otherResponseList, possibleNextTopics } = this.props;
+        const { otherResponseList, possibleNextTopics, conveySelectedPath } = this.props;
         const { handleCreate, handleNotapplicable } = this;
 
         return (
@@ -145,22 +153,29 @@ export class SystemBranchButton extends Component {
                         <Segment textAlign='center' /*style={{height: '200px', overflowY: "scroll"}}*/>
                             { (possibleNextTopics).map((topics, id) => {
                                 var text = ""
+                                var path = null
                                 console.log(id)
                                 this.props.topicTransitionList.map((t) => {
-                                    console.log(this.props.topicTransitionList)
+                                    //console.log(this.props.topicTransitionList)
                                     if (t.endNode === topics.topic) {
                                         this.props.topicPathList.map((p)=> {
                                             if (t.path === p.topic) {
                                                 text = p.text
+                                                //console.log(topics) // nexttopic이 되어야함
+                                                console.log(t)
                                                 console.log(p)
+                                                path = p
                                             }
                                         })
                                     }
                                 })
+                                console.log(this.props.nextTopicOnList)
+                                console.log(path)
+                                /*  */
                                 return (
                                     <div key={id}>
                                         <div style={{height: '10px'}}></div>
-                                        <Button fluid onClick={handleCreate.bind(this, topics, topics.bId, true)}>{text}</Button>
+                                        <Button fluid onClick={handleCreate.bind(this, topics, path)}>{text}</Button>
                                     </div>
                                 );
                             })}

@@ -148,7 +148,7 @@ class App extends Component{
         this.setNextTopicOnList(endNodes[0])
       }
     })
-    //console.log(allEndNodes)
+    console.log(allEndNodes)
     this.setPossibleNextTopics(allEndNodes)
   }
 
@@ -254,12 +254,12 @@ class App extends Component{
       topicPathList, topicTransitionList, nextTopicOnList, possibleNextTopics } = this.state;
     const { changeLoginState, controlEndButtonStatus, initializeRequirementList, blockEndButtonStatus, unblockEndButtonStatus,
       controlNextButtonStatus, controlEndStatus, controlStartStatus, setStateRequirment, requirementListConvey, controlQuitStatus, 
-      topicPathListConvey, topicTransitionConvey } = this;
+      topicPathListConvey, topicTransitionConvey, setNextTopicOnList } = this;
 
     return (
       <div className="backGround">
         {/* FIXME: put it back later to enable login & tutorial*/}
-        {login ? null : <Login changeLoginState={changeLoginState}/>}
+        {/*login ? null : <Login changeLoginState={changeLoginState}/>*/}
         
         { quit ? <Quit/> : null }
         <div className="leftSideBar">
@@ -294,6 +294,7 @@ class App extends Component{
             controlStartStatus={controlStartStatus}
             setStateRequirment={setStateRequirment}
             controlNextButtonStatus={controlNextButtonStatus}
+            setNextTopicOnList={setNextTopicOnList}
           />
         </main>
         <div className="rightSideBar">
