@@ -26,6 +26,7 @@ export class SystemBotButton extends Component {
             noDisabled: false,
 
             number: 0,
+            firstTopic: null,
 
             /* Since passing via prop was not working */
             deployedVersion: '',
@@ -62,6 +63,18 @@ export class SystemBotButton extends Component {
             domainId: domainId,
         })
 
+        fetch(`${databaseURL+'/deployments/data/'+ domainId + '/' + deployedVersion + '/startTopic'}/.json`).then(res => {
+            if(res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            return res.json();
+        }).then(result => {
+            
+            this.setState({
+                firstTopic: this.props.requirementList.filter((r) => r.topic === result[0])[0]
+            })
+        });
+
     }
 
     componentDidUpdate(prevProps) {
@@ -97,7 +110,7 @@ export class SystemBotButton extends Component {
     }
 
     postUtterance(utterance, start, require) {
-        return fetch(`${databaseURL+'/utterances/data/'+ this.props.domainId + '/' + this.extension}`, {
+        return fetch(`${databaseURL+'/utterances/data/'+ this.state.domainId + '/' + this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
         }).then(res => {
@@ -106,7 +119,8 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
-            const { domainId, prevBranch, userId, num_experiment, turn, deployedVersion } = this.props
+            const { domainId, deployedVersion } = this.state
+            const { prevBranch, userId, num_experiment, turn } = this.props
             const newBranch = {domain: domainId, parent: prevBranch, version: deployedVersion, utterances: {[data.name]: true}}
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.postBranch(newBranch, utterance, start, require)
@@ -114,7 +128,7 @@ export class SystemBotButton extends Component {
     }
 
     postSubUtterance(utterance) {
-        return fetch(`${databaseURL+'/utterances/data/'+ this.props.domainId + '/' + this.extension}`, {
+        return fetch(`${databaseURL+'/utterances/data/'+ this.state.domainId + '/' + this.extension}`, {
             method: 'POST',
             body: JSON.stringify(utterance)
         }).then(res => {
@@ -123,7 +137,8 @@ export class SystemBotButton extends Component {
             }
             return res.json()
         }).then(data => {
-            const { domainId, userId, num_experiment, turn, deployedVersion } = this.props
+            const { domainId, deployedVersion } = this.state
+            const { userId, num_experiment, turn } = this.props
             this.patchUserUtterance(data.name, userId, domainId, num_experiment, turn)
             this.patchSubTopic(data.name, domainId, utterance.topicId, utterance.subTopicId)
         });
@@ -142,7 +157,7 @@ export class SystemBotButton extends Component {
     }
 
     postBranch(branch, utterance, start, addRequired) {
-        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+this.extension}`, {
             method: 'POST',
             body: JSON.stringify(branch)
         }).then(res => {
@@ -152,7 +167,8 @@ export class SystemBotButton extends Component {
             return res.json()
         }).then(data => {
             console.log(data)
-            const { prevBranch, domainId, userId, num_experiment, turn, save_requirement, deployedVersion } = this.props
+            const { domainId, deployedVersion } = this.state
+            const { prevBranch, userId, num_experiment, turn, save_requirement } = this.props
             const branch = {[data.name]: true}
             if (prevBranch){
                 this.patchChildren(prevBranch, branch)
@@ -226,8 +242,7 @@ export class SystemBotButton extends Component {
     }
 
     patchBranchRequired(requirement, bId) {
-        const { domainId } = this.state
-        return fetch(`${databaseURL+'/topics/data/'+ domainId + '/' + requirement.topic+'/branch'+this.extension}`, {
+        return fetch(`${databaseURL+'/topics/data/'+ this.state.domainId + '/' + requirement.topic+'/branch'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify({[bId]: true})
         }).then(res => {
@@ -239,7 +254,7 @@ export class SystemBotButton extends Component {
     }
 
     patchChildren(prevBranch, children) {
-        return fetch(`${databaseURL+'/tree-structure/data/'+this.props.domainId+'/'+prevBranch+'/children'+this.extension}`, {
+        return fetch(`${databaseURL+'/tree-structure/data/'+this.state.domainId+'/'+prevBranch+'/children'+this.extension}`, {
             method: 'PATCH',
             body: JSON.stringify(children)
         }).then(res => {
@@ -279,7 +294,8 @@ export class SystemBotButton extends Component {
 
     // Select origin answer of Bot, state: false
     handleSelect = (answer, branch, crowdCreated) => {
-        const { userId, domainId, num_experiment, turn } = this.props
+        const { domainId } = this.state
+        const { userId, num_experiment, turn } = this.props
 
         this.patchUserUtterance(answer.uId, userId, domainId, num_experiment, turn, crowdCreated)
         this.patchUserBranch(answer.branchId, userId, domainId, num_experiment, turn, crowdCreated)
@@ -290,8 +306,8 @@ export class SystemBotButton extends Component {
 
     // Add New answer of Bot, state: true
     handleCreate = () => {
-        const { input } = this.state
-        const { domainId, userId, deployedVersion, numSession } = this.props
+        const { input, domainId, deployedVersion } = this.state
+        const { userId, numSession } = this.props
         const newUtterance = {bot: true, text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession, crowdCreated: true}
         const newlyAddedUtterance = {time: new Date(),text: input, domain: domainId, userId: userId, version: deployedVersion, numSession: numSession, crowdCreated: true}
         this.setState({
@@ -307,8 +323,8 @@ export class SystemBotButton extends Component {
 
     handleRequirement = (requirement) => {
         console.log(requirement)
-        const { changeRequirment, domainId, startBranch, prevBranch, userId, num_experiment, turn,  } = this.props
-        const { deployedVersion } = this.state
+        const { changeRequirment, startBranch, prevBranch, userId, num_experiment, turn,  } = this.props
+        const { deployedVersion, domainId } = this.state
         this.patchUserUtterance(requirement.uId, userId, domainId, num_experiment, turn)
 
         if(startBranch){
@@ -354,8 +370,8 @@ export class SystemBotButton extends Component {
     beginPathA = () => this.setState({ path: 'pathA', })
 
     render() {
-        const { inputState, input, buttonState, modalOpen, path, yesDisabled, noDisabled } = this.state
-        const { answerList, requirementList, num_requirement, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition } = this.props
+        const { inputState, input, buttonState, modalOpen, path, yesDisabled, noDisabled, firstTopic } = this.state
+        const { answerList, requirementList, prevBranch, start_requirement, r_answerList, otherResponse, instructionPosition } = this.props
         const { handleSelect, changeInputState, handleChangeText, handleCreate, handleKeyPress, handleRequirement, changeButtonState, beginPathA, beginPathB } = this
         
 
@@ -484,7 +500,7 @@ export class SystemBotButton extends Component {
                                             { prevBranch === null 
                                             ?   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, requirementList[0], false)}>{requirementList[0].text}</Button>
+                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, firstTopic, false)}>{firstTopic.text}</Button>
                                                 </div>
                                             :   <div>
                                                     <div style={{height: '5px'}}></div>

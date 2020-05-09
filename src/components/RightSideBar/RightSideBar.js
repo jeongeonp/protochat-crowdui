@@ -127,8 +127,9 @@ export class RightSideBar extends Component {
                 
                 <div className="rightInsBox">
                     <div className="textBoxFormat">
-                        <h2>Instruction</h2>
-                        <p>** the designer's custom instruction will go in here **</p>
+                        <h2>Keep in mind that..</h2>
+                        <p>You will be asked every bot's turn on <div style={{color:'#fff38b'}}>whether the bot's utterance is suitable.</div> Please note that it is about the <i>context</i> of the conversation.</p>
+                        <p style={{color: 'white'}}>Based on your choices, you will be (1) <u>following the mandatory conversations</u>, or (2) <u>creating new bot's utterance or new path</u>.</p>
                     </div>
                     <div className="textCenter">
                         { numSession === 1

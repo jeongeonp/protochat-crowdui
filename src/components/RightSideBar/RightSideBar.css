@@ -27,7 +27,7 @@
     transform: translateY(-50%);
     color: white;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 22px;
     text-align: center;
 }
 
@@ -36,9 +36,15 @@
     margin: 30px auto 0px;
     padding: 10px;
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
     min-height: 50%;
     /*background-color: blueviolet;*/
-    border: medium solid white;
+    border: medium solid grey;
+}
+
+.textBoxFormat i {
+    
+    color: #fff38b;
+    
 }

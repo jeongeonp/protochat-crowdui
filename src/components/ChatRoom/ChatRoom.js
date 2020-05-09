@@ -123,6 +123,7 @@ export class ChatRoom extends Component {
         this.setState({
             deployedVersion: deployedVersion,
             domainID: domainID,
+            domainId: domainID,
             otherResponse: otherResponse
         })
 
@@ -937,7 +938,7 @@ export class ChatRoom extends Component {
             domains, messageList, answerList, r_answerList, requirementList, otherResponse, 
             otherResponseList, inputButtonState, domainID, prevBranch, startBranch, preTopic, save_requirement, start_requirement,
             turnNotice, startSession, selectBotStatus, num_requirement, deployedVersion, 
-            similarUserStatus, instructionPosition, task, branchTopicStatus, currentTopicOnList, nextTopicOnList, possibleNextTopics,
+            similarUserStatus, instructionPosition, branchTopicStatus, currentTopicOnList, nextTopicOnList, possibleNextTopics,
             topicPathList, topicTransitionList, subTopics } = this.state;
         const {
             handleChangeText,

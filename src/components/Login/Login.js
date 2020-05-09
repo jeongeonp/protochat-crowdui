@@ -61,7 +61,6 @@ export class Login extends Component {
         })
 
         this.getDomainName(domainID)   
-        console.log(this.state.domainName)
     }
 
     getDomainName = (domainId) => {
@@ -71,7 +70,6 @@ export class Login extends Component {
             }
             return res.json();
         }).then(domainName => {
-            console.log(domainName)
             this.setState({
                 domainName: domainName.name
             })

@@ -134,21 +134,15 @@ class App extends Component{
   }
 
   getNextTopicOnList = (requirement) => {
-    //console.log(this.state.requirementList)
-    //console.log(requirement)
     this.setNextTopicOnList([])
     var allEndNodes = []
     this.state.topicTransitionList.map((transition) => {
       if (transition.startNode === requirement.topic) {
-        // FIXME: get choice from userBranchButton and set nextTopicOnList
         var endNodes = this.state.requirementList.filter((re)=>(transition.endNode === re.topic))
         allEndNodes.push(endNodes[0])
-        //console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        //console.log(endNodes[0])
         this.setNextTopicOnList(endNodes[0])
       }
     })
-    console.log(allEndNodes)
     this.setPossibleNextTopics(allEndNodes)
   }
 
@@ -160,7 +154,6 @@ class App extends Component{
   }
 
   setNextTopicOnList = (selected) => {
-    //TODO: Get requirement from requirement.text
     this.setState({
         nextTopicOnList: selected
     })
