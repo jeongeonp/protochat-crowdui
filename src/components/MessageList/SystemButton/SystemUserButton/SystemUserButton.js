@@ -144,6 +144,7 @@ export class SystemUserButton extends Component {
         })
 
         initializeTopic();
+        console.log(newUtterance)
         this.postUtterance(newUtterance);
     }
 
@@ -159,7 +160,7 @@ export class SystemUserButton extends Component {
                 <span className="systemUserText">
                     If you can find a message with the same meaning, select it.
                 </span>
-                <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
+                <div style={{width: '100%', marginTop: "10px", maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center' style={{height: '200px', overflowY: "scroll"}}>
                             { Object.keys(otherResponseList).map(id => {

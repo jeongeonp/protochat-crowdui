@@ -171,25 +171,25 @@ export class SystemBranchButton extends Component {
     handleCreate = (topics, path) => {
         console.log("**** in handleCreate ****")
         const { deployedVersion, domainId } = this.state
-        const { userId, initializeTopic, conveySelectedPath } = this.props;
+        const { userId, initializeTopic, conveySelectedPath, preTopic } = this.props;
         
-        const newUtterance = {bot: false, text: path.text, domain: domainId, userId: userId, version: deployedVersion, topicPathId: path.topic }
+        const newUtterance = {bot: false, text: path.requirement, domain: domainId, userId: userId, version: deployedVersion, topicPathId: path.topic, topic: preTopic }
         this.setState({
             inputButtonState: true,
         })
-        initializeTopic();
+        //initializeTopic();
         this.postUtterance(newUtterance, true);
 
-        conveySelectedPath(topics, path.text)
+        conveySelectedPath(topics, path.requirement)
     }
 
     /* When crowd selects non existing path */
     handleNotapplicable = () => {
         console.log("**** in handleNotapplicable ****")
         const { deployedVersion, domainId } = this.state
-        const { originResponse, userId, initializeTopic, conveyNewPath } = this.props;
+        const { originResponse, userId, initializeTopic, conveyNewPath, preTopic } = this.props;
         
-        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topicPathId: "New Path" }
+        const newUtterance = {bot: false, text: originResponse, domain: domainId, userId: userId, version: deployedVersion, topicPathId: "New Path", topic: preTopic }
         this.setState({
             inputButtonState: true,
         })
@@ -199,8 +199,23 @@ export class SystemBranchButton extends Component {
     }
 
     render() {
-        const { otherResponseList, possibleNextTopics, conveySelectedPath } = this.props;
+        const { otherResponseList, possibleNextTopics, conveySelectedPath, currentTopicOnList } = this.props;
         const { handleCreate, handleNotapplicable } = this;
+
+        var nextButtons = []
+        var nextButtonPaths = []
+        var path = null
+        this.props.topicTransitionList.map((t) => {
+            if (t.startNode === currentTopicOnList.topic) {
+                this.props.topicPathList.map((p)=> {
+                    if (t.path === p.topic) {
+                        //console.log(topics) // nexttopic이 되어야함
+                        nextButtons.push(this.props.possibleNextTopics.filter((pnt)=> {return pnt.topic === t.endNode})[0])
+                        nextButtonPaths.push(p)
+                    }
+                })
+            }
+        })
 
         return (
             <div className="systemUserButtonBox">
@@ -210,28 +225,12 @@ export class SystemBranchButton extends Component {
                 <div style={{width: '100%', marginTop: "10px", maxHeight: '250px', overflowY: this.overflowCondition}}>
                     <Segment.Group>
                         <Segment textAlign='center' /*style={{height: '200px', overflowY: "scroll"}}*/>
-                            { (possibleNextTopics).map((topics, id) => {
-                                var text = ""
-                                var path = null
-                                console.log(id)
-                                this.props.topicTransitionList.map((t) => {
-                                    if (t.endNode === topics.topic) {
-                                        this.props.topicPathList.map((p)=> {
-                                            if (t.path === p.topic) {
-                                                text = p.text
-                                                //console.log(topics) // nexttopic이 되어야함
-                                                path = p
-                                            }
-                                        })
-                                    }
-                                })
-                                console.log(this.props.nextTopicOnList)
-                                console.log(path)
-                                /*  */
+                            { (nextButtons).map((topics, id) => {
+                                
                                 return (
                                     <div key={id}>
                                         <div style={{height: '10px'}}></div>
-                                        <Button fluid onClick={handleCreate.bind(this, topics, path)}>{text}</Button>
+                                        <Button  color='blue' fluid onClick={handleCreate.bind(this, topics, nextButtonPaths[id])}>{nextButtonPaths[id].requirement}</Button>
                                     </div>
                                 );
                             })}
@@ -260,7 +259,7 @@ export class SystemBranchButton extends Component {
                 <div style={{display: "table-cell"}}>
                     <div style={{minHeight: "150px"}}>
                         <Segment.Group>
-                            <Segment textAlign='center' color='teal' >
+                            <Segment textAlign='center' color='blue' >
                                 <div className="systemBotText" >
                                     Choose from below answers.<br/>You will proceed the conversation with a path of your choice.
                                 </div>

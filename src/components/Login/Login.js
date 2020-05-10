@@ -166,7 +166,7 @@ export class Login extends Component {
                     ?   <Modal open={true}>
                             <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
                                 <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
-                                <p>Your task is to finish <b>{domainName}</b> with the chatbot. </p>
+                                <p>Your task is to finish <font color="red"><b>{domainName}</b></font> with the chatbot. </p>
                                     <p>During the conversation, keep in mind that there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
                                     <p style={{fontSize: "80%"}}><br/> <b>We recommend zooming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {
@@ -227,7 +227,7 @@ export class Login extends Component {
                                                 onChange={this.handleChange}
                                             />
                                             <Form.Input 
-                                                fluid label='Task Name' 
+                                                fluid label='Task Name (hint on the previous page)' 
                                                 placeholder='Type your task'
                                                 name='task'
                                                 value={task}

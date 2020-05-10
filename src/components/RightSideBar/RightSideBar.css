@@ -40,11 +40,14 @@
     text-align: center;
     min-height: 50%;
     /*background-color: blueviolet;*/
-    border: medium solid grey;
+    border: medium solid #dddddd;
 }
 
 .textBoxFormat i {
     
-    color: #fff38b;
-    
+    color: #fff259;
+}
+
+.redColor {
+    color: rgb(221, 144, 120)
 }

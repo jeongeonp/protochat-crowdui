@@ -29,8 +29,8 @@ export class Flowchart extends Component {
                         ranker: 'tight-tree',
                         
                     }}
-                    width='250'
-                    height='440'
+                    width='100%'
+                    height='500'
                     animate={0}
                     shape='rect'
                     fitBoundaries

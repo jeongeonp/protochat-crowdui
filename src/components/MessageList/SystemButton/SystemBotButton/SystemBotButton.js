@@ -384,29 +384,35 @@ export class SystemBotButton extends Component {
                 {/* First depth: Yes or no */}
                 { prevBranch === null
                     ?
-                    <Button fluid color='teal' size='small' onClick={beginPathB}>Click here to begin</Button>
+                    <Button fluid color='blue' size='small' onClick={beginPathB}>Click here to begin</Button>
                     : 
                     <div>
                     { this.props.nextTopicOnList.length === 0 
                         ?
-                        <Button fluid color='teal' size='small' onClick={beginPathA}>Do you think the bot missed something?</Button>
+                        <Button fluid color='blue' size='small' onClick={beginPathA}>Do you think the bot missed something?</Button>
                         :
                         <div style={{width: "75%", marginLeft: '0', marginRight: 'auto'}}>
                             <Segment.Group>
                                 <Segment.Group>
-                                    <Segment textAlign='center' color='teal'>
+                                    <Segment textAlign='center' color='blue'>
                                         <div>{this.props.nextTopicOnList.text}</div>
+                                        {this.props.nextTopicOnList.subTopics.map((st) => {
+                                            return (
+                                                <div>{st}</div>
+                                            )
+                                        })
+                                        }
                                     </Segment>
                                 </Segment.Group>
                                 <Segment textAlign='center'>
                                     <div>
-                                        <div className="systemBotText">Do you think the above message suits the current context?</div>
+                                        <div className="systemBotText">Do you think the above message(s) suits the current context?</div>
                                         <div style={{display: 'table', width: '100%', margin: '10px auto 0px'}}>
                                             <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 3%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathB} disabled={false}>Yes, it's suitable</Button>
+                                                <Button fluid color='blue' size='small' onClick={beginPathB} disabled={false}>Yes, it's suitable</Button>
                                             </div>
                                             <div style={{display: 'table-cell', verticalAlign: 'middle', padding: '0px 3%'}}>
-                                                <Button fluid color='teal' size='small' onClick={beginPathA} disabled={false}>No, it's not</Button>
+                                                <Button fluid color='blue' size='small' onClick={beginPathA} disabled={false}>No, it's not</Button>
                                             </div>
                                         </div>
                                     </div>
@@ -425,7 +431,7 @@ export class SystemBotButton extends Component {
                             ?   null
                             :   <div>
                                     <Segment.Group>
-                                        <Segment textAlign='center' color='teal'>
+                                        <Segment textAlign='center' color='blue'>
                                             <div className="systemBotText">
                                                 { otherResponse
                                                     ?   "Please continue by (1) inserting a more suitable bot's response or (2) selecting from what other people suggested"
@@ -434,16 +440,16 @@ export class SystemBotButton extends Component {
                                             </div>
                                             <div style={{height: '15px'}}></div>
                                             { inputState
-                                                ? <Button fluid color='teal' onClick={changeInputState}>Add new response</Button>
+                                                ? <Button fluid color='blue' onClick={changeInputState}>Add new response</Button>
                                                 : <Input fluid type='text' placeholder='Type your answer...' action>
                                                     <Image avatar verticalAlign='middle' spaced='right' src={bot} />
                                                     <input value={input} onChange={handleChangeText} onKeyPress={handleKeyPress}/>
-                                                    <Button type='submit' color='teal' onClick={handleCreate}>Add</Button>
+                                                    <Button type='submit' color='blue' onClick={handleCreate}>Add</Button>
                                                 </Input>
                                             }
                                             <div style={{height: '8px'}}></div>
                                             { buttonState
-                                                ? <Button fluid color='teal' onClick={changeButtonState}>Show others' responses</Button>
+                                                ? <Button fluid color='blue' onClick={changeButtonState}>Show others' responses</Button>
                                                 : <div>
                                                     <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
                                                     <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
@@ -490,7 +496,7 @@ export class SystemBotButton extends Component {
                             ?   null
                             :   <div style={{minHeight: "150px"}}>
                                     <Segment.Group>
-                                        <Segment textAlign='center' color='teal' >
+                                        <Segment textAlign='center' color='blue' >
                                             <div className="systemBotText" style={{height:"25px"}}>
                                                 { prevBranch === null
                                                     ?   'Begin conversation with the first topic'
@@ -500,11 +506,11 @@ export class SystemBotButton extends Component {
                                             { prevBranch === null 
                                             ?   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, firstTopic, false)}>{firstTopic.text}</Button>
+                                                    <Button fluid color='blue' onClick={handleRequirement.bind(this, firstTopic, false)}>{firstTopic.text}</Button>
                                                 </div>
                                             :   <div>
                                                     <div style={{height: '5px'}}></div>
-                                                    <Button fluid color='teal' onClick={handleRequirement.bind(this, this.props.nextTopicOnList, false)}>
+                                                    <Button fluid color='blue' onClick={handleRequirement.bind(this, this.props.nextTopicOnList, false)}>
                                                         {this.props.nextTopicOnList.text}
                                                     </Button>
                                                 </div>

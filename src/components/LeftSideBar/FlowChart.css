@@ -1,13 +1,11 @@
-.nodes {
-	fill: #afcbff;
-}
+
 .nodes text {
 	fill: black;
 }
 
 path {
-	stroke: #afcbff;
-	fill: #afcbff;
-	stroke-width: 2px;
+	stroke: #2c2c2c;
+	fill: #2c2c2c;
+	stroke-width: 2.5px;
 	
 }

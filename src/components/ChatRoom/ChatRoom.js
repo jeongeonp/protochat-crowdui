@@ -204,6 +204,11 @@ export class ChatRoom extends Component {
             })
         }
 
+        if (prevState.currentTopicOnList !== this.state.currentTopicOnList) {
+            console.log("**************** new TOPIC ***********")
+            console.log(this.state.currentTopicOnList)
+        }
+
         //console.log(this.state.currentTopicOnList)
         //console.log(this.state.nextTopicOnList)
         //console.log(this.state.possibleNextTopics)
@@ -416,7 +421,7 @@ export class ChatRoom extends Component {
                     })  
                 }
                 
-                console.log(this.state.requirementList)
+                //console.log(this.state.requirementList)
 
                 this.state.requirementList.sort(function(a, b){
                     return a.order < b.order ? -1: a.order > b.order ? 1: 0;
@@ -587,10 +592,15 @@ export class ChatRoom extends Component {
                 }
                 
             })
-            temp = check.endNode
-            if (temp === convergingNode) {
-                validNextNode = true
+            if (check) {
+                temp = check.endNode
+                if (temp === convergingNode) {
+                    validNextNode = true
+                }
+            } else {
+                break;
             }
+            
         }
         
         var newNextNode;
@@ -616,7 +626,13 @@ export class ChatRoom extends Component {
             //prevBranch: branch,
         })
 
-        this.props.setNextTopicOnList(newNextNode)
+        if (newNextNode) {
+            this.props.setNextTopicOnList(newNextNode)
+        }
+        else {
+            this.props.setNextTopicOnList([])
+        }
+        
         this.updateRenderUntilSysBot();
     }
 
@@ -794,19 +810,8 @@ export class ChatRoom extends Component {
         this.turn += 1
         
         if(newAnswerState === true) {
-            this.setState({
-                messageList: messageList.concat({
-                    id: this.id++,
-                    type: 'bot',
-                    time: time.toLocaleDateString(),
-                    text: dataFromChild.text,
-                }),
-                selectBotStatus: true,
-                start_requirement: false,
-                prevBranch: branch,
-                preTopic: dataFromChild.topics
-            })
-        } else{
+            console.log("^^^^ newAnswerstate is true ^^^")
+            console.log(dataFromChild.subTopics)
             var currMessageList = messageList
             currMessageList.push({
                 id: this.id++,
@@ -814,8 +819,53 @@ export class ChatRoom extends Component {
                     time: time.toLocaleDateString(),
                     text: dataFromChild.text,
             })
+            if (dataFromChild.subTopics) {
+                dataFromChild.subTopics.map((st) => {
+                    currMessageList.push({
+                        id: this.id++,
+                        type: 'bot',
+                        time: new Date().toLocaleDateString(),
+                        text: st,
+                    })
+                })
+            
+            this.setState({
+                /*messageList: messageList.concat({
+                    id: this.id++,
+                    type: 'bot',
+                    time: time.toLocaleDateString(),
+                    text: dataFromChild.text,
+                }),*/
+                selectBotStatus: true,
+                start_requirement: false,
+                prevBranch: branch,
+                preTopic: dataFromChild.topics
+            })
+            } else {
+                this.setState({
+                    /*messageList: messageList.concat({
+                        id: this.id++,
+                        type: 'bot',
+                        time: time.toLocaleDateString(),
+                        text: dataFromChild.text,
+                    }),*/
+                    selectBotStatus: true,
+                    start_requirement: false,
+                    prevBranch: branch,
+                    preTopic: branch.name,
+                    currentTopicOnList: [],
+                })
+            }
+        } else{
+            var currMessageList2 = messageList
+            currMessageList2.push({
+                id: this.id++,
+                    type: 'bot',
+                    time: time.toLocaleDateString(),
+                    text: dataFromChild.text,
+            })
             dataFromChild.subTopics.map((st) => {
-                currMessageList.push({
+                currMessageList2.push({
                     id: this.id++,
                     type: 'bot',
                     time: new Date().toLocaleDateString(),
@@ -971,7 +1021,7 @@ export class ChatRoom extends Component {
                                 {branchTopicStatus ? null : null}
                                 {similarUserStatus  ? null 
                                                     : <div>
-                                                        { possibleNextTopics.length >= 2 
+                                                        { possibleNextTopics.length >= 2 && currentTopicOnList.length !== 0
                                                         ?
                                                         <SystemBranchButton
                                                             userId={this.props.userId}
@@ -986,6 +1036,7 @@ export class ChatRoom extends Component {
                                                             initializeTopic={initializeTopic}
                                                             num_experiment={this.num_experiment}
                                                             turn={this.turn}
+                                                            currentTopicOnList={currentTopicOnList}
                                                             nextTopicOnList={nextTopicOnList}
                                                             possibleNextTopics={possibleNextTopics}
                                                             topicList={requirementList}

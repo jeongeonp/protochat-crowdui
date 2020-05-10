@@ -20,6 +20,7 @@ export class LeftSideBar extends Component {
             /* For the flowchart */
             nodes: [],
             links: [],
+            linkIds: [],
         }
         this.changeCheckedRequirement = this.changeCheckedRequirement.bind(this);
         this.addNodes = this.addNodes.bind(this)
@@ -70,24 +71,33 @@ export class LeftSideBar extends Component {
 
     handleClose = () => this.setState({ modalOpen: false })
 
-    addNodes = (id, label, color = '#afcbff') => {
+    addNodes = (id, label, color = '#dddddd') => {
         var colorString = 'fill: ' + color
         var config = { style: colorString }
         var newNode = { id: id, label: label, labelType: "string", config: config }
         var currNodes = this.state.nodes
+        var currNodesId = currNodes.map((c) => c.id)
+        if (currNodesId.indexOf(id) < 0 || color !== '#dddddd'){
         currNodes.push(newNode)
         this.setState({
             nodes: currNodes
         })
+        }   
     }
 
-    addLinks = (source, target, label) => {
-        var newLink = { source: source, target: target, label: label, config: {curve: d3.curveLinear} }
+    addLinks = (source, target, label, id) => {
+        var newLink = { source: source, target: target, label: label, config: {curve: d3.curveLinear}}
         var currLinks = this.state.links
+        var currLinkIds = this.state.linkIds
+
+        if (currLinkIds.indexOf(id) < 0) {
         currLinks.push(newLink)
+        currLinkIds.push(id)
         this.setState({
-            links: currLinks
+            links: currLinks,
+            linkIds: currLinkIds,
         })
+        }
     }
 
 
@@ -97,13 +107,14 @@ export class LeftSideBar extends Component {
         const { addLinks, addNodes } = this
 
         
-        
+        //console.log(tt_List)
+        //console.log(tp_List)
         //console.log(r_List)
         r_List.map((requirement) => {
             if (requirement === this.props.requirement) {
                 addNodes(requirement.topic, requirement.requirement, '#FFBB00')
             } else if (requirement.checked === true) {
-                addNodes(requirement.topic, requirement.requirement, '#FFFFFF')
+                addNodes(requirement.topic, requirement.requirement, '#6588a7')
             } else {
             addNodes(requirement.topic, requirement.requirement)
             }
@@ -114,15 +125,16 @@ export class LeftSideBar extends Component {
         //console.log(topicTransitionList)
 
         tt_List.map((path) => {
-            var correctPath;
+            var correctPath = null;
             tp_List.map((p) => {
                 if (p.topic === path.path ) {
                     correctPath = p
                 }
             })
+            
 
             if (correctPath) {
-                addLinks(path.startNode, path.endNode, correctPath.text)
+                addLinks(path.startNode, path.endNode, correctPath.requirement, correctPath.topic)
             }
         })
     }
@@ -141,7 +153,7 @@ export class LeftSideBar extends Component {
                         { r_List.length === 0
                             ?   null
                             :   <div>
-                                    <span style={{fontSize: '17px', color: '#E8EAF6', fontWeight: 'bold'}}>Sequence of Conversation Topics</span>
+                                    <span style={{fontSize: '17px', color: '#ffffff', fontWeight: 'bold', marginLeft: "8%"}}>Sequence of Conversation Topics</span>
                                     <Modal
                                         open={modalOpen}
                                         onClose={this.handleClose}
@@ -163,7 +175,7 @@ export class LeftSideBar extends Component {
                             </div>
                         }
                         <div style={{height:'5px'}}></div>
-                        <Flowchart 
+                        <Flowchart
                             nodes={nodes}
                             links={links}
                         />
