@@ -448,38 +448,44 @@ export class SystemBotButton extends Component {
                                                 </Input>
                                             }
                                             <div style={{height: '8px'}}></div>
-                                            { buttonState
-                                                ? <Button fluid color='blue' onClick={changeButtonState}>Show others' responses</Button>
-                                                : <div>
-                                                    <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
-                                                    <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
-                                                    { otherResponse
-                                                        ?   start_requirement === true
-                                                                ?   Object.keys(r_answerList).map(id => {
-                                                                        const r_answer = r_answerList[id]
-                                                                        return (
-                                                                            <div key={id}>
-                                                                                <div style={{height: '10px'}}></div>
-                                                                                <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId, true)}>{r_answer.text}</Button>
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                :   null
-                                                        : null
-                                                    }
-                                                    { otherResponse
-                                                        ?   Object.keys(answerList).map(id => {
-                                                                const answer = answerList[id]
-                                                                return (
-                                                                    <div key={id}>
-                                                                        <div style={{height: '10px'}}></div>
-                                                                        <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId, true)}>{answer.text}</Button>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                        :   null
-                                                    }
+                                            {   r_answerList.length + answerList.length === 0 
+                                                ? null
+                                                :
+                                                <div>
+                                                { buttonState
+                                                    ? <Button fluid color='blue' onClick={changeButtonState}>Show others' responses</Button>
+                                                    : <div>
+                                                        <Button fluid color='red' onClick={changeButtonState}>Hide others' responses</Button>
+                                                        <div style={{maxHeight: '150px', overflowY: 'scroll', overflowX: 'hidden'}}>
+                                                        { otherResponse
+                                                            ?   start_requirement === true
+                                                                    ?   Object.keys(r_answerList).map(id => {
+                                                                            const r_answer = r_answerList[id]
+                                                                            return (
+                                                                                <div key={id}>
+                                                                                    <div style={{height: '10px'}}></div>
+                                                                                    <Button fluid onClick={handleSelect.bind(this, r_answer, r_answer.branchId, true)}>{r_answer.text}</Button>
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    :   null
+                                                            : null
+                                                        }
+                                                        { otherResponse
+                                                            ?   Object.keys(answerList).map(id => {
+                                                                    const answer = answerList[id]
+                                                                    return (
+                                                                        <div key={id}>
+                                                                            <div style={{height: '10px'}}></div>
+                                                                            <Button fluid onClick={handleSelect.bind(this, answer, answer.branchId, true)}>{answer.text}</Button>
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            :   null
+                                                        }
+                                                        </div>
                                                     </div>
+                                                }
                                                 </div>
                                             }
                                         </Segment>
@@ -499,7 +505,7 @@ export class SystemBotButton extends Component {
                                         <Segment textAlign='center' color='blue' >
                                             <div className="systemBotText" style={{height:"25px"}}>
                                                 { prevBranch === null
-                                                    ?   'Begin conversation with the first topic'
+                                                    ?   'Begin conversation with the first message'
                                                     :   'Please continue with the next topic'
                                                 }
                                             </div>

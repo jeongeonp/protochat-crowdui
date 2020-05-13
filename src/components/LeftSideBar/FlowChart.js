@@ -34,7 +34,7 @@ export class Flowchart extends Component {
                     animate={0}
                     shape='rect'
                     fitBoundaries
-                    //zoomable
+                    zoomable
                     onNodeClick={e => console.log(e)}
                     onRelationshipClick={e => console.log(e)}
                 />

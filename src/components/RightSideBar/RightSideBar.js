@@ -128,8 +128,8 @@ export class RightSideBar extends Component {
                 <div className="rightInsBox">
                     <div className="textBoxFormat">
                         <h2 className='redColor'>Keep in mind that..</h2>
-                        <p>You will be asked every bot's turn on <div style={{color:'#fff259'}}>whether the bot's utterance is suitable.</div> Please note that it is about the <i>context</i> of the conversation.</p>
-                        <p style={{color: 'white'}}>Based on your choices, you will be (1) <u>following the mandatory conversations</u>, or (2) <u>creating new bot's utterance or new path</u>.</p>
+                        <p>For each turn of the bot, you will be asked to judge <font color="#fff259">whether its utterance is suitable</font>. <br/>Please keep in mind the <i>context</i> of the conversation when making your judgment.</p>
+                        <p>Based on your judgment, you will either (1) <u>follow the pre-designed conversation</u> or (2) <u>create a new utterance or a path for the bot</u> that is more suitable than the current one.</p>
                     </div>
                     <div className="textCenter">
                         { numSession === 1

@@ -163,7 +163,7 @@ export class LeftSideBar extends Component {
                                         <Header icon='info' content='Sequence of Conversation Topics' />
                                         <Modal.Content style={{lineHeight: '1.8', fontSize:"130%",}}>
                                             <p> 
-                                            {"<--  The graph on the left shows the flow of the mandatory conversation topics. Please refer to your current topic by looking for the yellow node."} 
+                                            {"<--  The graph on the left shows the flow of the mandatory conversation topics. Please refer to your current topic by looking for the yellow node. Please zoom in and out if the graph is too small."} 
                                             </p>
                                         </Modal.Content>
                                         <Modal.Actions>

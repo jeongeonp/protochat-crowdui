@@ -71,7 +71,7 @@ export class SystemTopicButton extends Component {
 
         return (
             <div className="systemTopicButtonBox">
-                <span className="systemTopicText">Start conversation with the domain below</span>
+                <span className="systemTopicText">Click the domain below to start a conversation.</span>
                 <div style={{height:'15px'}}></div>
                 <div style={{width: '100%', maxHeight: '200px', overflowY: this.overflowCondition}}>
                     <Segment.Group>

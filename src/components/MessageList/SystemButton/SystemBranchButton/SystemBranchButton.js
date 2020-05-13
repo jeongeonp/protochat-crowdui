@@ -210,8 +210,10 @@ export class SystemBranchButton extends Component {
                 this.props.topicPathList.map((p)=> {
                     if (t.path === p.topic) {
                         //console.log(topics) // nexttopic이 되어야함
-                        nextButtons.push(this.props.possibleNextTopics.filter((pnt)=> {return pnt.topic === t.endNode})[0])
-                        nextButtonPaths.push(p)
+                        if (nextButtonPaths.map((c) => c.topic).indexOf(p.topic) < 0) {
+                            nextButtons.push(this.props.possibleNextTopics.filter((pnt)=> {return pnt.topic === t.endNode})[0])
+                            nextButtonPaths.push(p)
+                        }
                     }
                 })
             }
@@ -230,7 +232,7 @@ export class SystemBranchButton extends Component {
                                 return (
                                     <div key={id}>
                                         <div style={{height: '10px'}}></div>
-                                        <Button  color='blue' fluid onClick={handleCreate.bind(this, topics, nextButtonPaths[id])}>{nextButtonPaths[id].requirement}</Button>
+                                        <Button color='blue' fluid onClick={handleCreate.bind(this, topics, nextButtonPaths[id])}>{nextButtonPaths[id].requirement}</Button>
                                     </div>
                                 );
                             })}

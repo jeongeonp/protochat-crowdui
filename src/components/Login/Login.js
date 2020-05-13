@@ -117,7 +117,7 @@ export class Login extends Component {
         if (!name){
             
         } else {
-            const newUser = {timestamp: new Date(), name: name }
+            const newUser = {timestamp: new Date(), name: name, rating: 1 }
             this.userPost(newUser)
         }
     }
@@ -164,10 +164,11 @@ export class Login extends Component {
             <div>
                 { !tutorial
                     ?   <Modal open={true}>
-                            <Modal.Header style={{textAlign:"center"}}>Welcome!</Modal.Header>
+                            <Modal.Header style={{textAlign:"center"}}>Welcome to ProtoChat!</Modal.Header>
                                 <Modal.Content style={{textAlign:"center", fontSize:"130%", lineHeight:"2"}}>
-                                <p>Your task is to finish <font color="red"><b>{domainName}</b></font> with the chatbot. </p>
+                                <p>You will be completing a task by talking with the chatbot. </p>
                                     <p>During the conversation, keep in mind that there is a sequence of conversation topics <br/> you need to answer in order to finish your task. </p>
+                                    <p>Task name: <font color="red"><b>{domainName}</b></font></p>
                                     <p style={{fontSize: "80%"}}><br/> <b>We recommend zooming out a little for better screen display!</b></p>
                                     {/*tutorial_list.map((item, id) => {
                                         return id === tutorial_num
@@ -253,9 +254,9 @@ export class Login extends Component {
                                 <Modal.Actions>
                                     <Button
                                         onClick={changeTutorialState}
-                                        positive
                                         labelPosition='left'
-                                        icon='checkmark'
+                                        icon='chevron left'
+                                        color='yellow'
                                         content='Prev'
                                     />
                                     { name && task && (domainName.toLowerCase().includes(task.toLowerCase()))

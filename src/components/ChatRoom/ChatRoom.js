@@ -590,20 +590,20 @@ export class ChatRoom extends Component {
                 if (temp === transition.startNode) {
                     check = transition
                 }
-                
             })
             if (check) {
                 temp = check.endNode
                 if (temp === convergingNode) {
                     validNextNode = true
                 }
+                break;
             } else {
                 break;
             }
             
         }
-        
         var newNextNode;
+        console.log(newNextNode)
         if (validNextNode) {
             this.state.requirementList.map((topic) => {
                 if (convergingNode === topic.topic) {
@@ -611,7 +611,6 @@ export class ChatRoom extends Component {
                 }
             })
         }
-
         this.setState({
             selectedPath: text,
             nextTopicOnList: newNextNode,
@@ -625,6 +624,8 @@ export class ChatRoom extends Component {
             similarUserStatus: true,
             //prevBranch: branch,
         })
+
+        console.log(newNextNode)
 
         if (newNextNode) {
             this.props.setNextTopicOnList(newNextNode)

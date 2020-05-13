@@ -150,13 +150,14 @@ class App extends Component{
     this.setState({
       possibleNextTopics: topics
     })
-    
+    console.log(topics)
   }
 
   setNextTopicOnList = (selected) => {
     this.setState({
         nextTopicOnList: selected
     })
+    console.log(selected)
   }
 
   requirementListConvey = (requirementList) => {
